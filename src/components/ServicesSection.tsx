@@ -38,7 +38,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
     : SERVICES_MISSIONS.filter(s => s.category === activeCategory);
 
   return (
-    <section id="mission-service" className="py-20 bg-gradient-to-b from-sky-100/50 via-sky-50 to-white border-b border-sky-200/70">
+    <section id="mission-service" className="py-16 sm:py-20 lg:py-24 bg-gradient-to-b from-sky-100/50 via-sky-50 to-white border-b border-sky-200/70">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
@@ -86,7 +86,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
             <div
               key={service.id}
               id={`service-card-${service.id}`}
-              className="bg-white rounded-2xl p-7 border border-slate-200/90 shadow-xs hover:shadow-md hover:border-emerald-300/80 transition-all flex flex-col justify-between group"
+              className="bg-white rounded-2xl p-7 border border-slate-200/90 shadow-sm hover:shadow-lg hover:border-emerald-300/80 transition-all flex flex-col justify-between group"
             >
               <div>
                 <div className="w-13 h-13 rounded-xl bg-slate-100/90 border border-slate-200 flex items-center justify-center mb-5 group-hover:scale-105 transition-transform duration-200">
@@ -97,7 +97,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
                   {service.title}
                 </h3>
 
-                <p className="text-sm font-medium text-emerald-800 mb-3 bg-emerald-50/60 p-2 rounded-lg border border-emerald-100/60">
+                <p className="text-sm font-medium text-emerald-900 mb-3 bg-emerald-100 p-2 rounded-lg border border-emerald-200">
                   {service.shortDesc}
                 </p>
 
@@ -121,7 +121,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
               <div className="pt-6 mt-6 border-t border-slate-100">
                 {service.id === "cite-jardin-coop" ? (
                   <button
-                    onClick={() => onNavigate("cite-jardin")}
+                    onClick={() => onNavigate("espace-jeune")}
                     className="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-teal-800 bg-teal-50 hover:bg-teal-100 border border-teal-200 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <span>Explorer Cité Jardin & Coop</span>
@@ -129,7 +129,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
                   </button>
                 ) : service.id === "education-ntic" ? (
                   <button
-                    onClick={() => onNavigate("mentor")}
+                    onClick={() => onNavigate("acafis-mentor")}
                     className="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <span>Lancer Le Mentor ACAFIS IA</span>
@@ -156,7 +156,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
               Bénéficiez de tous les services ACAFIS avec la carte de membre 2026
             </h3>
             <p className="text-sm text-emerald-200/90 max-w-2xl">
-              Pour seulement <strong>50 CAD par an</strong>, accédez aux projets Coop-ACAFIS, soutenez la colonie de vacances 2027, offrez le tutorat IA à vos enfants et participez aux assemblées avec droit de vote.
+              Pour seulement <strong>25 CAD par an</strong>, accédez aux projets Coop-ACAFIS, soutenez la colonie de vacances 2027, offrez le tutorat IA à vos enfants et participez aux assemblées avec droit de vote.
             </p>
           </div>
           <div className="flex items-center gap-3 shrink-0">

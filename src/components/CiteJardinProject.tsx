@@ -29,7 +29,7 @@ export const CiteJardinProject: React.FC<CiteJardinProjectProps> = ({
   const [showFullRoadmap, setShowFullRoadmap] = useState(false);
 
   return (
-    <section id="espace-jeune" className="py-20 bg-gradient-to-b from-sky-50 via-white to-sky-100/40 border-b border-sky-200/70">
+    <section id="espace-jeune" className="py-16 sm:py-20 lg:py-24 bg-gradient-to-b from-sky-50 via-white to-sky-100/40 border-b border-sky-200/70">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Heading */}

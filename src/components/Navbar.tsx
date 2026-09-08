@@ -171,7 +171,7 @@ export const Navbar: React.FC<NavbarProps> = ({
       </div>
 
       {/* 3. Main Navigation Bar with Sky-Blue & Senegal Accents */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto px-3 sm:px-4 lg:px-8">
         <div className="flex items-center justify-between h-20">
           
           {/* Brand Logo with Real Generated Identity */}
@@ -221,7 +221,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </nav>
 
           {/* Right Action Buttons */}
-          <div className="hidden sm:flex items-center gap-2">
+          <div className="hidden md:flex items-center gap-2">
             <button
               id="nav-btn-mentor"
               onClick={() => handleLinkClick("acafis-mentor")}
@@ -256,7 +256,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <button
               id="nav-mobile-mentor-shortcut"
               onClick={() => handleLinkClick("acafis-mentor")}
-              className="p-2 rounded-lg bg-amber-300 text-amber-950 text-xs font-bold flex items-center gap-1 cursor-pointer border border-amber-400"
+              className="hidden sm:flex p-2 rounded-lg bg-amber-300 text-amber-950 text-xs font-bold items-center gap-1 cursor-pointer border border-amber-400"
             >
               <Bot className="w-4 h-4 text-emerald-950" />
               <span>Mentor</span>
@@ -276,7 +276,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="xl:hidden bg-sky-50 border-b border-sky-200 px-4 pt-2 pb-6 shadow-xl animate-in fade-in slide-in-from-top-2 duration-200">
+        <div className="xl:hidden bg-sky-50 border-b border-sky-200 px-4 pt-2 pb-6 shadow-xl animate-in fade-in slide-in-from-top-2 duration-300 ease-out">
           <div className="grid grid-cols-2 gap-2 mb-4 pt-2">
             <button
               onClick={() => {

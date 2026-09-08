@@ -64,7 +64,7 @@ export const Hero: React.FC<HeroProps> = ({
   return (
     <section
       id="accueil"
-      className="relative overflow-hidden bg-gradient-to-br from-sky-900 via-sky-800 to-emerald-950 text-white pt-10 pb-20 lg:pt-16 lg:pb-28"
+      className="relative overflow-hidden bg-gradient-to-br from-sky-900 via-sky-800 to-emerald-950 text-white pt-12 pb-24 sm:pt-16 sm:pb-28"
     >
       {/* Decorative Sky Blue & Sunlit Ambient Lighting */}
       <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-sky-400/20 rounded-full blur-3xl pointer-events-none" />
@@ -84,7 +84,7 @@ export const Hero: React.FC<HeroProps> = ({
       />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 sm:gap-8 md:gap-10 lg:gap-8 items-center">
           
           {/* Main Hero Column */}
           <div className="lg:col-span-7 text-left space-y-6">
@@ -203,7 +203,7 @@ export const Hero: React.FC<HeroProps> = ({
 
           {/* Right Spotlight Card: Dynamic Interactive Hub */}
           <div className="lg:col-span-5">
-            <div className="relative rounded-3xl bg-gradient-to-b from-sky-950/90 to-slate-900/95 p-6 border border-sky-500/30 shadow-2xl backdrop-blur-xl">
+            <div className="relative rounded-3xl bg-gradient-to-b from-sky-950/90 to-slate-900/95 p-6 border border-sky-500/30 shadow-xl hover:shadow-2xl transition-shadow backdrop-blur-xl">
               
               {/* Senegal & Canada Header Strip */}
               <div className="flex items-center justify-between border-b border-sky-800/60 pb-4 mb-4">

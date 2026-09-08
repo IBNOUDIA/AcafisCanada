@@ -89,7 +89,7 @@ export const MembershipCardGenerator: React.FC<MembershipCardGeneratorProps> = (
   };
 
   return (
-    <section id="adhesion" className="py-20 bg-gradient-to-b from-sky-50 via-white to-sky-100/50 border-b border-sky-200/70">
+    <section id="adhesion" className="py-16 sm:py-20 lg:py-24 bg-gradient-to-b from-sky-50 via-white to-sky-100/50 border-b border-sky-200/70">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Title */}
@@ -134,7 +134,7 @@ export const MembershipCardGenerator: React.FC<MembershipCardGeneratorProps> = (
                     value={firstName}
                     onChange={(e) => setFirstName(e.target.value)}
                     placeholder="Ex: Babacar"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-hidden focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
+                    className="form-input"
                   />
                 </div>
 
@@ -149,7 +149,7 @@ export const MembershipCardGenerator: React.FC<MembershipCardGeneratorProps> = (
                     value={lastName}
                     onChange={(e) => setLastName(e.target.value)}
                     placeholder="Ex: Ndiaye"
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-hidden focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
+                    className="form-input"
                   />
                 </div>
               </div>
@@ -167,7 +167,7 @@ export const MembershipCardGenerator: React.FC<MembershipCardGeneratorProps> = (
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="babacar.ndiaye@exemple.ca"
-                    className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-hidden focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
+                    className="form-input pl-10 pr-3.5"
                   />
                 </div>
               </div>
@@ -185,7 +185,7 @@ export const MembershipCardGenerator: React.FC<MembershipCardGeneratorProps> = (
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder="+1 (514) 000-0000"
-                      className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-hidden focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
+                      className="form-input pl-10 pr-3.5"
                     />
                   </div>
                 </div>
@@ -202,7 +202,7 @@ export const MembershipCardGenerator: React.FC<MembershipCardGeneratorProps> = (
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
                       placeholder="Montréal, Ottawa, etc."
-                      className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-hidden focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
+                      className="form-input pl-10 pr-3.5"
                     />
                   </div>
                 </div>
@@ -213,7 +213,7 @@ export const MembershipCardGenerator: React.FC<MembershipCardGeneratorProps> = (
                   id="member-btn-generate"
                   type="submit"
                   disabled={isSubmitting}
-                  className="w-full py-3.5 px-6 rounded-xl font-bold text-white bg-emerald-700 hover:bg-emerald-800 shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  className="btn-primary w-full py-3.5 px-6"
                 >
                   <Sparkles className="w-4 h-4 text-amber-300" />
                   <span>{isSubmitting ? "Création en cours..." : "Générer ma Carte de Membre"}</span>

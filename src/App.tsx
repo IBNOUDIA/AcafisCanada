@@ -85,7 +85,7 @@ export default function App() {
   }, []);
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-b from-sky-50 via-sky-100/30 to-sky-50 font-sans text-slate-900 selection:bg-emerald-600 selection:text-white">
+    <div className="min-h-screen flex flex-col bg-white font-sans text-slate-900 selection:bg-emerald-600 selection:text-white">
       {/* Top Navbar with the structured menu */}
       <Navbar
         activeSection={activeSection}

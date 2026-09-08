@@ -23,7 +23,7 @@ export const BureauSection: React.FC<BureauSectionProps> = ({ onContactSecretary
   );
 
   return (
-    <section id="bureau" className="py-20 bg-gradient-to-b from-sky-50 via-white to-sky-100/40 border-b border-sky-200/70">
+    <section id="bureau" className="py-16 sm:py-20 lg:py-24 bg-gradient-to-b from-sky-50 via-white to-sky-100/40 border-b border-sky-200/70">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Heading */}
@@ -68,7 +68,7 @@ export const BureauSection: React.FC<BureauSectionProps> = ({ onContactSecretary
               <div
                 key={member.id}
                 id={`member-card-${member.id}`}
-                className="p-6 rounded-2xl bg-gradient-to-br from-slate-50 to-emerald-50/40 border border-emerald-200 shadow-xs flex flex-col justify-between"
+                className="p-6 rounded-2xl bg-gradient-to-br from-slate-50 to-emerald-50/40 border border-emerald-200 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between mb-3">
@@ -121,7 +121,7 @@ export const BureauSection: React.FC<BureauSectionProps> = ({ onContactSecretary
               <div
                 key={member.id}
                 id={`member-card-${member.id}`}
-                className="p-5 rounded-2xl bg-white border border-slate-200 hover:border-teal-300 shadow-xs transition-all flex flex-col justify-between"
+                className="p-5 rounded-2xl bg-white border border-slate-200 hover:border-teal-300 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between mb-2">
@@ -175,7 +175,7 @@ export const BureauSection: React.FC<BureauSectionProps> = ({ onContactSecretary
               <div
                 key={member.id}
                 id={`member-card-${member.id}`}
-                className="p-5 rounded-2xl bg-white border border-slate-200 hover:border-amber-300 shadow-xs transition-all flex flex-col justify-between"
+                className="p-5 rounded-2xl bg-white border border-slate-200 hover:border-amber-300 shadow-sm hover:shadow-md transition-all flex flex-col justify-between"
               >
                 <div>
                   <span className="inline-block px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-amber-50 text-amber-900 border border-amber-200 mb-2">

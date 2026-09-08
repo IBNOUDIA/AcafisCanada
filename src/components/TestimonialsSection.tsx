@@ -25,7 +25,7 @@ export const TestimonialsSection: React.FC = () => {
   const current = TESTIMONIALS[activeIdx];
 
   return (
-    <section id="temoignages" className="py-20 bg-gradient-to-b from-sky-100/50 via-sky-50 to-white border-b border-sky-200/70">
+    <section id="temoignages" className="py-16 sm:py-20 lg:py-24 bg-gradient-to-b from-sky-100/50 via-sky-50 to-white border-b border-sky-200/70">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
@@ -45,7 +45,7 @@ export const TestimonialsSection: React.FC = () => {
         </div>
 
         {/* Featured Testimonial Carousel Banner */}
-        <div className="max-w-4xl mx-auto bg-white rounded-3xl p-8 sm:p-10 border border-slate-200 shadow-sm relative overflow-hidden mb-12">
+        <div className="max-w-4xl mx-auto bg-white rounded-3xl p-8 sm:p-10 border border-slate-200 shadow-md hover:shadow-lg transition-shadow relative overflow-hidden mb-12">
           
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-6">
             <img

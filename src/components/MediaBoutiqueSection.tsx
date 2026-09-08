@@ -43,7 +43,7 @@ export const MediaBoutiqueSection: React.FC = () => {
   ];
 
   return (
-    <section id="media" className="py-20 bg-gradient-to-b from-white via-sky-50/70 to-sky-100/50 border-b border-sky-200/70">
+    <section id="media" className="py-16 sm:py-20 lg:py-24 bg-gradient-to-b from-white via-sky-50/70 to-sky-100/50 border-b border-sky-200/70">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}

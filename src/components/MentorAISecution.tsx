@@ -152,7 +152,7 @@ export const MentorAISecution: React.FC = () => {
   const currentTopicObj = topics.find((t) => t.id === selectedTopic) || topics[0];
 
   return (
-    <section id="acafis-mentor" className="py-20 bg-gradient-to-br from-sky-950 via-slate-900 to-emerald-950 text-white relative overflow-hidden border-y border-sky-900/60">
+    <section id="acafis-mentor" className="py-16 sm:py-20 lg:py-24 bg-gradient-to-br from-sky-950 via-slate-900 to-emerald-950 text-white relative overflow-hidden border-y border-sky-900/60">
       {/* Background glow */}
       <div className="absolute top-1/4 left-10 w-96 h-96 bg-sky-500/15 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-10 right-10 w-96 h-96 bg-emerald-500/15 rounded-full blur-3xl pointer-events-none" />

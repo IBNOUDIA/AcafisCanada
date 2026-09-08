@@ -28,7 +28,7 @@ export const ActivitiesProgram: React.FC = () => {
     ANNUAL_PROGRAM.find((a) => a.id === activeSeasonId) || ANNUAL_PROGRAM[0];
 
   return (
-    <section id="programme" className="py-20 bg-gradient-to-b from-sky-100/60 via-sky-50 to-white border-b border-sky-200/70">
+    <section id="programme" className="py-16 sm:py-20 lg:py-24 bg-gradient-to-b from-sky-100/60 via-sky-50 to-white border-b border-sky-200/70">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}

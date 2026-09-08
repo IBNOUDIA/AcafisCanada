@@ -84,7 +84,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
   };
 
   return (
-    <section id="contact" className="py-20 bg-gradient-to-b from-white via-sky-50/70 to-sky-100/60 border-b border-sky-200/70">
+    <section id="contact" className="py-16 sm:py-20 lg:py-24 bg-gradient-to-b from-white via-sky-50/70 to-sky-100/60 border-b border-sky-200/70">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
@@ -158,7 +158,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                   Paiement des Cotisations
                 </span>
                 <span className="text-xs font-bold bg-amber-400 text-slate-950 px-2 py-0.5 rounded-full">
-                  50 CAD
+                  25 CAD
                 </span>
               </div>
 
@@ -235,7 +235,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                       value={name}
                       onChange={(e) => setName(e.target.value)}
                       placeholder="Ex: Awa Diop"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-hidden focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
+                      className="form-input"
                     />
                   </div>
 
@@ -250,7 +250,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="awa.diop@exemple.ca"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-hidden focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
+                      className="form-input"
                     />
                   </div>
                 </div>
@@ -267,7 +267,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder="+1 (514) 000-0000"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-hidden focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
+                      className="form-input"
                     />
                   </div>
 
@@ -279,7 +279,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                       id="contact-select-subject"
                       value={subject}
                       onChange={(e) => setSubject(e.target.value)}
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm bg-white focus:outline-hidden focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
+                      className="form-input"
                     >
                       {subjectOptions.map((opt) => (
                         <option key={opt.id} value={opt.id}>
@@ -302,7 +302,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     placeholder="Écrivez votre message ici avec tous les détails nécessaires..."
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-hidden focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
+                    className="form-input"
                   />
                 </div>
 
@@ -311,7 +311,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                     id="contact-btn-submit"
                     type="submit"
                     disabled={isSubmitting}
-                    className="w-full py-3.5 px-6 rounded-xl font-bold text-white bg-emerald-700 hover:bg-emerald-800 shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
+                    className="btn-primary w-full py-3.5 px-6"
                   >
                     <Send className="w-4 h-4" />
                     <span>{isSubmitting ? "Envoi en cours..." : "Transmettre mon Message au Secrétariat"}</span>
