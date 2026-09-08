@@ -1,0 +1,7 @@
+{
+  "name": "ACAFIS Canada",
+  "description": "Portail officiel d'ACAFIS Canada - Le cœur battant de la diaspora pour le développement solidaire entre le Canada et le Sénégal.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
+
