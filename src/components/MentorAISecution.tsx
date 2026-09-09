@@ -14,6 +14,7 @@ import {
   Award,
 } from "lucide-react";
 import { ChatMessage } from "../types";
+import { Reveal } from "./Reveal";
 
 export const MentorAISecution: React.FC = () => {
   const [selectedTopic, setSelectedTopic] = useState<string>("culture");
@@ -28,10 +29,16 @@ export const MentorAISecution: React.FC = () => {
     },
   ]);
 
-  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    // Scroll only the internal chat container, never the page — scrollIntoView()
+    // walks up every scrollable ancestor (including the window), which used to
+    // yank the whole site down to this section as soon as it mounted.
+    const container = messagesContainerRef.current;
+    if (container) {
+      container.scrollTop = container.scrollHeight;
+    }
   }, [messages, isLoading]);
 
   const topics = [
@@ -161,7 +168,7 @@ export const MentorAISecution: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
         
         {/* Section Heading */}
-        <div className="max-w-3xl mx-auto text-center space-y-3 mb-12">
+        <Reveal className="max-w-3xl mx-auto text-center space-y-3 mb-12">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-sky-900/70 text-sky-200 border border-sky-600/50">
             <Sparkles className="w-3.5 h-3.5 text-amber-300" />
             <span>Agent AI d'Apprentissage • Canada 🇨🇦 & Sénégal 🇸🇳</span>
@@ -182,7 +189,7 @@ export const MentorAISecution: React.FC = () => {
             <span className="text-slate-500">•</span>
             <span className="text-amber-300">Acafis Mentor 🎓</span>
           </div>
-        </div>
+        </Reveal>
 
         {/* 4 Topic Badges */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 max-w-5xl mx-auto mb-8">
@@ -216,7 +223,10 @@ export const MentorAISecution: React.FC = () => {
         </div>
 
         {/* Chat Playground Card */}
-        <div className="max-w-4xl mx-auto bg-slate-950 rounded-2xl border border-slate-800 shadow-2xl overflow-hidden flex flex-col h-[620px]">
+        <Reveal
+          delay={0.1}
+          className="max-w-4xl mx-auto bg-slate-950 rounded-2xl border border-slate-800 shadow-2xl overflow-hidden flex flex-col h-[620px]"
+        >
           
           {/* Header of Chat */}
           <div className="px-6 py-4 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between">
@@ -248,7 +258,7 @@ export const MentorAISecution: React.FC = () => {
           </div>
 
           {/* Messages Feed */}
-          <div className="flex-1 p-5 overflow-y-auto space-y-4 bg-slate-950/90">
+          <div ref={messagesContainerRef} className="flex-1 p-5 overflow-y-auto space-y-4 bg-slate-950/90">
             {messages.map((msg) => (
               <div
                 key={msg.id}
@@ -294,8 +304,6 @@ export const MentorAISecution: React.FC = () => {
                 </div>
               </div>
             )}
-
-            <div ref={messagesEndRef} />
           </div>
 
           {/* Quick Prompts Suggestions */}
@@ -345,7 +353,7 @@ export const MentorAISecution: React.FC = () => {
             </button>
           </form>
 
-        </div>
+        </Reveal>
 
       </div>
     </section>

@@ -13,6 +13,7 @@ import {
 } from "lucide-react";
 import { ANNUAL_PROGRAM } from "../data/acafisData";
 import { Activity } from "../types";
+import { Reveal, RevealGroup } from "./Reveal";
 
 export const ActivitiesProgram: React.FC = () => {
   const [activeSeasonId, setActiveSeasonId] = useState<string>("ete");
@@ -32,7 +33,7 @@ export const ActivitiesProgram: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
-        <div className="max-w-3xl mx-auto text-center space-y-4 mb-14">
+        <Reveal className="max-w-3xl mx-auto text-center space-y-4 mb-14">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300">
             <Calendar className="w-3.5 h-3.5 text-amber-700" />
             <span>Calendrier Diaspora & Sénégal 🇸🇳 2026</span>
@@ -72,7 +73,7 @@ export const ActivitiesProgram: React.FC = () => {
               );
             })}
           </div>
-        </div>
+        </Reveal>
 
         {/* Selected Activity Spotlight */}
         <div className="max-w-4xl mx-auto bg-white rounded-3xl p-6 sm:p-10 border border-slate-200 shadow-sm relative overflow-hidden">
@@ -152,7 +153,7 @@ export const ActivitiesProgram: React.FC = () => {
         </div>
 
         {/* 4 Cards Summary Grid */}
-        <div className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+        <RevealGroup className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
           {ANNUAL_PROGRAM.map((act) => (
             <div
               key={act.id}
@@ -177,7 +178,7 @@ export const ActivitiesProgram: React.FC = () => {
               </p>
             </div>
           ))}
-        </div>
+        </RevealGroup>
 
       </div>
     </section>

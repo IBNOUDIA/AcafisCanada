@@ -15,6 +15,7 @@ import {
   Globe2,
 } from "lucide-react";
 import { SenegalFlagBadge, SenegalRibbon } from "./SenegalFlagBadge";
+import { Reveal } from "./Reveal";
 
 interface HeroProps {
   onNavigate: (sectionId: string) => void;
@@ -87,7 +88,7 @@ export const Hero: React.FC<HeroProps> = ({
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
           
           {/* Main Hero Column */}
-          <div className="lg:col-span-7 text-left space-y-6">
+          <Reveal className="lg:col-span-7 text-left space-y-6" y={16}>
             
             {/* Senegal Colors & Fraternal Connection Tag */}
             <div className="inline-flex flex-wrap items-center gap-2 p-1 pl-2 pr-3.5 rounded-full text-xs font-semibold bg-sky-950/70 border border-sky-400/40 backdrop-blur-md shadow-sm">
@@ -199,10 +200,10 @@ export const Hero: React.FC<HeroProps> = ({
               </button>
             </div>
 
-          </div>
+          </Reveal>
 
           {/* Right Spotlight Card: Dynamic Interactive Hub */}
-          <div className="lg:col-span-5">
+          <Reveal className="lg:col-span-5" y={16} delay={0.15}>
             <div className="relative rounded-3xl bg-gradient-to-b from-sky-950/90 to-slate-900/95 p-6 border border-sky-500/30 shadow-2xl backdrop-blur-xl">
               
               {/* Senegal & Canada Header Strip */}
@@ -316,7 +317,7 @@ export const Hero: React.FC<HeroProps> = ({
               </div>
 
             </div>
-          </div>
+          </Reveal>
 
         </div>
       </div>

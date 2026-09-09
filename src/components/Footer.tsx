@@ -128,6 +128,33 @@ export const Footer: React.FC<FooterProps> = ({
               </li>
               <li>
                 <button
+                  onClick={() => onNavigate("bureau")}
+                  className="hover:text-emerald-400 transition-colors flex items-center gap-1.5 cursor-pointer text-left"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  <span>Bureau Exécutif</span>
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => onNavigate("temoignages")}
+                  className="hover:text-emerald-400 transition-colors flex items-center gap-1.5 cursor-pointer text-left"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  <span>Témoignages</span>
+                </button>
+              </li>
+              <li>
+                <button
+                  onClick={() => onNavigate("adhesion")}
+                  className="hover:text-emerald-400 transition-colors flex items-center gap-1.5 cursor-pointer text-left"
+                >
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
+                  <span>Adhésion & Carte Membre</span>
+                </button>
+              </li>
+              <li>
+                <button
                   onClick={() => onNavigate("acafis-mentor")}
                   className="hover:text-emerald-400 transition-colors flex items-center gap-1.5 cursor-pointer text-left text-amber-300 font-semibold"
                 >

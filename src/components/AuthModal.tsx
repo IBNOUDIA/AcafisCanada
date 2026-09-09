@@ -9,6 +9,7 @@ import {
   ArrowRight,
   Sparkles,
 } from "lucide-react";
+import { PAYMENT_INTERAC_INFO } from "../data/acafisData";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -131,7 +132,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 }}
                 className="block mx-auto font-bold text-emerald-700 hover:underline cursor-pointer"
               >
-                Générer ma carte & Adhérer (50 CAD) →
+                Générer ma carte & Adhérer ({PAYMENT_INTERAC_INFO.annualFeeCAD}$ CAD) →
               </button>
             </div>
           </div>

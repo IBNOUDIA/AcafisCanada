@@ -10,6 +10,7 @@ import {
   ArrowRight,
 } from "lucide-react";
 import { BOUTIQUE_ITEMS, PARTNERS_LIST, EXTERNAL_LINKS } from "../data/acafisData";
+import { Reveal, RevealGroup } from "./Reveal";
 
 export const MediaBoutiqueSection: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"media" | "boutique" | "partenaires">("media");
@@ -47,7 +48,7 @@ export const MediaBoutiqueSection: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
-        <div className="max-w-3xl mx-auto text-center space-y-4 mb-10">
+        <Reveal className="max-w-3xl mx-auto text-center space-y-4 mb-10">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-sky-100 text-sky-900 border border-sky-300">
             <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
             <span>Vie Communautaire & Culture Sénégalaise 🇸🇳</span>
@@ -96,7 +97,7 @@ export const MediaBoutiqueSection: React.FC = () => {
               Partenaires
             </button>
           </div>
-        </div>
+        </Reveal>
 
         {/* External Boutique Link Banner */}
         <div className="max-w-4xl mx-auto mb-10 p-5 rounded-2xl bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 text-white shadow-md flex flex-col sm:flex-row items-center justify-between gap-4 border border-emerald-500/20">
@@ -128,7 +129,7 @@ export const MediaBoutiqueSection: React.FC = () => {
 
         {/* 1. Tab: Média & Galerie */}
         {activeTab === "media" && (
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto animate-in fade-in duration-200">
+          <RevealGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
             {mediaGallery.map((med, idx) => (
               <div
                 key={idx}
@@ -157,17 +158,17 @@ export const MediaBoutiqueSection: React.FC = () => {
                 </div>
               </div>
             ))}
-          </div>
+          </RevealGroup>
         )}
 
         {/* 2. Tab: Boutique Solidaire */}
         {activeTab === "boutique" && (
-          <div className="space-y-6 animate-in fade-in duration-200">
+          <div className="space-y-6">
             <div className="max-w-xl mx-auto text-center text-xs text-slate-500 mb-4">
               100% des bénéfices des articles officiels ACAFIS financent les bourses jeunesse et la colonie 2027.
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+            <RevealGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
               {BOUTIQUE_ITEMS.map((item) => (
                 <div
                   key={item.id}
@@ -218,13 +219,13 @@ export const MediaBoutiqueSection: React.FC = () => {
                   </div>
                 </div>
               ))}
-            </div>
+            </RevealGroup>
           </div>
         )}
 
         {/* 3. Tab: Partenaires */}
         {activeTab === "partenaires" && (
-          <div className="max-w-4xl mx-auto animate-in fade-in duration-200">
+          <Reveal className="max-w-4xl mx-auto">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {PARTNERS_LIST.map((partner, idx) => (
                 <div
@@ -243,7 +244,7 @@ export const MediaBoutiqueSection: React.FC = () => {
                 </div>
               ))}
             </div>
-          </div>
+          </Reveal>
         )}
 
       </div>

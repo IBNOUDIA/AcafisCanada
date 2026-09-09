@@ -158,7 +158,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                   Paiement des Cotisations
                 </span>
                 <span className="text-xs font-bold bg-amber-400 text-slate-950 px-2 py-0.5 rounded-full">
-                  50 CAD
+                  {PAYMENT_INTERAC_INFO.annualFeeCAD} CAD
                 </span>
               </div>
 

@@ -10,6 +10,7 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { TESTIMONIALS } from "../data/acafisData";
+import { Reveal, RevealGroup } from "./Reveal";
 
 export const TestimonialsSection: React.FC = () => {
   const [activeIdx, setActiveIdx] = useState(0);
@@ -29,7 +30,7 @@ export const TestimonialsSection: React.FC = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Header */}
-        <div className="max-w-3xl mx-auto text-center space-y-4 mb-14">
+        <Reveal className="max-w-3xl mx-auto text-center space-y-4 mb-14">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300">
             <MessageSquareHeart className="w-3.5 h-3.5 text-amber-700" />
             <span>Voix de la Communauté • Teranga Sénégalaise 🇸🇳</span>
@@ -42,7 +43,7 @@ export const TestimonialsSection: React.FC = () => {
           <p className="text-base sm:text-lg text-slate-600">
             Retours d'expérience de familles, jeunes apprenants et investisseurs solidaires de Montréal, Ottawa, Québec et au-delà.
           </p>
-        </div>
+        </Reveal>
 
         {/* Featured Testimonial Carousel Banner */}
         <div className="max-w-4xl mx-auto bg-white rounded-3xl p-8 sm:p-10 border border-slate-200 shadow-sm relative overflow-hidden mb-12">
@@ -120,7 +121,7 @@ export const TestimonialsSection: React.FC = () => {
         </div>
 
         {/* 4 Cards Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+        <RevealGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
           {TESTIMONIALS.map((item, idx) => (
             <div
               key={item.id}
@@ -157,7 +158,7 @@ export const TestimonialsSection: React.FC = () => {
               </div>
             </div>
           ))}
-        </div>
+        </RevealGroup>
 
       </div>
     </section>

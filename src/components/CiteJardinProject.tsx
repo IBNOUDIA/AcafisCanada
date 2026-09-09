@@ -16,6 +16,7 @@ import {
   ChevronUp,
 } from "lucide-react";
 import { COLONIE_ROADMAP } from "../data/acafisData";
+import { Reveal, RevealGroup } from "./Reveal";
 
 interface CiteJardinProjectProps {
   onOpenCardModal: () => void;
@@ -33,7 +34,7 @@ export const CiteJardinProject: React.FC<CiteJardinProjectProps> = ({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Heading */}
-        <div className="max-w-3xl mx-auto text-center space-y-4 mb-14">
+        <Reveal className="max-w-3xl mx-auto text-center space-y-4 mb-14">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-sky-100 text-sky-900 border border-sky-300">
             <TreePine className="w-3.5 h-3.5 text-emerald-700" />
             <span>Espace Jeune & Immersion au Sénégal 🇸🇳</span>
@@ -46,7 +47,7 @@ export const CiteJardinProject: React.FC<CiteJardinProjectProps> = ({
           <p className="text-base sm:text-lg text-slate-600">
             Un programme d'immersion complet pour les jeunes de la diaspora (10-17 ans). Découvrez notre feuille de route stratégique pour réaliser ce projet ambitieux entre le Canada et Ndianda.
           </p>
-        </div>
+        </Reveal>
 
         {/* Hero Banner for Colonie 2027 */}
         <div className="rounded-3xl bg-gradient-to-br from-emerald-900 via-teal-950 to-slate-900 text-white p-8 sm:p-12 shadow-xl border border-emerald-500/20 mb-14 relative overflow-hidden">
@@ -151,7 +152,7 @@ export const CiteJardinProject: React.FC<CiteJardinProjectProps> = ({
             </button>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <RevealGroup className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {COLONIE_ROADMAP.map((step, idx) => {
               const isCurrent = step.status === "in_progress";
               return (
@@ -197,7 +198,7 @@ export const CiteJardinProject: React.FC<CiteJardinProjectProps> = ({
                 </div>
               );
             })}
-          </div>
+          </RevealGroup>
         </div>
 
         {/* Coop-ACAFIS Habitat Integration */}

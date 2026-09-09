@@ -1,15 +1,7 @@
 import React from "react";
-import {
-  Users,
-  Award,
-  ShieldCheck,
-  Mail,
-  Building,
-  UserCheck,
-  HeartHandshake,
-  CheckCircle,
-} from "lucide-react";
+import { Users, Mail } from "lucide-react";
 import { BUREAU_MEMBERS } from "../data/acafisData";
+import { Reveal, RevealGroup } from "./Reveal";
 
 interface BureauSectionProps {
   onContactSecretary: () => void;
@@ -27,7 +19,7 @@ export const BureauSection: React.FC<BureauSectionProps> = ({ onContactSecretary
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         
         {/* Section Heading */}
-        <div className="max-w-3xl mx-auto text-center space-y-4 mb-14">
+        <Reveal className="max-w-3xl mx-auto text-center space-y-4 mb-14">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-sky-100 text-sky-900 border border-sky-300">
             <Users className="w-3.5 h-3.5 text-emerald-700" />
             <span>Gouvernance Démocratique • Canada 🇨🇦 & Sénégal 🇸🇳</span>
@@ -41,11 +33,21 @@ export const BureauSection: React.FC<BureauSectionProps> = ({ onContactSecretary
             Une équipe engagée et démocratiquement élue de <strong className="text-slate-900">11 Membres du Bureau</strong>, dévouée au renforcement des liens entre le Canada et le Sénégal.
           </p>
 
-          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-lg bg-slate-100 text-slate-700 text-xs font-semibold">
-            <CheckCircle className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Total : 11 Membres du Bureau en exercice</span>
+          <div className="grid grid-cols-3 gap-2 max-w-md mx-auto pt-2 text-center text-[11px]">
+            <div className="p-2.5 rounded-xl bg-white border border-slate-200 shadow-xs">
+              <span className="block text-emerald-700 font-bold text-base">11</span>
+              <span className="text-slate-500">Membres Élus</span>
+            </div>
+            <div className="p-2.5 rounded-xl bg-white border border-slate-200 shadow-xs">
+              <span className="block text-amber-600 font-bold text-base">3</span>
+              <span className="text-slate-500">Pôles d'Action</span>
+            </div>
+            <div className="p-2.5 rounded-xl bg-white border border-slate-200 shadow-xs">
+              <span className="block text-sky-700 font-bold text-base">2</span>
+              <span className="text-slate-500">Pays Représentés</span>
+            </div>
           </div>
-        </div>
+        </Reveal>
 
         {/* 1. Présidence Branch */}
         <div className="mb-12">
@@ -63,7 +65,7 @@ export const BureauSection: React.FC<BureauSectionProps> = ({ onContactSecretary
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <RevealGroup className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {presidence.map((member) => (
               <div
                 key={member.id}
@@ -97,7 +99,7 @@ export const BureauSection: React.FC<BureauSectionProps> = ({ onContactSecretary
                 )}
               </div>
             ))}
-          </div>
+          </RevealGroup>
         </div>
 
         {/* 2. Administration, Finances & Contrôle Branch */}
@@ -116,7 +118,7 @@ export const BureauSection: React.FC<BureauSectionProps> = ({ onContactSecretary
             </div>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          <RevealGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
             {adminFinances.map((member) => (
               <div
                 key={member.id}
@@ -151,7 +153,7 @@ export const BureauSection: React.FC<BureauSectionProps> = ({ onContactSecretary
                 )}
               </div>
             ))}
-          </div>
+          </RevealGroup>
         </div>
 
         {/* 3. Commissions Spécialisées & Communication */}
@@ -170,7 +172,7 @@ export const BureauSection: React.FC<BureauSectionProps> = ({ onContactSecretary
             </div>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+          <RevealGroup className="grid grid-cols-1 md:grid-cols-3 gap-6">
             {commissionsAndCom.map((member) => (
               <div
                 key={member.id}
@@ -203,7 +205,7 @@ export const BureauSection: React.FC<BureauSectionProps> = ({ onContactSecretary
                 )}
               </div>
             ))}
-          </div>
+          </RevealGroup>
         </div>
 
         {/* Contact Bureau Bar */}
