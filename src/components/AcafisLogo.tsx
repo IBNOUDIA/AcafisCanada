@@ -18,10 +18,10 @@ export const AcafisLogo: React.FC<AcafisLogoProps> = ({
   textColor = "dark",
 }) => {
   const heightMap = {
-    sm: "h-8",
-    md: "h-10",
-    lg: "h-14",
-    xl: "h-20",
+    sm: "h-10",
+    md: "h-16",
+    lg: "h-20",
+    xl: "h-28",
   };
 
   const subTextSizeMap = {
