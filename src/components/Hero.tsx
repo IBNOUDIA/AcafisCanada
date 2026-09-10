@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { SenegalFlagBadge, SenegalRibbon } from "./SenegalFlagBadge";
 import { Reveal } from "./Reveal";
+import heroCommunityPhoto from "../assets/images/hero-communaute-bbq.jpg";
 
 interface HeroProps {
   onNavigate: (sectionId: string) => void;
@@ -65,24 +66,23 @@ export const Hero: React.FC<HeroProps> = ({
   return (
     <section
       id="accueil"
-      className="relative overflow-hidden bg-gradient-to-br from-sky-900 via-sky-800 to-emerald-950 text-white pt-10 pb-20 lg:pt-16 lg:pb-28"
+      className="relative overflow-hidden text-white pt-10 pb-20 lg:pt-16 lg:pb-28"
     >
+      {/* Community Photo Background */}
+      <img
+        src={heroCommunityPhoto}
+        alt="Rassemblement communautaire de la diaspora ACAFIS lors d'un grand pique-nique estival"
+        className="absolute inset-0 w-full h-full object-cover"
+      />
+      {/* Brand-color gradient overlay — strong behind the text (left), fading out toward the photo (right) */}
+      <div className="absolute inset-0 bg-gradient-to-r from-sky-950/92 via-sky-950/60 to-sky-950/15" />
+      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/55 via-transparent to-transparent" />
+
       {/* Decorative Sky Blue & Sunlit Ambient Lighting */}
       <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-sky-400/20 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute top-1/3 right-10 w-[450px] h-[450px] bg-emerald-500/15 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute bottom-0 left-1/3 w-96 h-96 bg-amber-400/15 rounded-full blur-3xl pointer-events-none" />
       <div className="absolute -bottom-10 right-1/4 w-80 h-80 bg-rose-500/10 rounded-full blur-2xl pointer-events-none" />
-
-      {/* Subtle Sky Mesh Texture */}
-      <div
-        className="absolute inset-0 opacity-[0.05] pointer-events-none"
-        style={{
-          backgroundImage:
-            "radial-gradient(#fff 1px, transparent 1px), radial-gradient(#38bdf8 1px, transparent 1px)",
-          backgroundSize: "32px 32px",
-          backgroundPosition: "0 0, 16px 16px",
-        }}
-      />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">

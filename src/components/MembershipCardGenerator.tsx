@@ -16,6 +16,7 @@ import {
 import { PAYMENT_INTERAC_INFO } from "../data/acafisData";
 import { SenegalFlagBadge } from "./SenegalFlagBadge";
 import { MemberRecord } from "../types";
+import acafisLogoOfficial from "../assets/images/acafis-logo-official.jpg";
 
 interface MembershipCardGeneratorProps {
   onOpenPaymentModal: () => void;
@@ -270,7 +271,7 @@ export const MembershipCardGenerator: React.FC<MembershipCardGeneratorProps> = (
               <div className="relative z-10 flex items-center justify-between border-b border-emerald-800/80 pb-3 mb-4">
                 <div className="flex items-center gap-2.5">
                   <img
-                    src="/src/assets/images/acafis-logo-official.jpg"
+                    src={acafisLogoOfficial}
                     alt="Logo ACAFIS Canada"
                     className="h-10 w-auto max-w-[130px] rounded-xl object-contain bg-white/95 p-1 shadow-md border border-white/40"
                   />
