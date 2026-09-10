@@ -270,9 +270,9 @@ export const MembershipCardGenerator: React.FC<MembershipCardGeneratorProps> = (
               <div className="relative z-10 flex items-center justify-between border-b border-emerald-800/80 pb-3 mb-4">
                 <div className="flex items-center gap-2.5">
                   <img
-                    src="/src/assets/images/acafis_canada_logo_1788878217287.jpg"
+                    src="/src/assets/images/acafis-logo-official.jpg"
                     alt="Logo ACAFIS Canada"
-                    className="w-10 h-10 rounded-xl object-contain bg-white/95 p-0.5 shadow-md border border-white/40"
+                    className="h-10 w-auto max-w-[130px] rounded-xl object-contain bg-white/95 p-1 shadow-md border border-white/40"
                   />
                   <div>
                     <h4 className="text-sm font-extrabold tracking-wider text-white">

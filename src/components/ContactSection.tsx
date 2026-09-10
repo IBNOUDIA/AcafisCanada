@@ -116,7 +116,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
               </h3>
 
               <p className="text-xs text-slate-600 leading-relaxed">
-                Association des Ressortissants et Amis de la Casamance et du Sénégal au Canada (ACAFIS Canada).
+                Association Canadienne d'Aide aux Familles Immigrantes Sénégalaises (ACAFIS Canada).
               </p>
 
               <div className="space-y-3 pt-2 text-xs text-slate-700">

@@ -7,24 +7,21 @@ interface AcafisLogoProps {
   textColor?: "dark" | "light";
 }
 
+// Official logo file is a wide lockup (icon + "ACAFIS" wordmark + full name) on a
+// light cream background — sized by height only so its aspect ratio stays intact.
+const LOGO_ASPECT_RATIO = 1408 / 768;
+
 export const AcafisLogo: React.FC<AcafisLogoProps> = ({
   className = "",
   size = "md",
   showText = true,
   textColor = "dark",
 }) => {
-  const sizeMap = {
-    sm: "w-8 h-8",
-    md: "w-10 h-10",
-    lg: "w-14 h-14",
-    xl: "w-20 h-20",
-  };
-
-  const textSizeMap = {
-    sm: "text-base",
-    md: "text-lg",
-    lg: "text-2xl",
-    xl: "text-3xl",
+  const heightMap = {
+    sm: "h-8",
+    md: "h-10",
+    lg: "h-14",
+    xl: "h-20",
   };
 
   const subTextSizeMap = {
@@ -34,51 +31,38 @@ export const AcafisLogo: React.FC<AcafisLogoProps> = ({
     xl: "text-sm",
   };
 
+  const logoImg = (
+    <img
+      src="/src/assets/images/acafis-logo-official.jpg"
+      alt="Logo Officiel ACAFIS — Association Canadienne d'Aide aux Familles Immigrantes Sénégalaises"
+      referrerPolicy="no-referrer"
+      className={`${heightMap[size]} w-auto object-contain shrink-0`}
+      style={{ aspectRatio: LOGO_ASPECT_RATIO }}
+    />
+  );
+
   return (
     <div className={`flex items-center gap-3 ${className}`}>
-      <div
-        className={`relative ${sizeMap[size]} rounded-2xl overflow-hidden shadow-sm ring-1 ring-black/5 shrink-0 bg-white flex items-center justify-center`}
-      >
-        <img
-          src="/src/assets/images/acafis_canada_logo_1788878217287.jpg"
-          alt="Logo Officiel ACAFIS Canada"
-          referrerPolicy="no-referrer"
-          className="w-full h-full object-contain p-0.5"
-          onError={(e) => {
-            // Fallback SVG if asset image fails
-            e.currentTarget.style.display = "none";
-          }}
-        />
-      </div>
+      {textColor === "light" ? (
+        // On dark backgrounds, wrap in a light card so the logo's own cream
+        // background reads as an intentional badge rather than a clash.
+        <div className="rounded-xl bg-white/95 shadow-sm ring-1 ring-black/5 px-2 py-1.5">
+          {logoImg}
+        </div>
+      ) : (
+        logoImg
+      )}
 
       {showText && (
-        <div className="flex flex-col leading-tight">
-          <div className="flex items-center gap-1.5">
-            <span
-              className={`font-black tracking-tight font-display ${textSizeMap[size]} ${
-                textColor === "light" ? "text-white" : "text-slate-900"
-              }`}
-            >
-              ACAFIS
-            </span>
-            <span
-              className={`px-1.5 py-0.2 rounded-md font-extrabold text-[10px] tracking-wide ${
-                textColor === "light"
-                  ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/30"
-                  : "bg-red-50 text-red-700 border border-red-200"
-              }`}
-            >
-              CANADA
-            </span>
-          </div>
-          <span
-            className={`font-medium tracking-wide uppercase ${subTextSizeMap[size]} ${
-              textColor === "light" ? "text-emerald-300/80" : "text-emerald-800 font-semibold"
-            }`}
-          >
-            Diaspora Solidaire • Sénégal & Canada
-          </span>
-        </div>
+        <span
+          className={`font-medium tracking-wide uppercase leading-tight ${subTextSizeMap[size]} ${
+            textColor === "light" ? "text-emerald-300/80" : "text-emerald-800 font-semibold"
+          }`}
+        >
+          Diaspora Solidaire
+          <br />
+          Sénégal & Canada
+        </span>
       )}
     </div>
   );

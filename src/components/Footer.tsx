@@ -254,7 +254,7 @@ export const Footer: React.FC<FooterProps> = ({
 
             <div className="pt-1">
               <a
-                href="https://facebook.com"
+                href="https://www.facebook.com/share/1Cm2zyQF7x/"
                 target="_blank"
                 rel="noopener noreferrer"
                 className="inline-flex items-center gap-2 px-3 py-2 rounded-xl bg-slate-900 hover:bg-blue-900/60 border border-slate-800 hover:border-blue-700/80 text-slate-200 hover:text-white transition-all text-xs font-semibold cursor-pointer w-full justify-center"

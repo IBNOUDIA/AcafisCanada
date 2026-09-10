@@ -4,6 +4,7 @@
  */
 
 import React, { useState, useEffect } from "react";
+import { BrowserRouter, Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { Navbar } from "./components/Navbar";
 import { Hero } from "./components/Hero";
 import { CiteJardinProject } from "./components/CiteJardinProject";
@@ -18,19 +19,25 @@ import { ContactSection } from "./components/ContactSection";
 import { PaymentDocumentsModal } from "./components/PaymentDocumentsModal";
 import { AuthModal } from "./components/AuthModal";
 import { Footer } from "./components/Footer";
+import { pathForId } from "./routes";
 
-export default function App() {
-  const [activeSection, setActiveSection] = useState<string>("accueil");
+// Resets scroll position whenever the route (page) changes.
+const ScrollToTop: React.FC = () => {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+};
+
+const AppShell: React.FC = () => {
+  const navigate = useNavigate();
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState<boolean>(false);
   const [isDocumentsModalOpen, setIsDocumentsModalOpen] = useState<boolean>(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
 
   const handleNavigate = (sectionId: string) => {
-    setActiveSection(sectionId);
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
+    navigate(pathForId(sectionId));
   };
 
   const handleOpenCardModal = () => {
@@ -49,46 +56,12 @@ export default function App() {
     setIsAuthModalOpen(true);
   };
 
-  // Scroll listener to update active section in navbar according to the new menu
-  useEffect(() => {
-    const handleScroll = () => {
-      const sections = [
-        "accueil",
-        "espace-jeune",
-        "programme",
-        "media",
-        "mission-service",
-        "acafis-mentor",
-        "bureau",
-        "temoignages",
-        "adhesion",
-        "contact",
-      ];
-
-      const scrollPosition = window.scrollY + 200;
-
-      for (const section of sections) {
-        const el = document.getElementById(section);
-        if (el) {
-          const top = el.offsetTop;
-          const height = el.offsetHeight;
-          if (scrollPosition >= top && scrollPosition < top + height) {
-            setActiveSection(section);
-            break;
-          }
-        }
-      }
-    };
-
-    window.addEventListener("scroll", handleScroll, { passive: true });
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-sky-50 via-sky-100/30 to-sky-50 font-sans text-slate-900 selection:bg-emerald-600 selection:text-white">
-      {/* Top Navbar with the structured menu */}
+      <ScrollToTop />
+
+      {/* Top Navbar with the flat, page-based menu */}
       <Navbar
-        activeSection={activeSection}
         onNavigate={handleNavigate}
         onOpenCardModal={handleOpenCardModal}
         onOpenPaymentModal={handleOpenPaymentModal}
@@ -96,52 +69,65 @@ export default function App() {
       />
 
       <main className="flex-1">
-        {/* 1. Accueil (Hero with diaspora mission, 25$ fee, quick links) */}
-        <Hero
-          onNavigate={handleNavigate}
-          onOpenCardModal={handleOpenCardModal}
-          onOpenPaymentModal={handleOpenPaymentModal}
-        />
-
-        {/* 2. Espace Jeune (Colonie 2027 Racines & Avenir, Cité Jardin Ndianda & Coop-ACAFIS) */}
-        <CiteJardinProject
-          onOpenCardModal={handleOpenCardModal}
-          onNavigateContact={() => handleNavigate("contact")}
-        />
-
-        {/* 3. Programme (4 Saisons : Hiver, Printemps, Été, Automne) */}
-        <ActivitiesProgram />
-
-        {/* 4. Média (Galerie Photos, Boutique Officielle & Partenaires) */}
-        <MediaBoutiqueSection />
-
-        {/* 5. Mission & Service (Les 6 pôles majeurs d'ACAFIS Canada) */}
-        <ServicesSection
-          onNavigate={handleNavigate}
-          onOpenCardModal={handleOpenCardModal}
-        />
-
-        {/* 6. Agent AI Mentor (Acafis Mentor - L'unique agent IA éducatif officiel) */}
-        <MentorAISecution />
-
-        {/* 7. Bureau Exécutif Élu (Les 11 membres de gouvernance) */}
-        <BureauSection
-          onContactSecretary={() => handleNavigate("contact")}
-        />
-
-        {/* 8. Témoignages (Retours d'expérience authentiques des membres) */}
-        <TestimonialsSection />
-
-        {/* 9. Adhésion & Carte Officielle d'Adhérent (Cotisation 25$ canadien) */}
-        <MembershipCardGenerator
-          onOpenPaymentModal={handleOpenPaymentModal}
-        />
-
-        {/* 10. Formulaire de Contact Intuitif */}
-        <ContactSection
-          onOpenPaymentModal={handleOpenPaymentModal}
-          onOpenDocumentsModal={handleOpenDocumentsModal}
-        />
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <Hero
+                onNavigate={handleNavigate}
+                onOpenCardModal={handleOpenCardModal}
+                onOpenPaymentModal={handleOpenPaymentModal}
+              />
+            }
+          />
+          <Route
+            path="/espace-jeune"
+            element={
+              <CiteJardinProject
+                onOpenCardModal={handleOpenCardModal}
+                onNavigateContact={() => handleNavigate("contact")}
+              />
+            }
+          />
+          <Route path="/programme" element={<ActivitiesProgram />} />
+          <Route path="/media" element={<MediaBoutiqueSection />} />
+          <Route
+            path="/mission-service"
+            element={
+              <ServicesSection onNavigate={handleNavigate} onOpenCardModal={handleOpenCardModal} />
+            }
+          />
+          <Route path="/acafis-mentor" element={<MentorAISecution />} />
+          <Route
+            path="/bureau"
+            element={<BureauSection onContactSecretary={() => handleNavigate("contact")} />}
+          />
+          <Route path="/temoignages" element={<TestimonialsSection />} />
+          <Route
+            path="/adhesion"
+            element={<MembershipCardGenerator onOpenPaymentModal={handleOpenPaymentModal} />}
+          />
+          <Route
+            path="/contact"
+            element={
+              <ContactSection
+                onOpenPaymentModal={handleOpenPaymentModal}
+                onOpenDocumentsModal={handleOpenDocumentsModal}
+              />
+            }
+          />
+          {/* Unknown paths fall back to the home page */}
+          <Route
+            path="*"
+            element={
+              <Hero
+                onNavigate={handleNavigate}
+                onOpenCardModal={handleOpenCardModal}
+                onOpenPaymentModal={handleOpenPaymentModal}
+              />
+            }
+          />
+        </Routes>
       </main>
 
       {/* Footer */}
@@ -174,5 +160,13 @@ export default function App() {
         }}
       />
     </div>
+  );
+};
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AppShell />
+    </BrowserRouter>
   );
 }
