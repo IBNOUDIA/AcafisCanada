@@ -74,9 +74,14 @@ export const Hero: React.FC<HeroProps> = ({
         alt="Rassemblement communautaire de la diaspora ACAFIS lors d'un grand pique-nique estival"
         className="absolute inset-0 w-full h-full object-cover"
       />
-      {/* Brand-color gradient overlay — strong behind the text (left), fading out toward the photo (right) */}
-      <div className="absolute inset-0 bg-gradient-to-r from-sky-950/92 via-sky-950/60 to-sky-950/15" />
-      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/55 via-transparent to-transparent" />
+      {/* Light overall tint + bottom vignette — the photo stays the star, the text card below carries contrast */}
+      <div className="absolute inset-0 bg-slate-950/20" />
+      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-slate-950/10" />
+
+      {/* Photo caption for authenticity */}
+      <span className="absolute bottom-3 right-4 z-10 text-[10px] sm:text-[11px] text-white/70 font-medium tracking-wide bg-slate-950/40 backdrop-blur-sm px-2.5 py-1 rounded-full">
+        📸 Grand rassemblement communautaire ACAFIS
+      </span>
 
       {/* Decorative Sky Blue & Sunlit Ambient Lighting */}
       <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-sky-400/20 rounded-full blur-3xl pointer-events-none" />
@@ -87,8 +92,11 @@ export const Hero: React.FC<HeroProps> = ({
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
           
-          {/* Main Hero Column */}
-          <Reveal className="lg:col-span-7 text-left space-y-6" y={16}>
+          {/* Main Hero Column — glass card so the photo stays vivid everywhere else */}
+          <Reveal
+            className="lg:col-span-7 text-left space-y-6 bg-slate-950/55 backdrop-blur-lg rounded-3xl p-6 sm:p-9 border border-white/10 shadow-2xl"
+            y={16}
+          >
             
             {/* Senegal Colors & Fraternal Connection Tag */}
             <div className="inline-flex flex-wrap items-center gap-2 p-1 pl-2 pr-3.5 rounded-full text-xs font-semibold bg-sky-950/70 border border-sky-400/40 backdrop-blur-md shadow-sm">
