@@ -64,40 +64,39 @@ export const Hero: React.FC<HeroProps> = ({
   ];
 
   return (
-    <section
-      id="accueil"
-      className="relative overflow-hidden text-white pt-10 pb-20 lg:pt-16 lg:pb-28"
-    >
-      {/* Community Photo Background */}
-      <img
-        src={heroCommunityPhoto}
-        alt="Rassemblement communautaire de la diaspora ACAFIS lors d'un grand pique-nique estival"
-        className="absolute inset-0 w-full h-full object-cover"
-      />
-      {/* Light overall tint + bottom vignette — the photo stays the star, the text card below carries contrast */}
-      <div className="absolute inset-0 bg-slate-950/20" />
-      <div className="absolute inset-0 bg-gradient-to-t from-slate-950/70 via-transparent to-slate-950/10" />
+    <section id="accueil" className="relative overflow-hidden text-white">
 
-      {/* Photo caption for authenticity */}
-      <span className="absolute bottom-3 right-4 z-10 text-[10px] sm:text-[11px] text-white/70 font-medium tracking-wide bg-slate-950/40 backdrop-blur-sm px-2.5 py-1 rounded-full">
-        📸 Grand rassemblement communautaire ACAFIS
-      </span>
+      {/* Community Photo Banner — full width, unobstructed */}
+      <div className="relative h-[280px] sm:h-[380px] lg:h-[460px]">
+        <img
+          src={heroCommunityPhoto}
+          alt="Rassemblement communautaire de la diaspora ACAFIS lors d'un grand pique-nique estival"
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+        {/* Just enough fade at the bottom for a smooth hand-off into the content below */}
+        <div className="absolute inset-0 bg-gradient-to-t from-sky-900 via-transparent to-transparent" />
 
-      {/* Decorative Sky Blue & Sunlit Ambient Lighting */}
-      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-sky-400/20 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute top-1/3 right-10 w-[450px] h-[450px] bg-emerald-500/15 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-0 left-1/3 w-96 h-96 bg-amber-400/15 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-10 right-1/4 w-80 h-80 bg-rose-500/10 rounded-full blur-2xl pointer-events-none" />
+        {/* Photo caption for authenticity */}
+        <span className="absolute bottom-3 right-4 text-[10px] sm:text-[11px] text-white/80 font-medium tracking-wide bg-slate-950/40 backdrop-blur-sm px-2.5 py-1 rounded-full">
+          📸 Grand rassemblement communautaire ACAFIS
+        </span>
+      </div>
+
+      {/* Content — on a solid brand gradient below the photo, nothing hides the image above */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-sky-900 via-sky-800 to-emerald-950 pt-10 pb-20 lg:pt-14 lg:pb-28">
+
+        {/* Decorative Sky Blue & Sunlit Ambient Lighting */}
+        <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-sky-400/20 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute top-1/3 right-10 w-[450px] h-[450px] bg-emerald-500/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute bottom-0 left-1/3 w-96 h-96 bg-amber-400/15 rounded-full blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-10 right-1/4 w-80 h-80 bg-rose-500/10 rounded-full blur-2xl pointer-events-none" />
 
       <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
-          
-          {/* Main Hero Column — glass card so the photo stays vivid everywhere else */}
-          <Reveal
-            className="lg:col-span-7 text-left space-y-6 bg-slate-950/55 backdrop-blur-lg rounded-3xl p-6 sm:p-9 border border-white/10 shadow-2xl"
-            y={16}
-          >
-            
+
+          {/* Main Hero Column */}
+          <Reveal className="lg:col-span-7 text-left space-y-6" y={16}>
+
             {/* Senegal Colors & Fraternal Connection Tag */}
             <div className="inline-flex flex-wrap items-center gap-2 p-1 pl-2 pr-3.5 rounded-full text-xs font-semibold bg-sky-950/70 border border-sky-400/40 backdrop-blur-md shadow-sm">
               <SenegalFlagBadge size="sm" />
@@ -328,6 +327,8 @@ export const Hero: React.FC<HeroProps> = ({
           </Reveal>
 
         </div>
+      </div>
+
       </div>
     </section>
   );
