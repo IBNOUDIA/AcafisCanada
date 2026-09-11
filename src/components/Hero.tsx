@@ -73,8 +73,6 @@ export const Hero: React.FC<HeroProps> = ({
           alt="Rassemblement communautaire de la diaspora ACAFIS lors d'un grand pique-nique estival"
           className="absolute inset-0 w-full h-full object-cover"
         />
-        {/* Just enough fade at the bottom for a smooth hand-off into the content below */}
-        <div className="absolute inset-0 bg-gradient-to-t from-sky-900 via-transparent to-transparent" />
 
         {/* Photo caption for authenticity */}
         <span className="absolute bottom-3 right-4 text-[10px] sm:text-[11px] text-white/80 font-medium tracking-wide bg-slate-950/40 backdrop-blur-sm px-2.5 py-1 rounded-full">
@@ -82,8 +80,11 @@ export const Hero: React.FC<HeroProps> = ({
         </span>
       </div>
 
-      {/* Content — on a solid brand gradient below the photo, nothing hides the image above */}
-      <div className="relative overflow-hidden bg-gradient-to-br from-sky-900 via-sky-800 to-emerald-950 pt-10 pb-20 lg:pt-14 lg:pb-28">
+      {/* Slim tricolor seam marking the transition, instead of a color wash over the photo */}
+      <SenegalRibbon />
+
+      {/* Content — on a lighter sky-blue gradient below the photo, nothing hides the image above */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-sky-700 via-sky-600 to-emerald-800 pt-10 pb-20 lg:pt-14 lg:pb-28">
 
         {/* Decorative Sky Blue & Sunlit Ambient Lighting */}
         <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-sky-400/20 rounded-full blur-3xl pointer-events-none" />
