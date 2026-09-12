@@ -18,6 +18,14 @@ import mediaJeunesseCalypso from "../assets/images/media-jeunesse-calypso.jpg";
 import mediaBureauAines from "../assets/images/media-bureau-aines.jpg";
 import mediaNdogou from "../assets/images/media-ndogou.jpg";
 import mediaExcursion from "../assets/images/media-excursion.jpg";
+import mediaSouvenir1 from "../assets/images/media-souvenir1.jpg";
+import mediaSouvenir2 from "../assets/images/media-souvenir2.jpg";
+import mediaSouvenir3 from "../assets/images/media-souvenir3.jpg";
+import mediaSouvenir4 from "../assets/images/media-souvenir4.jpg";
+import mediaSouvenir5 from "../assets/images/media-souvenir5.jpg";
+import mediaSouvenir6 from "../assets/images/media-souvenir6.jpg";
+import mediaSouvenir8 from "../assets/images/media-souvenir8.jpg";
+import mediaSouvenir9 from "../assets/images/media-souvenir9.jpg";
 
 export const MediaBoutiqueSection: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"media" | "boutique" | "partenaires">("media");
@@ -59,6 +67,54 @@ export const MediaBoutiqueSection: React.FC = () => {
       location: "Sortie communautaire",
       image: mediaExcursion,
       caption: "Petits et grands réunis pour une soirée festive, drapeau sénégalais fièrement porté.",
+    },
+    {
+      title: "Rencontre Amicale entre Membres",
+      location: "Salle St-Édouard",
+      image: mediaSouvenir1,
+      caption: "Deux membres de la communauté réunis avant une activité ACAFIS.",
+    },
+    {
+      title: "Gala de Solidarité",
+      location: "Soirée de gala",
+      image: mediaSouvenir2,
+      caption: "Ambiance de fête et de fraternité lors d'un gala annuel de solidarité ACAFIS.",
+    },
+    {
+      title: "Rassemblement Amical en Plein Air",
+      location: "Parc, Québec",
+      image: mediaSouvenir3,
+      caption: "Membres et familles réunis pour un moment convivial en pleine nature.",
+    },
+    {
+      title: "Complicité Entre Amies",
+      location: "Parc, Québec",
+      image: mediaSouvenir4,
+      caption: "Trois membres de la communauté partagent un moment de fraternité et de bonne humeur.",
+    },
+    {
+      title: "Moment en Famille au Bord de l'Eau",
+      location: "Parc, Québec",
+      image: mediaSouvenir5,
+      caption: "Familles et enfants réunis pour une belle journée ensoleillée entre amis.",
+    },
+    {
+      title: "Élégance et Fraternité Féminine",
+      location: "Parc, Québec",
+      image: mediaSouvenir6,
+      caption: "Les femmes de la diaspora célèbrent leur culture et leur amitié en tenues traditionnelles.",
+    },
+    {
+      title: "Un Couple de la Communauté",
+      location: "Salle communautaire",
+      image: mediaSouvenir8,
+      caption: "Portrait chaleureux d'un couple de membres lors d'un événement ACAFIS.",
+    },
+    {
+      title: "Cinq Femmes, Une Même Fierté",
+      location: "Salle communautaire",
+      image: mediaSouvenir9,
+      caption: "Un moment de complicité et d'élégance partagée entre membres de la communauté.",
     },
   ];
 
