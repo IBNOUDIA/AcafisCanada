@@ -224,7 +224,7 @@ export const COLONIE_ROADMAP: ProjectPhase[] = [
   {
     phase: "Phase 2",
     title: "Inscriptions & Ateliers Préparatoires",
-    period: "Automne 2026 - Printemps 2027",
+    period: "2027 - 2029",
     status: "upcoming",
     details: [
       "Ouverture des candidatures pour 50 jeunes de la diaspora (10-17 ans)",
@@ -236,7 +236,7 @@ export const COLONIE_ROADMAP: ProjectPhase[] = [
   {
     phase: "Phase 3",
     title: "Déploiement de la Colonie 'Racines & Avenir'",
-    period: "Été 2027 (3 Semaines d'immersion)",
+    period: "Été 2030 (3 Semaines d'immersion)",
     status: "upcoming",
     details: [
       "Semaine 1 : Tourisme mémoriel d'exception (Île de Gorée, Maison des Esclaves, Musée des Civilisations Noires de Dakar)",

@@ -36,7 +36,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
   const subjectOptions = [
     { id: "adhesion", label: "Adhésion & Carte Membre (25$ CAD)" },
     { id: "cite_jardin", label: "Coop-ACAFIS & Cité Jardin Ndianda" },
-    { id: "colonie2027", label: "Colonie 'Racines & Avenir' 2027" },
+    { id: "colonie2030", label: "Colonie 'Racines & Avenir' 2030" },
     { id: "mentor_ia", label: "Espace Jeune & Le Mentor IA" },
     { id: "partenariat", label: "Partenariat Institutionnel / Sponsoring" },
     { id: "autre", label: "Autre demande au Secrétariat" },

@@ -91,7 +91,7 @@ export const Footer: React.FC<FooterProps> = ({
                   className="hover:text-emerald-400 transition-colors flex items-center gap-1.5 cursor-pointer text-left"
                 >
                   <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" />
-                  <span>Espace Jeune (Colonie 2027)</span>
+                  <span>Espace Jeune (Colonie 2030)</span>
                 </button>
               </li>
               <li>

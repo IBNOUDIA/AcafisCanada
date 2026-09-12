@@ -139,7 +139,7 @@ export const Hero: React.FC<HeroProps> = ({
               </div>
               <div className="flex items-center gap-2.5 p-2 rounded-xl bg-white/5 border border-white/10 backdrop-blur-xs">
                 <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-                <span>Colonie 2027 à la <strong>Cité Jardin Ndianda</strong></span>
+                <span>Colonie 2030 à la <strong>Cité Jardin Ndianda</strong></span>
               </div>
               <div className="flex items-center gap-2.5 p-2 rounded-xl bg-white/5 border border-white/10 backdrop-blur-xs">
                 <CheckCircle2 className="w-5 h-5 text-amber-400 shrink-0" />
@@ -226,7 +226,7 @@ export const Hero: React.FC<HeroProps> = ({
                       <SenegalFlagBadge size="sm" />
                     </h2>
                     <p className="text-xs text-emerald-300 font-medium">
-                      Colonie 2027 « Racines & Avenir »
+                      Colonie 2030 « Racines & Avenir »
                     </p>
                   </div>
                 </div>

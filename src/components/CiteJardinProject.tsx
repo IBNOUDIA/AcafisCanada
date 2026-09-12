@@ -42,7 +42,7 @@ export const CiteJardinProject: React.FC<CiteJardinProjectProps> = ({
           </div>
 
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight font-display">
-            Espace Jeune • Colonie 2027 & Cité Jardin
+            Espace Jeune • Colonie 2030 & Cité Jardin
           </h2>
 
           <p className="text-base sm:text-lg text-slate-600">
@@ -50,7 +50,7 @@ export const CiteJardinProject: React.FC<CiteJardinProjectProps> = ({
           </p>
         </Reveal>
 
-        {/* Real photo from a past ACAFIS youth outing — sets the tone before the 2027 project banner */}
+        {/* Real photo from a past ACAFIS youth outing — sets the tone before the 2030 project banner */}
         <Reveal className="relative rounded-3xl overflow-hidden mb-10 h-64 sm:h-80 shadow-lg">
           <img
             src={colonieOutingPhoto}
@@ -65,7 +65,7 @@ export const CiteJardinProject: React.FC<CiteJardinProjectProps> = ({
           </div>
         </Reveal>
 
-        {/* Hero Banner for Colonie 2027 */}
+        {/* Hero Banner for Colonie 2030 */}
         <div className="rounded-3xl bg-gradient-to-br from-emerald-900 via-teal-950 to-slate-900 text-white p-8 sm:p-12 shadow-xl border border-emerald-500/20 mb-14 relative overflow-hidden">
           <div className="absolute top-0 right-0 w-96 h-96 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
@@ -74,7 +74,7 @@ export const CiteJardinProject: React.FC<CiteJardinProjectProps> = ({
               
               <div className="flex flex-wrap items-center gap-2.5">
                 <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-400 text-slate-950 shadow-sm">
-                  Projet Phare 2027
+                  Projet Phare 2030
                 </span>
                 <span className="px-3 py-1 rounded-full text-xs font-semibold bg-emerald-800/80 text-emerald-200 border border-emerald-600/40">
                   Public : 10 - 17 Ans (Jeunes de la Diaspora)
@@ -126,7 +126,7 @@ export const CiteJardinProject: React.FC<CiteJardinProjectProps> = ({
             {/* Quick Action Side */}
             <div className="lg:col-span-4 bg-slate-900/90 rounded-2xl p-6 border border-slate-700/80 shadow-inner space-y-4">
               <h4 className="text-sm font-bold text-white uppercase tracking-wider">
-                Rejoindre le Projet 2027
+                Rejoindre le Projet 2030
               </h4>
               <p className="text-xs text-slate-300 leading-relaxed">
                 Parents, partenaires éducatifs ou mécènes : manifestez votre intérêt pour réserver une place ou soutenir la logistique de la colonie.
@@ -154,10 +154,10 @@ export const CiteJardinProject: React.FC<CiteJardinProjectProps> = ({
         </div>
 
         {/* Roadmap Display (Toggled or Expanded) */}
-        <div id="projet2027" className="space-y-6">
+        <div id="projet2030" className="space-y-6">
           <div className="flex items-center justify-between">
             <h3 className="text-xl sm:text-2xl font-bold text-slate-900 font-display">
-              Feuille de Route Stratégique (2025 - 2027)
+              Feuille de Route Stratégique (2025 - 2030)
             </h3>
             <button
               onClick={() => setShowFullRoadmap(!showFullRoadmap)}

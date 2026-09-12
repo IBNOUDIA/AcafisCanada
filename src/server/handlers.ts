@@ -104,7 +104,7 @@ Reste concis (150-250 mots max), engageant, structure avec des puces claires si 
   if (topic === "culture" || lowerMessage.includes("culture") || lowerMessage.includes("senegal")) {
     fallbackReply += "Le Sénégal est réputé pour sa Teranga (l'hospitalité légendaire) et son riche patrimoine, depuis l'Île de Gorée jusqu'à la magnifique Casamance. Savais-tu que la Cité Jardin à Ndianda est un projet pilote éco-responsable porté par notre communauté pour relier la diaspora à nos racines ?";
   } else if (topic === "code" || lowerMessage.includes("code") || lowerMessage.includes("ia") || lowerMessage.includes("python")) {
-    fallbackReply += "En programmation, le plus important est de décomposer un problème en petites étapes logiques (l'algorithme). Pour débuter, Python et Scratch sont idéaux pour créer des mini-jeux ou automatiser des tâches. ACAFIS prépare d'ailleurs des ateliers nTIC lors de la colonie de vacances 2027 à la Cité Jardin !";
+    fallbackReply += "En programmation, le plus important est de décomposer un problème en petites étapes logiques (l'algorithme). Pour débuter, Python et Scratch sont idéaux pour créer des mini-jeux ou automatiser des tâches. ACAFIS prépare d'ailleurs des ateliers nTIC lors de la colonie de vacances 2030 à la Cité Jardin !";
   } else if (topic === "maths" || lowerMessage.includes("math")) {
     fallbackReply += "Pour maîtriser les maths, la clé réside dans la pratique régulière et la compréhension des concepts de base. N'hésite pas à poser un énoncé précis de ton devoir, nous le résoudrons ensemble étape par étape !";
   } else {

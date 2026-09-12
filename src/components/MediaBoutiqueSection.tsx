@@ -183,7 +183,7 @@ export const MediaBoutiqueSection: React.FC = () => {
         {activeTab === "boutique" && (
           <div className="space-y-6">
             <div className="max-w-xl mx-auto text-center text-xs text-slate-500 mb-4">
-              100% des bénéfices des articles officiels ACAFIS financent les bourses jeunesse et la colonie 2027.
+              100% des bénéfices des articles officiels ACAFIS financent les bourses jeunesse et la colonie 2030.
             </div>
 
             <RevealGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">

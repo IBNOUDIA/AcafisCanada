@@ -157,7 +157,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
               Bénéficiez de tous les services ACAFIS avec la carte de membre 2026
             </h3>
             <p className="text-sm text-emerald-200/90 max-w-2xl">
-              Pour seulement <strong>{PAYMENT_INTERAC_INFO.annualFeeCAD}$ CAD par an</strong>, accédez aux projets Coop-ACAFIS, soutenez la colonie de vacances 2027, offrez le tutorat IA à vos enfants et participez aux assemblées avec droit de vote.
+              Pour seulement <strong>{PAYMENT_INTERAC_INFO.annualFeeCAD}$ CAD par an</strong>, accédez aux projets Coop-ACAFIS, soutenez la colonie de vacances 2030, offrez le tutorat IA à vos enfants et participez aux assemblées avec droit de vote.
             </p>
           </div>
           <div className="flex items-center gap-3 shrink-0">
