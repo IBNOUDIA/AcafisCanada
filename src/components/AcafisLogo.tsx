@@ -35,7 +35,7 @@ export const AcafisLogo: React.FC<AcafisLogoProps> = ({
   const logoImg = (
     <img
       src={acafisLogoOfficial}
-      alt="Logo Officiel ACAFIS — Association Communautaire d'Aide aux Familles Immigrantes Sénégalaises"
+      alt="Logo Officiel ACAFIS — Association Canadienne d'Aide aux Familles Immigrantes Sénégalaises"
       referrerPolicy="no-referrer"
       className={`${heightMap[size]} w-auto object-contain shrink-0`}
       style={{ aspectRatio: LOGO_ASPECT_RATIO }}
