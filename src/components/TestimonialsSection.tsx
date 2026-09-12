@@ -9,8 +9,9 @@ import {
   ChevronLeft,
   ChevronRight,
 } from "lucide-react";
-import { TESTIMONIALS } from "../data/acafisData";
+import { TESTIMONIALS, VIDEO_TESTIMONIALS } from "../data/acafisData";
 import { Reveal, RevealGroup } from "./Reveal";
+import { FacebookVideoEmbed } from "./FacebookVideoEmbed";
 
 export const TestimonialsSection: React.FC = () => {
   const [activeIdx, setActiveIdx] = useState(0);
@@ -159,6 +160,33 @@ export const TestimonialsSection: React.FC = () => {
             </div>
           ))}
         </RevealGroup>
+
+        {/* Video Testimonials */}
+        {VIDEO_TESTIMONIALS.length > 0 && (
+          <div className="mt-16">
+            <Reveal className="max-w-3xl mx-auto text-center space-y-3 mb-10">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-900 border border-emerald-300">
+                <MessageSquareHeart className="w-3.5 h-3.5 text-emerald-700" />
+                <span>En Vidéo</span>
+              </div>
+              <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-display">
+                Témoignages Vidéo de Nos Membres
+              </h3>
+            </Reveal>
+
+            <RevealGroup className="grid grid-cols-1 sm:grid-cols-2 gap-8 max-w-4xl mx-auto">
+              {VIDEO_TESTIMONIALS.map((video) => (
+                <div key={video.id} className="space-y-3">
+                  <FacebookVideoEmbed url={video.url} />
+                  <div className="text-center">
+                    <h4 className="text-sm font-bold text-slate-900">{video.name}</h4>
+                    <span className="text-xs text-emerald-800 font-medium">{video.role}</span>
+                  </div>
+                </div>
+              ))}
+            </RevealGroup>
+          </div>
+        )}
 
       </div>
     </section>

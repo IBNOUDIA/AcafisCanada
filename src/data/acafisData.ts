@@ -289,6 +289,53 @@ export const TESTIMONIALS: Testimonial[] = [
   },
 ];
 
+export interface VideoTestimonial {
+  id: string;
+  name: string;
+  role: string;
+  url: string;
+}
+
+// Real member video testimonials, shared publicly on Facebook.
+export const VIDEO_TESTIMONIALS: VideoTestimonial[] = [
+  {
+    id: "video-1",
+    name: "Témoignage d'un membre ACAFIS",
+    role: "Membre de la communauté",
+    url: "https://www.facebook.com/share/v/1HNVdo48mq/",
+  },
+  {
+    id: "video-2",
+    name: "Naby",
+    role: "Jeune de la diaspora",
+    url: "https://www.facebook.com/share/v/14og8AGUD3N/",
+  },
+  {
+    id: "video-3",
+    name: "Conférence ACAFIS",
+    role: "Séance d'information communautaire",
+    url: "https://www.facebook.com/share/r/19PK9Vnhod/",
+  },
+  {
+    id: "video-4",
+    name: "Landiata Dieme",
+    role: "Trésorier Général — Grand BBQ",
+    url: "https://www.facebook.com/share/v/1EibbNGc1P/",
+  },
+  {
+    id: "video-5",
+    name: "Sortie ACAFIS — Super Aqua Club",
+    role: "Vidéo souvenir de sortie jeunesse",
+    url: "https://www.facebook.com/reel/4760068570760905",
+  },
+  {
+    id: "video-6",
+    name: "Panel sur l'Éducation",
+    role: "Conférence communautaire",
+    url: "https://www.facebook.com/share/v/19E6VQiCzA/",
+  },
+];
+
 export const OFFICIAL_DOCUMENTS: DocumentItem[] = [
   {
     id: "statuts",
