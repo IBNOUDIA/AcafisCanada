@@ -299,6 +299,18 @@ export const VIDEO_TESTIMONIALS: VideoTestimonial[] = [
   },
 ];
 
+export interface Recipiendaire {
+  id: string;
+  name: string;
+  year: number;
+  quote: string;
+}
+
+// Chaque 31 décembre, ACAFIS célèbre ses enfants ; le jeune qui atteint 18 ans
+// cette année-là prononce un discours au nom des enfants, pour sa dernière
+// année à recevoir un cadeau. Ajoutez ici les vrais récipiendaires au fil du temps.
+export const RECIPIENDAIRES: Recipiendaire[] = [];
+
 export const OFFICIAL_DOCUMENTS: DocumentItem[] = [
   {
     id: "statuts",

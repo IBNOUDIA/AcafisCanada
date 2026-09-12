@@ -14,10 +14,16 @@ import {
   ExternalLink,
   ChevronDown,
   ChevronUp,
+  Gift,
+  Mic2,
+  Quote,
 } from "lucide-react";
-import { COLONIE_ROADMAP } from "../data/acafisData";
+import { COLONIE_ROADMAP, RECIPIENDAIRES } from "../data/acafisData";
 import { Reveal, RevealGroup } from "./Reveal";
 import colonieOutingPhoto from "../assets/images/espace-jeune-colonie.jpg";
+import recipiendaireDiscours from "../assets/images/recipiendaire-discours.jpg";
+import recipiendaireRemise from "../assets/images/recipiendaire-remise.jpg";
+import recipiendairesGroupe from "../assets/images/recipiendaires-groupe.jpg";
 
 interface CiteJardinProjectProps {
   onOpenCardModal: () => void;
@@ -254,6 +260,81 @@ export const CiteJardinProject: React.FC<CiteJardinProjectProps> = ({
               </button>
             </div>
           </div>
+        </div>
+
+        {/* Récipiendaires — la tradition du 31 décembre */}
+        <div className="mt-16">
+          <Reveal className="max-w-3xl mx-auto text-center space-y-4 mb-10">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300">
+              <Gift className="w-3.5 h-3.5 text-amber-700" />
+              <span>Tradition du 31 Décembre</span>
+            </div>
+            <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-display">
+              Nos Récipiendaires
+            </h3>
+            <p className="text-base text-slate-600">
+              Chaque année, le 31 décembre, ACAFIS célèbre ses enfants lors d'une grande fête avec remise de cadeaux.
+              Le jeune qui atteint ses 18 ans cette année-là prononce un discours au nom de tous les enfants — sa
+              dernière année à recevoir un cadeau, et un vrai rite de passage pour notre communauté.
+            </p>
+          </Reveal>
+
+          {/* Real photos from past celebrations */}
+          <RevealGroup className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-5xl mx-auto mb-10">
+            <div className="relative rounded-2xl overflow-hidden h-56 shadow-md">
+              <img src={recipiendaireDiscours} alt="Un récipiendaire prononce son discours au nom des enfants" className="absolute inset-0 w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
+              <div className="absolute bottom-3 left-3 right-3 flex items-center gap-1.5 text-white text-xs font-bold">
+                <Mic2 className="w-3.5 h-3.5" />
+                <span>Le discours des 18 ans</span>
+              </div>
+            </div>
+            <div className="relative rounded-2xl overflow-hidden h-56 shadow-md">
+              <img src={recipiendaireRemise} alt="Remise du cadeau à un récipiendaire" className="absolute inset-0 w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
+              <div className="absolute bottom-3 left-3 right-3 flex items-center gap-1.5 text-white text-xs font-bold">
+                <Gift className="w-3.5 h-3.5" />
+                <span>La remise du cadeau</span>
+              </div>
+            </div>
+            <div className="relative rounded-2xl overflow-hidden h-56 shadow-md">
+              <img src={recipiendairesGroupe} alt="Les enfants d'ACAFIS réunis pour la fête du 31 décembre" className="absolute inset-0 w-full h-full object-cover" />
+              <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
+              <div className="absolute bottom-3 left-3 right-3 flex items-center gap-1.5 text-white text-xs font-bold">
+                <Sparkles className="w-3.5 h-3.5" />
+                <span>La grande fête des enfants</span>
+              </div>
+            </div>
+          </RevealGroup>
+
+          {/* Real testimonials from past récipiendaires, added over time */}
+          {RECIPIENDAIRES.length > 0 ? (
+            <RevealGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-5xl mx-auto">
+              {RECIPIENDAIRES.map((r) => (
+                <div key={r.id} className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs space-y-3">
+                  <Quote className="w-5 h-5 text-amber-500" />
+                  <p className="text-sm text-slate-700 italic leading-relaxed">« {r.quote} »</p>
+                  <div className="pt-2 border-t border-slate-100">
+                    <span className="text-sm font-bold text-slate-900">{r.name}</span>
+                    <span className="text-xs text-slate-500 ml-2">Récipiendaire {r.year}</span>
+                  </div>
+                </div>
+              ))}
+            </RevealGroup>
+          ) : (
+            <Reveal className="max-w-xl mx-auto text-center p-6 rounded-2xl bg-amber-50 border border-amber-200">
+              <p className="text-sm text-amber-900">
+                Vous ou votre enfant avez prononcé ce discours par le passé ? Partagez ce souvenir avec nous pour qu'il
+                trouve sa place ici.
+              </p>
+              <button
+                onClick={onNavigateContact}
+                className="mt-3 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 transition-colors cursor-pointer"
+              >
+                Partager mon témoignage
+              </button>
+            </Reveal>
+          )}
         </div>
 
       </div>
