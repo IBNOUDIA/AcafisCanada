@@ -262,6 +262,7 @@ export interface AcafisVideo {
   role: string;
   url: string;
   category: AcafisVideoCategory;
+  platform?: "facebook" | "youtube";
 }
 
 // Real ACAFIS videos, shared publicly on Facebook. Each is dispatched to the
@@ -324,6 +325,14 @@ export const ACAFIS_VIDEOS: AcafisVideo[] = [
     role: "Panel : directions d'école, TES, psychologue, enseignant — Côte-des-Neiges",
     url: "https://www.facebook.com/reel/1124423316680352",
     category: "education",
+  },
+  {
+    id: "video-9",
+    name: "Conférence sur l'Intimidation (2011)",
+    role: "Intervenant : Moustapha Sane — Modérateur : Ibrahima Diop",
+    url: "https://www.youtube.com/watch?v=fLNdkgQUvNc",
+    category: "education",
+    platform: "youtube",
   },
 ];
 
