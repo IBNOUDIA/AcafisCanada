@@ -311,6 +311,18 @@ export interface Recipiendaire {
 // année à recevoir un cadeau. Ajoutez ici les vrais récipiendaires au fil du temps.
 export const RECIPIENDAIRES: Recipiendaire[] = [];
 
+export interface FormerPresident {
+  id: string;
+  name: string;
+  organization: "ACAFIS" | "Coop-ACAFIS";
+  years: string;
+  tribute?: string;
+}
+
+// Hommage aux presidents successifs, depuis la fondation. A completer avec
+// les vrais noms et annees de mandat de chaque organisation.
+export const FORMER_PRESIDENTS: FormerPresident[] = [];
+
 export const OFFICIAL_DOCUMENTS: DocumentItem[] = [
   {
     id: "statuts",

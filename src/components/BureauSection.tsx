@@ -1,6 +1,6 @@
 import React from "react";
-import { Users, Mail } from "lucide-react";
-import { BUREAU_MEMBERS } from "../data/acafisData";
+import { Users, Mail, Award } from "lucide-react";
+import { BUREAU_MEMBERS, FORMER_PRESIDENTS } from "../data/acafisData";
 import { Reveal, RevealGroup } from "./Reveal";
 
 interface BureauSectionProps {
@@ -13,6 +13,8 @@ export const BureauSection: React.FC<BureauSectionProps> = ({ onContactSecretary
   const commissionsAndCom = BUREAU_MEMBERS.filter(
     (m) => m.category === "commissions" || m.category === "communication"
   );
+  const formerAcafisPresidents = FORMER_PRESIDENTS.filter((p) => p.organization === "ACAFIS");
+  const formerCoopPresidents = FORMER_PRESIDENTS.filter((p) => p.organization === "Coop-ACAFIS");
 
   return (
     <section id="bureau" className="py-20 bg-gradient-to-b from-sky-50 via-white to-sky-100/40 border-b border-sky-200/70">
@@ -206,6 +208,67 @@ export const BureauSection: React.FC<BureauSectionProps> = ({ onContactSecretary
               </div>
             ))}
           </RevealGroup>
+        </div>
+
+        {/* Hommage à Nos Présidents */}
+        <div className="mt-16">
+          <Reveal className="max-w-3xl mx-auto text-center space-y-4 mb-10">
+            <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300">
+              <Award className="w-3.5 h-3.5 text-amber-700" />
+              <span>Mémoire & Reconnaissance</span>
+            </div>
+            <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-display">
+              Hommage à Nos Présidents
+            </h3>
+            <p className="text-base text-slate-600">
+              Depuis la fondation, plusieurs présidents se sont succédé à la tête d'ACAFIS Canada et de la
+              Coop-ACAFIS. Cette page leur rend hommage pour leur dévouement envers notre communauté.
+            </p>
+          </Reveal>
+
+          {FORMER_PRESIDENTS.length > 0 ? (
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 max-w-5xl mx-auto">
+              <div>
+                <h4 className="text-sm font-bold text-emerald-800 uppercase tracking-wider mb-4 text-center lg:text-left">
+                  Présidents d'ACAFIS Canada
+                </h4>
+                <RevealGroup className="space-y-3">
+                  {formerAcafisPresidents.map((p) => (
+                    <div key={p.id} className="p-4 rounded-xl bg-white border border-slate-200 shadow-xs flex items-center justify-between">
+                      <span className="text-sm font-bold text-slate-900">{p.name}</span>
+                      <span className="text-xs text-slate-500">{p.years}</span>
+                    </div>
+                  ))}
+                </RevealGroup>
+              </div>
+              <div>
+                <h4 className="text-sm font-bold text-teal-800 uppercase tracking-wider mb-4 text-center lg:text-left">
+                  Présidents de la Coop-ACAFIS
+                </h4>
+                <RevealGroup className="space-y-3">
+                  {formerCoopPresidents.map((p) => (
+                    <div key={p.id} className="p-4 rounded-xl bg-white border border-slate-200 shadow-xs flex items-center justify-between">
+                      <span className="text-sm font-bold text-slate-900">{p.name}</span>
+                      <span className="text-xs text-slate-500">{p.years}</span>
+                    </div>
+                  ))}
+                </RevealGroup>
+              </div>
+            </div>
+          ) : (
+            <Reveal className="max-w-xl mx-auto text-center p-6 rounded-2xl bg-amber-50 border border-amber-200">
+              <p className="text-sm text-amber-900">
+                Aidez-nous à honorer nos anciens présidents : partagez leurs noms et années de mandat pour qu'ils
+                trouvent leur place ici.
+              </p>
+              <button
+                onClick={onContactSecretary}
+                className="mt-3 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 transition-colors cursor-pointer"
+              >
+                Partager ces noms
+              </button>
+            </Reveal>
+          )}
         </div>
 
         {/* Contact Bureau Bar */}
