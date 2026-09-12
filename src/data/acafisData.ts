@@ -1,4 +1,4 @@
-import { BureauMember, Activity, ProjectPhase, ServiceItem, Testimonial, DocumentItem, BoutiqueItem } from "../types";
+import { BureauMember, Activity, ProjectPhase, ServiceItem, DocumentItem, BoutiqueItem } from "../types";
 
 export const BUREAU_MEMBERS: BureauMember[] = [
   {
@@ -246,49 +246,6 @@ export const COLONIE_ROADMAP: ProjectPhase[] = [
   },
 ];
 
-export const TESTIMONIALS: Testimonial[] = [
-  {
-    id: "1",
-    name: "Dr. Fatou Bintou Ndiaye",
-    role: "Médecin & Mère de famille",
-    city: "Brossard (QC)",
-    avatar: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?w=150&auto=format&fit=crop&q=80",
-    quote: "ACAFIS Canada a été notre repère dès notre arrivée. Voir aujourd'hui mes enfants apprendre le code tout en découvrant l'histoire du Sénégal avec Le Mentor IA est une fierté inestimable.",
-    highlight: "Un pont culturel et éducatif exceptionnel pour nos enfants.",
-    rating: 5,
-  },
-  {
-    id: "2",
-    name: "Cheikh Tidiane Diop",
-    role: "Ingénieur logiciel & Souscripteur Coop",
-    city: "Ottawa (ON)",
-    avatar: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=150&auto=format&fit=crop&q=80",
-    quote: "Grâce à Coop-ACAFIS et au projet de la Cité Jardin à Ndianda, j'ai enfin pu sécuriser un terrain au Sénégal avec une transparence juridique totale et sans mauvaise surprise.",
-    highlight: "Sécurité et transparence foncière grâce à la coopérative.",
-    rating: 5,
-  },
-  {
-    id: "3",
-    name: "Aminata Sene (15 ans)",
-    role: "Jeune participante aux ateliers Tech",
-    city: "Montréal (QC)",
-    avatar: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=150&auto=format&fit=crop&q=80",
-    quote: "Le Mentor ACAFIS m'a aidée à débloquer mes problèmes de maths de secondaire 4, et le quiz sur le Sénégal m'a appris plein de choses que je ne savais pas sur Gorée ! J'ai hâte pour la colonie 2027.",
-    highlight: "Le Mentor IA m'aide pour mes devoirs chaque semaine !",
-    rating: 5,
-  },
-  {
-    id: "4",
-    name: "Mamadou Lamine Diallo",
-    role: "Entrepreneur & Membre du Bureau Consultatif",
-    city: "Laval (QC)",
-    avatar: "https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=150&auto=format&fit=crop&q=80",
-    quote: "L'éthique de travail et le dévouement des 11 membres du Bureau élu sont exemplaires. ACAFIS montre que la diaspora peut être un moteur de transformation tangible.",
-    highlight: "Une gouvernance exemplaire portée par des bénévoles engagés.",
-    rating: 5,
-  },
-];
-
 export interface VideoTestimonial {
   id: string;
   name: string;
@@ -320,7 +277,7 @@ export const VIDEO_TESTIMONIALS: VideoTestimonial[] = [
     id: "video-4",
     name: "Landiata Dieme",
     role: "Trésorier Général — Grand BBQ",
-    url: "https://www.facebook.com/share/v/1EibbNGc1P/",
+    url: "https://www.facebook.com/reel/1320472491816811",
   },
   {
     id: "video-5",
@@ -333,6 +290,12 @@ export const VIDEO_TESTIMONIALS: VideoTestimonial[] = [
     name: "Panel sur l'Éducation",
     role: "Conférence communautaire",
     url: "https://www.facebook.com/share/v/19E6VQiCzA/",
+  },
+  {
+    id: "video-7",
+    name: "Sire Aw",
+    role: "Responsable Communication — Intervenant",
+    url: "https://www.facebook.com/reel/1241179694066171",
   },
 ];
 
