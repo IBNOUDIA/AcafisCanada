@@ -18,8 +18,9 @@ import {
   Mic2,
   Quote,
 } from "lucide-react";
-import { COLONIE_ROADMAP, RECIPIENDAIRES } from "../data/acafisData";
+import { COLONIE_ROADMAP, RECIPIENDAIRES, ACAFIS_VIDEOS } from "../data/acafisData";
 import { Reveal, RevealGroup } from "./Reveal";
+import { VideoGrid } from "./VideoGrid";
 import colonieOutingPhoto from "../assets/images/espace-jeune-colonie.jpg";
 import recipiendaireDiscours from "../assets/images/recipiendaire-discours.jpg";
 import recipiendaireRemise from "../assets/images/recipiendaire-remise.jpg";
@@ -35,6 +36,7 @@ export const CiteJardinProject: React.FC<CiteJardinProjectProps> = ({
   onNavigateContact,
 }) => {
   const [showFullRoadmap, setShowFullRoadmap] = useState(false);
+  const jeunesseVideos = ACAFIS_VIDEOS.filter((v) => v.category === "jeunesse");
 
   return (
     <section id="espace-jeune" className="py-20 bg-gradient-to-b from-sky-50 via-white to-sky-100/40 border-b border-sky-200/70">
@@ -336,6 +338,22 @@ export const CiteJardinProject: React.FC<CiteJardinProjectProps> = ({
             </Reveal>
           )}
         </div>
+
+        {/* Vidéos Jeunesse */}
+        {jeunesseVideos.length > 0 && (
+          <div className="mt-16">
+            <Reveal className="max-w-3xl mx-auto text-center space-y-3 mb-10">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-sky-100 text-sky-900 border border-sky-300">
+                <TreePine className="w-3.5 h-3.5 text-emerald-700" />
+                <span>En Vidéo</span>
+              </div>
+              <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-display">
+                Nos Jeunes en Vidéo
+              </h3>
+            </Reveal>
+            <VideoGrid videos={jeunesseVideos} />
+          </div>
+        )}
 
       </div>
     </section>

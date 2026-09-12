@@ -246,56 +246,76 @@ export const COLONIE_ROADMAP: ProjectPhase[] = [
   },
 ];
 
-export interface VideoTestimonial {
+export type AcafisVideoCategory = "temoignage" | "jeunesse" | "education" | "communaute";
+
+export interface AcafisVideo {
   id: string;
   name: string;
   role: string;
   url: string;
+  category: AcafisVideoCategory;
 }
 
-// Real member video testimonials, shared publicly on Facebook.
-export const VIDEO_TESTIMONIALS: VideoTestimonial[] = [
+// Real ACAFIS videos, shared publicly on Facebook. Each is dispatched to the
+// site page matching its theme via `category`, instead of all living in one place:
+// temoignage -> page Témoignages, jeunesse -> page Espace Jeune,
+// education -> page Missions & Services, communaute -> page Média.
+export const ACAFIS_VIDEOS: AcafisVideo[] = [
   {
     id: "video-1",
     name: "Témoignage d'un membre ACAFIS",
     role: "Membre de la communauté",
     url: "https://www.facebook.com/share/v/1HNVdo48mq/",
+    category: "temoignage",
   },
   {
     id: "video-2",
     name: "Naby",
     role: "Jeune de la diaspora",
     url: "https://www.facebook.com/reel/1109297139670569",
+    category: "jeunesse",
   },
   {
     id: "video-3",
     name: "Conférence ACAFIS",
     role: "Séance d'information communautaire",
     url: "https://www.facebook.com/share/r/19PK9Vnhod/",
+    category: "communaute",
   },
   {
     id: "video-4",
     name: "Landiata Dieme",
     role: "Trésorier Général — Grand BBQ",
     url: "https://www.facebook.com/reel/1320472491816811",
+    category: "temoignage",
   },
   {
     id: "video-5",
     name: "Sortie ACAFIS — Super Aqua Club",
     role: "Vidéo souvenir de sortie jeunesse",
     url: "https://www.facebook.com/reel/4760068570760905",
+    category: "jeunesse",
   },
   {
     id: "video-6",
     name: "Panel sur l'Éducation",
     role: "Conférence communautaire",
     url: "https://www.facebook.com/share/v/19E6VQiCzA/",
+    category: "education",
   },
   {
     id: "video-7",
     name: "Sire Aw",
     role: "Responsable Communication — Intervenant",
     url: "https://www.facebook.com/reel/1241179694066171",
+    category: "temoignage",
+  },
+  {
+    id: "video-8",
+    name: "Système Scolaire Québécois & Orientations",
+    role: "Panel : directions d'école, TES, psychologue, enseignant — Côte-des-Neiges",
+    url: "https://www.facebook.com/reel/1124423316680352",
+    category: "education",
   },
 ];
 

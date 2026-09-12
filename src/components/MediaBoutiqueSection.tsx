@@ -9,8 +9,9 @@ import {
   ExternalLink,
   ArrowRight,
 } from "lucide-react";
-import { BOUTIQUE_ITEMS, PARTNERS_LIST, EXTERNAL_LINKS } from "../data/acafisData";
+import { BOUTIQUE_ITEMS, PARTNERS_LIST, EXTERNAL_LINKS, ACAFIS_VIDEOS } from "../data/acafisData";
 import { Reveal, RevealGroup } from "./Reveal";
+import { VideoGrid } from "./VideoGrid";
 import mediaBbqEte from "../assets/images/media-bbq-ete.jpg";
 import mediaRassemblement from "../assets/images/media-rassemblement.jpg";
 import mediaJeunesseCalypso from "../assets/images/media-jeunesse-calypso.jpg";
@@ -60,6 +61,8 @@ export const MediaBoutiqueSection: React.FC = () => {
       caption: "Petits et grands réunis pour une soirée festive, drapeau sénégalais fièrement porté.",
     },
   ];
+
+  const communityVideos = ACAFIS_VIDEOS.filter((v) => v.category === "communaute");
 
   return (
     <section id="media" className="py-20 bg-gradient-to-b from-white via-sky-50/70 to-sky-100/50 border-b border-sky-200/70">
@@ -177,6 +180,15 @@ export const MediaBoutiqueSection: React.FC = () => {
               </div>
             ))}
           </RevealGroup>
+        )}
+
+        {activeTab === "media" && communityVideos.length > 0 && (
+          <div className="mt-14 max-w-6xl mx-auto">
+            <h3 className="text-center text-lg font-bold text-slate-900 font-display mb-8">
+              Vidéos de la Communauté
+            </h3>
+            <VideoGrid videos={communityVideos} />
+          </div>
         )}
 
         {/* 2. Tab: Boutique Solidaire */}

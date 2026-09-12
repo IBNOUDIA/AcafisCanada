@@ -12,8 +12,9 @@ import {
   Heart,
   Laptop,
 } from "lucide-react";
-import { SERVICES_MISSIONS, PAYMENT_INTERAC_INFO } from "../data/acafisData";
+import { SERVICES_MISSIONS, PAYMENT_INTERAC_INFO, ACAFIS_VIDEOS } from "../data/acafisData";
 import { Reveal, RevealGroup } from "./Reveal";
+import { VideoGrid } from "./VideoGrid";
 
 interface ServicesSectionProps {
   onNavigate: (sectionId: string) => void;
@@ -25,6 +26,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
   onOpenCardModal,
 }) => {
   const [activeCategory, setActiveCategory] = useState<string>("all");
+  const educationVideos = ACAFIS_VIDEOS.filter((v) => v.category === "education");
 
   const iconMap: Record<string, React.ReactNode> = {
     Globe2: <Globe2 className="w-6 h-6 text-emerald-600" />,
@@ -149,6 +151,22 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
             </div>
           ))}
         </RevealGroup>
+
+        {/* Vidéos : Conférences & Panels Éducation */}
+        {educationVideos.length > 0 && (
+          <div className="mt-16">
+            <Reveal className="max-w-3xl mx-auto text-center space-y-3 mb-10">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300">
+                <GraduationCap className="w-3.5 h-3.5 text-amber-700" />
+                <span>En Vidéo</span>
+              </div>
+              <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-display">
+                Conférences & Panels Éducation
+              </h3>
+            </Reveal>
+            <VideoGrid videos={educationVideos} />
+          </div>
+        )}
 
         {/* Membership Value Proposition Bar */}
         <div className="mt-14 p-6 sm:p-8 rounded-2xl bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 text-white shadow-lg flex flex-col lg:flex-row items-center justify-between gap-6">
