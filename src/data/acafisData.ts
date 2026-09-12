@@ -308,7 +308,7 @@ export const VIDEO_TESTIMONIALS: VideoTestimonial[] = [
     id: "video-2",
     name: "Naby",
     role: "Jeune de la diaspora",
-    url: "https://www.facebook.com/share/v/14og8AGUD3N/",
+    url: "https://www.facebook.com/reel/1109297139670569",
   },
   {
     id: "video-3",
