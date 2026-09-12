@@ -26,6 +26,10 @@ import mediaSouvenir5 from "../assets/images/media-souvenir5.jpg";
 import mediaSouvenir6 from "../assets/images/media-souvenir6.jpg";
 import mediaSouvenir8 from "../assets/images/media-souvenir8.jpg";
 import mediaSouvenir9 from "../assets/images/media-souvenir9.jpg";
+import mediaKineGraduation from "../assets/images/media-kine-graduation.jpg";
+import mediaKineGroupe from "../assets/images/media-kine-groupe.jpg";
+import mediaDrummondville from "../assets/images/media-drummondville.jpg";
+import mediaBbqDrummondville from "../assets/images/media-bbq-drummondville.jpg";
 
 export const MediaBoutiqueSection: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"media" | "boutique" | "partenaires">("media");
@@ -115,6 +119,30 @@ export const MediaBoutiqueSection: React.FC = () => {
       location: "Salle communautaire",
       image: mediaSouvenir9,
       caption: "Un moment de complicité et d'élégance partagée entre membres de la communauté.",
+    },
+    {
+      title: "Diplôme d'Honneur — Graduation de Kine",
+      location: "Montréal, Juin 2012",
+      image: mediaKineGraduation,
+      caption: "ACAFIS célèbre la réussite académique d'une jeune de la diaspora avec un diplôme d'honneur.",
+    },
+    {
+      title: "Célébration en Famille",
+      location: "Montréal, Juin 2012",
+      image: mediaKineGroupe,
+      caption: "Famille et amis réunis pour célébrer ensemble cette belle réussite scolaire.",
+    },
+    {
+      title: "Sortie à Drummondville",
+      location: "Drummondville, QC",
+      image: mediaDrummondville,
+      caption: "Défilé haut en couleur lors d'une sortie communautaire à Drummondville.",
+    },
+    {
+      title: "BBQ d'Équipe à Drummondville",
+      location: "Drummondville, QC",
+      image: mediaBbqDrummondville,
+      caption: "Grillades entre membres malgré la pluie — la bonne humeur reste au rendez-vous !",
     },
   ];
 
