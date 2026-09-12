@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { COLONIE_ROADMAP } from "../data/acafisData";
 import { Reveal, RevealGroup } from "./Reveal";
+import colonieOutingPhoto from "../assets/images/espace-jeune-colonie.jpg";
 
 interface CiteJardinProjectProps {
   onOpenCardModal: () => void;
@@ -47,6 +48,21 @@ export const CiteJardinProject: React.FC<CiteJardinProjectProps> = ({
           <p className="text-base sm:text-lg text-slate-600">
             Un programme d'immersion complet pour les jeunes de la diaspora (10-17 ans). Découvrez notre feuille de route stratégique pour réaliser ce projet ambitieux entre le Canada et Ndianda.
           </p>
+        </Reveal>
+
+        {/* Real photo from a past ACAFIS youth outing — sets the tone before the 2027 project banner */}
+        <Reveal className="relative rounded-3xl overflow-hidden mb-10 h-64 sm:h-80 shadow-lg">
+          <img
+            src={colonieOutingPhoto}
+            alt="Jeunes de la diaspora ACAFIS lors d'une sortie de groupe"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/10 to-transparent" />
+          <div className="absolute bottom-4 left-5 right-5 flex items-center justify-between">
+            <span className="text-sm sm:text-base font-bold text-white font-display">
+              Nos jeunes en sortie de groupe — un avant-goût de l'esprit « Racines & Avenir »
+            </span>
+          </div>
         </Reveal>
 
         {/* Hero Banner for Colonie 2027 */}

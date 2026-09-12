@@ -11,6 +11,12 @@ import {
 } from "lucide-react";
 import { BOUTIQUE_ITEMS, PARTNERS_LIST, EXTERNAL_LINKS } from "../data/acafisData";
 import { Reveal, RevealGroup } from "./Reveal";
+import mediaBbqEte from "../assets/images/media-bbq-ete.jpg";
+import mediaRassemblement from "../assets/images/media-rassemblement.jpg";
+import mediaJeunesseCalypso from "../assets/images/media-jeunesse-calypso.jpg";
+import mediaBureauAines from "../assets/images/media-bureau-aines.jpg";
+import mediaNdogou from "../assets/images/media-ndogou.jpg";
+import mediaExcursion from "../assets/images/media-excursion.jpg";
 
 export const MediaBoutiqueSection: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"media" | "boutique" | "partenaires">("media");
@@ -19,27 +25,39 @@ export const MediaBoutiqueSection: React.FC = () => {
   const mediaGallery = [
     {
       title: "Grand BBQ Familial de l'Été",
-      location: "Parc Angrignon, Montréal",
-      image: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=600&auto=format&fit=crop&q=80",
-      caption: "Retrouvailles fraternelles des familles de la diaspora autour des grillades et de la musique sénégalaise.",
+      location: "Parc communautaire, Québec",
+      image: mediaBbqEte,
+      caption: "Retrouvailles fraternelles des familles de la diaspora autour des grillades et de la Teranga.",
     },
     {
-      title: "Cité Jardin • Ndianda",
-      location: "Région de Thiès, Sénégal",
-      image: "https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=600&auto=format&fit=crop&q=80",
-      caption: "Vue sur le site de la Cité Jardin dédié à l'agro-écologie et à la future colonie 2027.",
+      title: "Rassemblement Communautaire",
+      location: "Pique-nique en plein air",
+      image: mediaRassemblement,
+      caption: "Moment de détente et de fraternité entre membres autour d'un pique-nique estival.",
     },
     {
-      title: "Conférence Coop-ACAFIS & Investissement",
-      location: "Ottawa / Hybride",
-      image: "https://images.unsplash.com/photo-1475721027785-f74eccf877e2?w=600&auto=format&fit=crop&q=80",
-      caption: "Séance d'information avec nos experts sur la sécurisation foncière et les statuts de la coopérative.",
+      title: "Journée Familiale au Parc",
+      location: "Parc, Québec",
+      image: mediaJeunesseCalypso,
+      caption: "Familles réunies pour une journée de détente, de partage et de complicité en plein air.",
     },
     {
-      title: "Ateliers Jeunesse & Code",
-      location: "Montréal, QC",
-      image: "https://images.unsplash.com/photo-1509062522246-3755977927d7?w=600&auto=format&fit=crop&q=80",
-      caption: "Initiation de nos enfants à l'algorithmique et à la programmation avec Acafis Mentor.",
+      title: "Rencontre du Bureau & Aînés",
+      location: "Salle communautaire",
+      image: mediaBureauAines,
+      caption: "Échanges entre membres du Bureau et aînés de la communauté lors d'une rencontre officielle.",
+    },
+    {
+      title: "Soirée Ndogou Communautaire",
+      location: "Salle communautaire",
+      image: mediaNdogou,
+      caption: "Les jeunes de la diaspora réunis pour rompre le jeûne ensemble dans la convivialité.",
+    },
+    {
+      title: "Soirée Festive en Groupe",
+      location: "Sortie communautaire",
+      image: mediaExcursion,
+      caption: "Petits et grands réunis pour une soirée festive, drapeau sénégalais fièrement porté.",
     },
   ];
 
@@ -129,7 +147,7 @@ export const MediaBoutiqueSection: React.FC = () => {
 
         {/* 1. Tab: Média & Galerie */}
         {activeTab === "media" && (
-          <RevealGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+          <RevealGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 max-w-6xl mx-auto">
             {mediaGallery.map((med, idx) => (
               <div
                 key={idx}
