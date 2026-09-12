@@ -1,4 +1,8 @@
 import { BureauMember, Activity, ProjectPhase, ServiceItem, DocumentItem, BoutiqueItem } from "../types";
+import programmeHiver from "../assets/images/programme-hiver.jpg";
+import programmePrintemps from "../assets/images/programme-printemps.jpg";
+import programmeEte from "../assets/images/programme-ete.jpg";
+import programmeAutomne from "../assets/images/programme-automne.jpg";
 
 export const BUREAU_MEMBERS: BureauMember[] = [
   {
@@ -178,6 +182,7 @@ export const ANNUAL_PROGRAM: Activity[] = [
     description: "Bilan annuel d'exercice, présentation des états financiers par le Bureau, renouvellement transparent des instances et grande journée culturelle de retrouvailles sous le signe de la fraternité.",
     location: "Montréal, QC (Hybride / Salle communautaire)",
     tags: ["Gouvernance", "Bilan Annuel", "Culture", "Teranga"],
+    photo: programmeHiver,
   },
   {
     id: "printemps",
@@ -187,6 +192,7 @@ export const ANNUAL_PROGRAM: Activity[] = [
     description: "Série de talks interactifs animés par des experts sur l'investissement immobilier au Sénégal, l'accès au crédit, la sécurisation foncière, les projets de la Coop-ACAFIS et l'entrepreneuriat de la diaspora.",
     location: "En ligne & Salons d'affaires à Ottawa / Montréal",
     tags: ["Investissement", "Coop-ACAFIS", "Immobilier", "Entrepreneuriat"],
+    photo: programmePrintemps,
   },
   {
     id: "ete",
@@ -196,6 +202,7 @@ export const ANNUAL_PROGRAM: Activity[] = [
     description: "Pique-nique familial géant dans un grand parc de Montréal/Ottawa avec grillades, tournoi de football amical, jeux pour enfants, musique traditionnelle et échanges chaleureux entre toutes les générations.",
     location: "Parc Angrignon (Montréal) / Parc de la Gatineau (Ottawa)",
     tags: ["Famille", "Pique-nique", "Jeunesse", "Sport"],
+    photo: programmeEte,
   },
   {
     id: "automne",
@@ -205,6 +212,7 @@ export const ANNUAL_PROGRAM: Activity[] = [
     description: "Soirée solennelle de gala rassemblant la communauté, les dignitaires et les partenaires. Levée de fonds pour financer les programmes éducatifs, les projets sociaux et le développement de la Cité Jardin.",
     location: "Grande salle de réception métropolitaine",
     tags: ["Gala", "Levée de fonds", "Cité Jardin", "Partenariats"],
+    photo: programmeAutomne,
   },
 ];
 

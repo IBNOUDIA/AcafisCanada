@@ -102,6 +102,16 @@ export const ActivitiesProgram: React.FC = () => {
             </div>
           </div>
 
+          {currentActivity.photo && (
+            <div className="relative rounded-2xl overflow-hidden h-56 sm:h-72 mb-6 shadow-sm">
+              <img
+                src={currentActivity.photo}
+                alt={currentActivity.title}
+                className="absolute inset-0 w-full h-full object-cover"
+              />
+            </div>
+          )}
+
           <div className="space-y-6">
             <p className="text-base text-slate-700 leading-relaxed">
               {currentActivity.description}

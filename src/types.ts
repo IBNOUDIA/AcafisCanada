@@ -16,6 +16,7 @@ export interface Activity {
   description: string;
   location: string;
   tags: string[];
+  photo?: string;
 }
 
 export interface ProjectPhase {
