@@ -319,9 +319,17 @@ export interface FormerPresident {
   tribute?: string;
 }
 
-// Hommage aux presidents successifs, depuis la fondation. A completer avec
-// les vrais noms et annees de mandat de chaque organisation.
-export const FORMER_PRESIDENTS: FormerPresident[] = [];
+// Hommage aux presidents successifs, depuis la fondation.
+export const FORMER_PRESIDENTS: FormerPresident[] = [
+  { id: "acafis-1", name: "Landiata Dieme", organization: "ACAFIS", years: "Ancien Président" },
+  { id: "acafis-2", name: "Ibrahima Diop", organization: "ACAFIS", years: "Ancien Président" },
+  { id: "acafis-3", name: "Omar Cisse", organization: "ACAFIS", years: "Ancien Président" },
+  { id: "acafis-4", name: "Ibnou Amar Dia", organization: "ACAFIS", years: "Ancien Président" },
+  { id: "acafis-5", name: "Moustapha Sane", organization: "ACAFIS", years: "Président actuel" },
+  { id: "coop-1", name: "Omar Sarr", organization: "Coop-ACAFIS", years: "Ancien Président" },
+  { id: "coop-2", name: "Souleymane Diallo", organization: "Coop-ACAFIS", years: "Ancien Président" },
+  { id: "coop-3", name: "Omar Sarr", organization: "Coop-ACAFIS", years: "Président actuel — depuis 2024" },
+];
 
 export const OFFICIAL_DOCUMENTS: DocumentItem[] = [
   {

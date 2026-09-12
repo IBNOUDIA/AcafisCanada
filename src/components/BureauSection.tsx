@@ -51,6 +51,63 @@ export const BureauSection: React.FC<BureauSectionProps> = ({ onContactSecretary
           </div>
         </Reveal>
 
+        {/* Organigramme ACAFIS : Bureau -> Commissions -> AG */}
+        <Reveal className="mb-16 max-w-4xl mx-auto">
+          <h3 className="text-center text-lg font-bold text-slate-900 font-display mb-8">
+            Organigramme d'ACAFIS Canada
+          </h3>
+
+          <div className="flex flex-col items-center">
+            {/* Bureau */}
+            <div className="px-6 py-3 rounded-xl bg-emerald-800 text-white font-bold text-sm shadow-md">
+              Bureau Exécutif
+            </div>
+            <div className="w-px h-8 bg-slate-300" />
+
+            {/* Commissions row */}
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
+              {["Commission Organisation", "Commission Scientifique", "Commission Jeunesse"].map((label) => (
+                <div
+                  key={label}
+                  className="px-4 py-2.5 rounded-xl bg-teal-700 text-white font-semibold text-xs shadow-sm text-center"
+                >
+                  {label}
+                </div>
+              ))}
+            </div>
+
+            <div className="w-px h-8 bg-slate-300" />
+
+            {/* AG */}
+            <div className="px-6 py-3 rounded-xl bg-amber-500 text-slate-950 font-bold text-sm shadow-md text-center">
+              Assemblée Générale (AG)
+              <div className="text-[11px] font-medium">via le Panel ACAFIS WhatsApp</div>
+            </div>
+          </div>
+        </Reveal>
+
+        {/* Pyramide hiérarchique du Bureau */}
+        <Reveal className="mb-16 max-w-3xl mx-auto">
+          <h3 className="text-center text-lg font-bold text-slate-900 font-display mb-8">
+            Hiérarchie du Bureau
+          </h3>
+          <div className="flex flex-col items-center gap-3">
+            <div className="px-5 py-2 rounded-lg bg-amber-400 text-slate-950 font-bold text-sm shadow-sm">
+              {presidence.find((m) => m.role === "Président")?.name || "Président"}
+            </div>
+            <div className="px-5 py-2 rounded-lg bg-emerald-600 text-white font-semibold text-sm shadow-sm">
+              {presidence.find((m) => m.role !== "Président")?.name || "Vice-Président"}
+            </div>
+            <div className="flex flex-wrap justify-center gap-2 max-w-2xl">
+              {[...adminFinances, ...commissionsAndCom].map((m) => (
+                <span key={m.id} className="px-3 py-1.5 rounded-lg bg-sky-100 text-sky-900 border border-sky-200 text-xs font-medium">
+                  {m.name}
+                </span>
+              ))}
+            </div>
+          </div>
+        </Reveal>
+
         {/* 1. Présidence Branch */}
         <div className="mb-12">
           <div className="flex items-center gap-3 mb-6">
