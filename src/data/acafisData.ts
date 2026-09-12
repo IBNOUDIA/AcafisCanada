@@ -334,6 +334,22 @@ export const ACAFIS_VIDEOS: AcafisVideo[] = [
     category: "education",
     platform: "youtube",
   },
+  {
+    id: "video-10",
+    name: "Fête du 31 Décembre chez Ngone (Laval) — Partie 1",
+    role: "Familles réunies pour la remise des cadeaux aux enfants",
+    url: "https://youtu.be/FxnTz2dVKyQ",
+    category: "jeunesse",
+    platform: "youtube",
+  },
+  {
+    id: "video-11",
+    name: "Fête du 31 Décembre chez Ngone (Laval) — Partie 2",
+    role: "Suite de la soirée : vœux de bonne année en famille",
+    url: "https://youtu.be/ImCiMrF4ioM",
+    category: "jeunesse",
+    platform: "youtube",
+  },
 ];
 
 export interface Recipiendaire {
