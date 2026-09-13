@@ -19,13 +19,28 @@ import { ContactSection } from "./components/ContactSection";
 import { PaymentDocumentsModal } from "./components/PaymentDocumentsModal";
 import { AuthModal } from "./components/AuthModal";
 import { Footer } from "./components/Footer";
-import { pathForId } from "./routes";
+import { pathForId, idForPath, PAGE_ROUTES } from "./routes";
 
 // Resets scroll position whenever the route (page) changes.
 const ScrollToTop: React.FC = () => {
   const { pathname } = useLocation();
   useEffect(() => {
     window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+};
+
+// Gives each page its own browser tab title (better UX, bookmarks and SEO
+// than a single static title shared across every route).
+const PageTitle: React.FC = () => {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    const id = idForPath(pathname);
+    const route = PAGE_ROUTES.find((r) => r.id === id);
+    document.title =
+      id === "accueil" || !route
+        ? "ACAFIS Canada"
+        : `${route.label} — ACAFIS Canada`;
   }, [pathname]);
   return null;
 };
@@ -59,6 +74,7 @@ const AppShell: React.FC = () => {
   return (
     <div className="min-h-screen flex flex-col bg-gradient-to-b from-sky-50 via-sky-100/30 to-sky-50 font-sans text-slate-900 selection:bg-emerald-600 selection:text-white">
       <ScrollToTop />
+      <PageTitle />
 
       {/* Top Navbar with the flat, page-based menu */}
       <Navbar
