@@ -245,6 +245,7 @@ export const MediaBoutiqueSection: React.FC = () => {
                     src={med.image}
                     alt={med.title}
                     referrerPolicy="no-referrer"
+                    loading="lazy"
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-3">
@@ -292,6 +293,7 @@ export const MediaBoutiqueSection: React.FC = () => {
                     <img
                       src={item.image}
                       alt={item.name}
+                      loading="lazy"
                       referrerPolicy="no-referrer"
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />

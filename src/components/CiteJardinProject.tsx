@@ -284,7 +284,7 @@ export const CiteJardinProject: React.FC<CiteJardinProjectProps> = ({
           {/* Real photos from past celebrations */}
           <RevealGroup className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-5xl mx-auto mb-10">
             <div className="relative rounded-2xl overflow-hidden h-56 shadow-md">
-              <img src={recipiendaireDiscours} alt="Un récipiendaire prononce son discours au nom des enfants" className="absolute inset-0 w-full h-full object-cover" />
+              <img src={recipiendaireDiscours} alt="Un récipiendaire prononce son discours au nom des enfants" loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
               <div className="absolute bottom-3 left-3 right-3 flex items-center gap-1.5 text-white text-xs font-bold">
                 <Mic2 className="w-3.5 h-3.5" />
@@ -292,7 +292,7 @@ export const CiteJardinProject: React.FC<CiteJardinProjectProps> = ({
               </div>
             </div>
             <div className="relative rounded-2xl overflow-hidden h-56 shadow-md">
-              <img src={recipiendaireRemise} alt="Remise du cadeau à un récipiendaire" className="absolute inset-0 w-full h-full object-cover" />
+              <img src={recipiendaireRemise} alt="Remise du cadeau à un récipiendaire" loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
               <div className="absolute bottom-3 left-3 right-3 flex items-center gap-1.5 text-white text-xs font-bold">
                 <Gift className="w-3.5 h-3.5" />
@@ -300,7 +300,7 @@ export const CiteJardinProject: React.FC<CiteJardinProjectProps> = ({
               </div>
             </div>
             <div className="relative rounded-2xl overflow-hidden h-56 shadow-md">
-              <img src={recipiendairesGroupe} alt="Les enfants d'ACAFIS réunis pour la fête du 31 décembre" className="absolute inset-0 w-full h-full object-cover" />
+              <img src={recipiendairesGroupe} alt="Les enfants d'ACAFIS réunis pour la fête du 31 décembre" loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
               <div className="absolute bottom-3 left-3 right-3 flex items-center gap-1.5 text-white text-xs font-bold">
                 <Sparkles className="w-3.5 h-3.5" />
