@@ -3,23 +3,33 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense, lazy } from "react";
 import { BrowserRouter, Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { Navbar } from "./components/Navbar";
-import { Hero } from "./components/Hero";
-import { CiteJardinProject } from "./components/CiteJardinProject";
-import { ActivitiesProgram } from "./components/ActivitiesProgram";
-import { MediaBoutiqueSection } from "./components/MediaBoutiqueSection";
-import { ServicesSection } from "./components/ServicesSection";
-import { MentorAISecution } from "./components/MentorAISecution";
-import { BureauSection } from "./components/BureauSection";
-import { TestimonialsSection } from "./components/TestimonialsSection";
-import { MembershipCardGenerator } from "./components/MembershipCardGenerator";
-import { ContactSection } from "./components/ContactSection";
 import { PaymentDocumentsModal } from "./components/PaymentDocumentsModal";
 import { AuthModal } from "./components/AuthModal";
 import { Footer } from "./components/Footer";
 import { pathForId, idForPath, PAGE_ROUTES } from "./routes";
+
+// Each page is code-split into its own chunk, loaded on demand as the user
+// navigates there instead of all being bundled into one large upfront file.
+const Hero = lazy(() => import("./components/Hero").then((m) => ({ default: m.Hero })));
+const CiteJardinProject = lazy(() => import("./components/CiteJardinProject").then((m) => ({ default: m.CiteJardinProject })));
+const ActivitiesProgram = lazy(() => import("./components/ActivitiesProgram").then((m) => ({ default: m.ActivitiesProgram })));
+const MediaBoutiqueSection = lazy(() => import("./components/MediaBoutiqueSection").then((m) => ({ default: m.MediaBoutiqueSection })));
+const ServicesSection = lazy(() => import("./components/ServicesSection").then((m) => ({ default: m.ServicesSection })));
+const MentorAISecution = lazy(() => import("./components/MentorAISecution").then((m) => ({ default: m.MentorAISecution })));
+const BureauSection = lazy(() => import("./components/BureauSection").then((m) => ({ default: m.BureauSection })));
+const TestimonialsSection = lazy(() => import("./components/TestimonialsSection").then((m) => ({ default: m.TestimonialsSection })));
+const MembershipCardGenerator = lazy(() => import("./components/MembershipCardGenerator").then((m) => ({ default: m.MembershipCardGenerator })));
+const ContactSection = lazy(() => import("./components/ContactSection").then((m) => ({ default: m.ContactSection })));
+
+// Simple, unobtrusive fallback shown for the brief moment a page chunk loads.
+const PageLoadingFallback: React.FC = () => (
+  <div className="flex items-center justify-center py-32">
+    <div className="w-8 h-8 rounded-full border-2 border-emerald-600 border-t-transparent animate-spin" />
+  </div>
+);
 
 // Resets scroll position whenever the route (page) changes.
 const ScrollToTop: React.FC = () => {
@@ -85,6 +95,7 @@ const AppShell: React.FC = () => {
       />
 
       <main className="flex-1">
+        <Suspense fallback={<PageLoadingFallback />}>
         <Routes>
           <Route
             path="/"
@@ -144,6 +155,7 @@ const AppShell: React.FC = () => {
             }
           />
         </Routes>
+        </Suspense>
       </main>
 
       {/* Footer */}
