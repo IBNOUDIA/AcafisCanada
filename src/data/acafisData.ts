@@ -12,7 +12,7 @@ export const BUREAU_MEMBERS: BureauMember[] = [
     category: "presidence",
     subCategory: "Présidence Exécutive",
     bio: "Supervise la vision stratégique, les relations institutionnelles Canada-Sénégal et le déploiement des grands projets communautaires.",
-    email: "president@acafis.ca",
+    email: "taphasane1910@gmail.com",
   },
   {
     id: "omar-cisse",

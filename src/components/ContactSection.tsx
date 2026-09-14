@@ -134,8 +134,8 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                   <Mail className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                   <div>
                     <span className="font-semibold block text-slate-900">Présidence :</span>
-                    <a href="mailto:president@acafis.ca" className="text-emerald-700 hover:underline">
-                      president@acafis.ca
+                    <a href="mailto:taphasane1910@gmail.com" className="text-emerald-700 hover:underline">
+                      taphasane1910@gmail.com
                     </a>
                   </div>
                 </div>
@@ -144,7 +144,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                   <MapPin className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                   <div>
                     <span className="font-semibold block text-slate-900">Siège au Canada :</span>
-                    <span>Montréal / Région de la Capitale Nationale (Ottawa-Gatineau)</span>
+                    <span>4845, avenue de Courtrai, suite 101, Montréal, QC H3W 0A2, Canada</span>
                   </div>
                 </div>
               </div>
