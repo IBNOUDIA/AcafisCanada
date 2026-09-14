@@ -65,8 +65,8 @@ export const BureauSection: React.FC<BureauSectionProps> = ({ onContactSecretary
             <div className="w-px h-8 bg-slate-300" />
 
             {/* Commissions row */}
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
-              {["Commission Organisation", "Commission Scientifique", "Commission Jeunesse"].map((label) => (
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
+              {["Commission Organisation", "Commission Scientifique", "Commission Jeunesse", "Commission Féminine"].map((label) => (
                 <div
                   key={label}
                   className="px-4 py-2.5 rounded-xl bg-teal-700 text-white font-semibold text-xs shadow-sm text-center"

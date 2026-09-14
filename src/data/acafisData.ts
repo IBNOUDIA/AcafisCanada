@@ -84,9 +84,9 @@ export const BUREAU_MEMBERS: BureauMember[] = [
   {
     id: "ngoma-dhiediou",
     name: "Ngoma Dhiediou",
-    role: "Présidente Com. Femme",
+    role: "Présidente Commission Féminine",
     category: "commissions",
-    subCategory: "Action Féminine & Famille",
+    subCategory: "Commission Féminine",
     bio: "Encourage le leadership des femmes de la diaspora, les initiatives d'entraide familiale et de cohésion sociale.",
   },
   {
