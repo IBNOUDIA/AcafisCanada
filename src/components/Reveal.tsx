@@ -29,7 +29,7 @@ export const Reveal: React.FC<RevealProps> = ({
       className={className}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, amount: 0.2 }}
+      viewport={{ once: true, amount: "some" }}
       variants={buildVariants(y)}
       transition={{ duration: 0.55, delay, ease: [0.22, 1, 0.36, 1] }}
     >
@@ -65,7 +65,7 @@ export const RevealGroup: React.FC<RevealGroupProps> = ({
       className={className}
       initial="hidden"
       whileInView="visible"
-      viewport={{ once: true, amount: 0.15 }}
+      viewport={{ once: true, amount: "some" }}
       variants={containerVariants}
     >
       {React.Children.map(children, (child) => (
