@@ -10,7 +10,7 @@ interface AcafisLogoProps {
 
 // Official logo file is a wide lockup (icon + "ACAFIS" wordmark + full name) on a
 // light cream background — sized by height only so its aspect ratio stays intact.
-const LOGO_ASPECT_RATIO = 1408 / 768;
+const LOGO_ASPECT_RATIO = 1024 / 558;
 
 export const AcafisLogo: React.FC<AcafisLogoProps> = ({
   className = "",
@@ -35,7 +35,7 @@ export const AcafisLogo: React.FC<AcafisLogoProps> = ({
   const logoImg = (
     <img
       src={acafisLogoOfficial}
-      alt="Logo Officiel ACAFIS — Association Canadienne d'Aide aux Familles Immigrantes Sénégalaises"
+      alt="Logo Officiel ACAFIS — Association Communautaire d'Aide aux Familles Immigrantes Sénégalaises"
       referrerPolicy="no-referrer"
       className={`${heightMap[size]} w-auto object-contain shrink-0`}
       style={{ aspectRatio: LOGO_ASPECT_RATIO }}
