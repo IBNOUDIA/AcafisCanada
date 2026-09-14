@@ -158,6 +158,20 @@ export const SERVICES_MISSIONS: ServiceItem[] = [
     ],
   },
   {
+    id: "centre-communautaire",
+    title: "Acquisition d'un Centre Communautaire ACAFIS",
+    shortDesc: "Un local bien à nous : centre de formation pour nos jeunes et lieu d'accueil pour les nouveaux arrivants.",
+    description: "ACAFIS travaille à l'acquisition d'un local permanent — bien plus qu'un centre de formation pour nos jeunes, un véritable lieu d'accueil où suivre et conseiller les nouveaux arrivants. Un espace de brassage, d'entraide et de culture où se rencontrent toutes les générations de la diaspora.",
+    iconName: "Building",
+    category: "solidarity",
+    deliverables: [
+      "Salle de formation & ateliers pour les jeunes (nTIC, soutien scolaire, code)",
+      "Bureau d'accueil et de suivi-conseil pour les nouveaux arrivants",
+      "Espace de rencontres interculturelles et d'entraide communautaire",
+      "Local permanent pour les réunions du Bureau et des commissions",
+    ],
+  },
+  {
     id: "activites-culturelles",
     title: "Culture, Rassemblements & Mémoire",
     shortDesc: "Faire vivre la Teranga sénégalaise au cœur de la société canadienne.",

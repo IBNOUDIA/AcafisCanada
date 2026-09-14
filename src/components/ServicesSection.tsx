@@ -34,6 +34,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
     GraduationCap: <GraduationCap className="w-6 h-6 text-amber-600" />,
     Users2: <Users2 className="w-6 h-6 text-indigo-600" />,
     Sparkles: <Sparkles className="w-6 h-6 text-rose-600" />,
+    Building: <Building className="w-6 h-6 text-sky-600" />,
   };
 
   const filteredServices = activeCategory === "all"
