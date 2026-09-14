@@ -481,8 +481,6 @@ export const PAYMENT_INTERAC_INFO = {
 
 export const PARTNERS_LIST = [
   { name: "Regroupement Général des Sénégalais du Canada (RGSC)", role: "Partenaire Fédérateur" },
-  { name: "Coop-Habitat Ndianda Sénégal", role: "Partenaire Foncier Cité Jardin" },
-  { name: "Fédération des Associations de Casamance", role: "Partenaire Culturel" },
-  { name: "Club Jeunesse & Tech Diaspora", role: "Partenaire Éducatif" },
-  { name: "Chambre de Commerce Canada-Afrique", role: "Partenaire Économique" },
+  { name: "Arrondissement de Côte-des-Neiges", role: "Partenaire Municipal" },
+  { name: "Afroleck", role: "Partenaire Commanditaire" },
 ];

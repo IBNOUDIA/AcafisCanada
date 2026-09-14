@@ -285,6 +285,12 @@ export const MediaBoutiqueSection: React.FC = () => {
                 </div>
               ))}
             </div>
+
+            <div className="mt-4 p-5 rounded-2xl bg-sky-50 border border-sky-200 border-dashed text-center">
+              <p className="text-xs text-sky-900">
+                Des partenariats avec des institutions culturelles et de jeunesse au Sénégal seront annoncés prochainement.
+              </p>
+            </div>
           </Reveal>
         )}
 
