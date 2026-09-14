@@ -14,8 +14,7 @@ export const PAGE_ROUTES: PageRoute[] = [
   { id: "acafis-mentor", path: "/acafis-mentor", label: "Acafis Mentor" },
   { id: "bureau", path: "/bureau", label: "Bureau" },
   { id: "temoignages", path: "/temoignages", label: "Témoignages" },
-  { id: "adhesion", path: "/adhesion", label: "Adhésion" },
-  { id: "contact", path: "/contact", label: "Contact" },
+  { id: "adhesion", path: "/adhesion", label: "Adhésion & Contact" },
 ];
 
 export const pathForId = (id: string): string =>

@@ -32,7 +32,7 @@ function getResendClient(): Resend | null {
 }
 
 const CONTACT_TO_EMAIL = process.env.CONTACT_TO_EMAIL || "secretariat@acafis.ca";
-const MEMBERSHIP_TO_EMAIL = process.env.MEMBERSHIP_TO_EMAIL || "finance@acafis.ca";
+const MEMBERSHIP_TO_EMAIL = process.env.MEMBERSHIP_TO_EMAIL || "finance2@acafis.ca";
 const EMAIL_FROM = process.env.RESEND_FROM_EMAIL || "ACAFIS Canada <onboarding@resend.dev>";
 
 interface HandlerResult<T> {

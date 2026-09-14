@@ -4,7 +4,7 @@
  */
 
 import React, { useState, useEffect } from "react";
-import { BrowserRouter, Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import { Navbar } from "./components/Navbar";
 import { Hero } from "./components/Hero";
 import { CiteJardinProject } from "./components/CiteJardinProject";
@@ -101,7 +101,7 @@ const AppShell: React.FC = () => {
             element={
               <CiteJardinProject
                 onOpenCardModal={handleOpenCardModal}
-                onNavigateContact={() => handleNavigate("contact")}
+                onNavigateContact={() => handleNavigate("adhesion")}
               />
             }
           />
@@ -116,22 +116,23 @@ const AppShell: React.FC = () => {
           <Route path="/acafis-mentor" element={<MentorAISecution />} />
           <Route
             path="/bureau"
-            element={<BureauSection onContactSecretary={() => handleNavigate("contact")} />}
+            element={<BureauSection onContactSecretary={() => handleNavigate("adhesion")} />}
           />
           <Route path="/temoignages" element={<TestimonialsSection />} />
           <Route
             path="/adhesion"
-            element={<MembershipCardGenerator onOpenPaymentModal={handleOpenPaymentModal} />}
-          />
-          <Route
-            path="/contact"
             element={
-              <ContactSection
-                onOpenPaymentModal={handleOpenPaymentModal}
-                onOpenDocumentsModal={handleOpenDocumentsModal}
-              />
+              <>
+                <MembershipCardGenerator onOpenPaymentModal={handleOpenPaymentModal} />
+                <ContactSection
+                  onOpenPaymentModal={handleOpenPaymentModal}
+                  onOpenDocumentsModal={handleOpenDocumentsModal}
+                />
+              </>
             }
           />
+          {/* Contact is now merged into the Adhésion page — keep old links working */}
+          <Route path="/contact" element={<Navigate to="/adhesion" replace />} />
           {/* Unknown paths fall back to the home page */}
           <Route
             path="*"

@@ -33,7 +33,7 @@ export const Hero: React.FC<HeroProps> = ({
   const [activeImpactTab, setActiveImpactTab] = useState<number>(0);
 
   const handleCopyEmail = () => {
-    navigator.clipboard.writeText("finance@acafis.ca");
+    navigator.clipboard.writeText("finance2@acafis.ca");
     setCopiedEmail(true);
     setTimeout(() => setCopiedEmail(false), 2000);
   };
@@ -196,7 +196,7 @@ export const Hero: React.FC<HeroProps> = ({
                 ) : (
                   <>
                     <Copy className="w-3.5 h-3.5 text-sky-400" />
-                    <span>finance@acafis.ca</span>
+                    <span>finance2@acafis.ca</span>
                   </>
                 )}
               </button>

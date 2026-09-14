@@ -143,17 +143,17 @@ export const Footer: React.FC<FooterProps> = ({
               Paiement Interac
             </button>
             <span>•</span>
-            <button onClick={() => onNavigate("contact")} className="hover:text-slate-300 transition-colors cursor-pointer">
+            <button onClick={() => onNavigate("adhesion")} className="hover:text-slate-300 transition-colors cursor-pointer">
               Contact
             </button>
           </div>
           <a
-            href="https://amar.dia.ca"
+            href="https://www.amardia.ca"
             target="_blank"
             rel="noopener noreferrer"
             className="hover:text-slate-300 transition-colors"
           >
-            Développé par : amar.dia.ca
+            Développé par : www.amardia.ca
           </a>
         </div>
 

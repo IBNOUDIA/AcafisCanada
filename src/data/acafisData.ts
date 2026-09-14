@@ -47,7 +47,7 @@ export const BUREAU_MEMBERS: BureauMember[] = [
     category: "admin_finances",
     subCategory: "Trésorerie",
     bio: "Responsable de la comptabilité générale, des cotisations annuelles et de la gestion budgétaire transparente.",
-    email: "finance@acafis.ca",
+    email: "finance2@acafis.ca",
   },
   {
     id: "pa-sonko",
@@ -457,7 +457,7 @@ export const BOUTIQUE_ITEMS: BoutiqueItem[] = [
 ];
 
 export const PAYMENT_INTERAC_INFO = {
-  email: "finance@acafis.ca",
+  email: "finance2@acafis.ca",
   secretQuestion: "Pays ?",
   secretAnswer: "Senegal",
   annualFeeCAD: 25,

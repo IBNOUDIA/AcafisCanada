@@ -81,7 +81,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   }, []);
 
   const handleCopyEmail = () => {
-    navigator.clipboard.writeText("finance@acafis.ca");
+    navigator.clipboard.writeText("finance2@acafis.ca");
     setCopiedEmail(true);
     setTimeout(() => setCopiedEmail(false), 2200);
   };
@@ -136,7 +136,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             ) : (
               <>
                 <Copy className="w-3 h-3 text-sky-300" />
-                <span>finance@acafis.ca</span>
+                <span>finance2@acafis.ca</span>
               </>
             )}
           </button>
