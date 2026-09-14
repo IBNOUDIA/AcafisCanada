@@ -9,7 +9,7 @@ import {
   ExternalLink,
   ArrowRight,
 } from "lucide-react";
-import { BOUTIQUE_ITEMS, PARTNERS_LIST, EXTERNAL_LINKS, ACAFIS_VIDEOS } from "../data/acafisData";
+import { PARTNERS_LIST, EXTERNAL_LINKS, ACAFIS_VIDEOS } from "../data/acafisData";
 import { Reveal, RevealGroup } from "./Reveal";
 import { VideoGrid } from "./VideoGrid";
 import mediaBbqEte from "../assets/images/media-bbq-ete.jpg";
@@ -32,7 +32,7 @@ import mediaDrummondville from "../assets/images/media-drummondville.jpg";
 import mediaBbqDrummondville from "../assets/images/media-bbq-drummondville.jpg";
 
 export const MediaBoutiqueSection: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<"media" | "boutique" | "partenaires">("media");
+  const [activeTab, setActiveTab] = useState<"media" | "partenaires">("media");
   const [orderedItem, setOrderedItem] = useState<string | null>(null);
 
   const mediaGallery = [
@@ -181,17 +181,6 @@ export const MediaBoutiqueSection: React.FC = () => {
             </button>
 
             <button
-              onClick={() => setActiveTab("boutique")}
-              className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
-                activeTab === "boutique"
-                  ? "bg-emerald-800 text-white shadow-xs"
-                  : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200"
-              }`}
-            >
-              Boutique ACAFIS
-            </button>
-
-            <button
               onClick={() => setActiveTab("partenaires")}
               className={`px-4 py-2 rounded-xl text-xs font-bold transition-all cursor-pointer ${
                 activeTab === "partenaires"
@@ -275,69 +264,7 @@ export const MediaBoutiqueSection: React.FC = () => {
           </div>
         )}
 
-        {/* 2. Tab: Boutique Solidaire */}
-        {activeTab === "boutique" && (
-          <div className="space-y-6">
-            <div className="max-w-xl mx-auto text-center text-xs text-slate-500 mb-4">
-              100% des bénéfices des articles officiels ACAFIS financent les bourses jeunesse et la colonie 2030.
-            </div>
-
-            <RevealGroup className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
-              {BOUTIQUE_ITEMS.map((item) => (
-                <div
-                  key={item.id}
-                  className="bg-white rounded-2xl overflow-hidden border border-slate-200 shadow-xs hover:shadow-md transition-all flex flex-col justify-between group"
-                >
-                  <div className="relative h-48 bg-slate-100 overflow-hidden">
-                    <img
-                      src={item.image}
-                      alt={item.name}
-                      referrerPolicy="no-referrer"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                    />
-                    {item.badge && (
-                      <span className="absolute top-3 left-3 px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-400 text-slate-950 shadow-xs">
-                        {item.badge}
-                      </span>
-                    )}
-                    <span className="absolute bottom-3 right-3 px-2.5 py-1 rounded-lg text-xs font-extrabold bg-slate-950/80 backdrop-blur-md text-white border border-white/20">
-                      {item.priceCAD}$ CAD
-                    </span>
-                  </div>
-
-                  <div className="p-5 flex flex-col justify-between flex-1">
-                    <div>
-                      <div className="text-[10px] uppercase font-bold text-emerald-800 mb-1">
-                        {item.category}
-                      </div>
-                      <h4 className="text-sm font-bold text-slate-900 font-display mb-1.5">
-                        {item.name}
-                      </h4>
-                      <p className="text-xs text-slate-500 leading-relaxed line-clamp-2">
-                        {item.description}
-                      </p>
-                    </div>
-
-                    <div className="mt-4 pt-3 border-t border-slate-100">
-                      <a
-                        href={EXTERNAL_LINKS.boutique}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        className="w-full py-2 px-3 rounded-xl text-xs font-bold bg-slate-900 hover:bg-slate-800 text-white flex items-center justify-center gap-1.5 transition-colors"
-                      >
-                        <ShoppingBag className="w-3.5 h-3.5" />
-                        <span>Commander sur boutique-acafis</span>
-                        <ExternalLink className="w-3 h-3 text-slate-400" />
-                      </a>
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </RevealGroup>
-          </div>
-        )}
-
-        {/* 3. Tab: Partenaires */}
+        {/* 2. Tab: Partenaires */}
         {activeTab === "partenaires" && (
           <Reveal className="max-w-4xl mx-auto">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
