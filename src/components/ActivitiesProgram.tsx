@@ -107,7 +107,6 @@ export const ActivitiesProgram: React.FC = () => {
               <img
                 src={currentActivity.photo}
                 alt={currentActivity.title}
-                loading="lazy"
                 className="absolute inset-0 w-full h-full object-cover"
               />
             </div>
