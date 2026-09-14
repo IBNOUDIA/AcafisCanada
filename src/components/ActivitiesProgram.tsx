@@ -14,6 +14,7 @@ import {
 import { ANNUAL_PROGRAM } from "../data/acafisData";
 import { Activity } from "../types";
 import { Reveal, RevealGroup } from "./Reveal";
+import programmeHeroPhoto from "../assets/images/programme-hero.jpg";
 
 export const ActivitiesProgram: React.FC = () => {
   const [activeSeasonId, setActiveSeasonId] = useState<string>("ete");
@@ -31,7 +32,22 @@ export const ActivitiesProgram: React.FC = () => {
   return (
     <section id="programme" className="py-20 bg-gradient-to-b from-sky-100/60 via-sky-50 to-white border-b border-sky-200/70">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
+        {/* Hero photo — a real ACAFIS gathering to open the page */}
+        <Reveal className="relative rounded-3xl overflow-hidden mb-14 h-64 sm:h-80 shadow-lg">
+          <img
+            src={programmeHeroPhoto}
+            alt="Membres d'ACAFIS réunis lors d'un rassemblement communautaire"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/10 to-transparent" />
+          <div className="absolute bottom-4 left-5 right-5">
+            <span className="text-sm sm:text-base font-bold text-white font-display">
+              Nos saisons, nos rassemblements — la vie communautaire ACAFIS toute l'année
+            </span>
+          </div>
+        </Reveal>
+
         {/* Section Header */}
         <Reveal className="max-w-3xl mx-auto text-center space-y-4 mb-14">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300">
