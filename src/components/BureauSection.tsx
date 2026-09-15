@@ -2,6 +2,7 @@ import React from "react";
 import { Users, Mail, Award } from "lucide-react";
 import { BUREAU_MEMBERS, FORMER_PRESIDENTS } from "../data/acafisData";
 import { Reveal, RevealGroup } from "./Reveal";
+import bureauHeroPhoto from "../assets/images/bureau-hero.jpg";
 
 interface BureauSectionProps {
   onContactSecretary: () => void;
@@ -19,7 +20,22 @@ export const BureauSection: React.FC<BureauSectionProps> = ({ onContactSecretary
   return (
     <section id="bureau" className="py-20 bg-gradient-to-b from-sky-50 via-white to-sky-100/40 border-b border-sky-200/70">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
+        {/* Hero photo — a real team gathering to open the page */}
+        <Reveal className="relative rounded-3xl overflow-hidden mb-14 h-64 sm:h-80 shadow-lg">
+          <img
+            src={bureauHeroPhoto}
+            alt="L'équipe du Bureau Exécutif ACAFIS réunie"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/10 to-transparent" />
+          <div className="absolute bottom-4 left-5 right-5">
+            <span className="text-sm sm:text-base font-bold text-white font-display">
+              Une équipe unie, engagée pour la diaspora
+            </span>
+          </div>
+        </Reveal>
+
         {/* Section Heading */}
         <Reveal className="max-w-3xl mx-auto text-center space-y-4 mb-14">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-sky-100 text-sky-900 border border-sky-300">

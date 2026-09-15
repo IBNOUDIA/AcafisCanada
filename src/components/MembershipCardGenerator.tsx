@@ -16,7 +16,9 @@ import {
 import { PAYMENT_INTERAC_INFO } from "../data/acafisData";
 import { SenegalFlagBadge } from "./SenegalFlagBadge";
 import { MemberRecord } from "../types";
+import { Reveal } from "./Reveal";
 import acafisLogoOfficial from "../assets/images/acafis-logo-official.jpg";
+import adhesionHeroPhoto from "../assets/images/adhesion-hero.jpg";
 
 interface MembershipCardGeneratorProps {
   onOpenPaymentModal: () => void;
@@ -92,7 +94,22 @@ export const MembershipCardGenerator: React.FC<MembershipCardGeneratorProps> = (
   return (
     <section id="adhesion" className="py-20 bg-gradient-to-b from-sky-50 via-white to-sky-100/50 border-b border-sky-200/70">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
+        {/* Hero photo — a warm welcome for future members */}
+        <Reveal className="relative rounded-3xl overflow-hidden mb-12 h-64 sm:h-80 shadow-lg">
+          <img
+            src={adhesionHeroPhoto}
+            alt="Femmes de la communauté ACAFIS réunies, souriantes"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/10 to-transparent" />
+          <div className="absolute bottom-4 left-5 right-5">
+            <span className="text-sm sm:text-base font-bold text-white font-display">
+              Rejoignez une communauté chaleureuse et solidaire
+            </span>
+          </div>
+        </Reveal>
+
         {/* Title */}
         <div className="max-w-3xl mx-auto text-center space-y-3 mb-12">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-sky-100 text-sky-900 border border-sky-300">

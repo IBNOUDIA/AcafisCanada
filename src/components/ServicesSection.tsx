@@ -15,6 +15,7 @@ import {
 import { SERVICES_MISSIONS, PAYMENT_INTERAC_INFO, ACAFIS_VIDEOS } from "../data/acafisData";
 import { Reveal, RevealGroup } from "./Reveal";
 import { VideoGrid } from "./VideoGrid";
+import servicesHeroPhoto from "../assets/images/services-hero.jpg";
 
 interface ServicesSectionProps {
   onNavigate: (sectionId: string) => void;
@@ -44,7 +45,22 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
   return (
     <section id="mission-service" className="py-20 bg-gradient-to-b from-sky-100/50 via-sky-50 to-white border-b border-sky-200/70">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        
+
+        {/* Hero photo — solidarity in action */}
+        <Reveal className="relative rounded-3xl overflow-hidden mb-14 h-64 sm:h-80 shadow-lg">
+          <img
+            src={servicesHeroPhoto}
+            alt="Familles de la diaspora ACAFIS réunies en pique-nique communautaire"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/10 to-transparent" />
+          <div className="absolute bottom-4 left-5 right-5">
+            <span className="text-sm sm:text-base font-bold text-white font-display">
+              La solidarité en action, au service de toute la communauté
+            </span>
+          </div>
+        </Reveal>
+
         {/* Section Header */}
         <Reveal className="max-w-3xl mx-auto text-center space-y-4 mb-14">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-sky-100 text-sky-900 border border-sky-300">
