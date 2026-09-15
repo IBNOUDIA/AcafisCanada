@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { ChatMessage } from "../types";
 import { Reveal } from "./Reveal";
+import mentorHeroPhoto from "../assets/images/mentor-hero.jpg";
 
 export const MentorAISecution: React.FC = () => {
   const [selectedTopic, setSelectedTopic] = useState<string>("culture");
@@ -166,7 +167,22 @@ export const MentorAISecution: React.FC = () => {
       <div className="absolute top-1/2 right-1/4 w-80 h-80 bg-amber-400/10 rounded-full blur-3xl pointer-events-none" />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
-        
+
+        {/* Hero photo — nos jeunes en atelier informatique */}
+        <Reveal className="relative rounded-3xl overflow-hidden mb-12 h-64 sm:h-80 shadow-lg border border-sky-800/60">
+          <img
+            src={mentorHeroPhoto}
+            alt="Jeunes de la diaspora ACAFIS lors d'un atelier d'informatique"
+            className="absolute inset-0 w-full h-full object-cover"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent" />
+          <div className="absolute bottom-4 left-5 right-5">
+            <span className="text-sm sm:text-base font-bold text-white font-display">
+              Nos jeunes s'initient au code et à la technologie
+            </span>
+          </div>
+        </Reveal>
+
         {/* Section Heading */}
         <Reveal className="max-w-3xl mx-auto text-center space-y-3 mb-12">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-sky-900/70 text-sky-200 border border-sky-600/50">
