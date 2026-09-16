@@ -1,5 +1,5 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { handleMemberRegister } from "../../src/server/handlers";
+import { handleMemberRegister } from "../../src/server/handlers.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") {
