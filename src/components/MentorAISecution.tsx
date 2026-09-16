@@ -24,7 +24,7 @@ export const MentorAISecution: React.FC = () => {
     {
       id: "initial-welcome",
       sender: "mentor",
-      text: "Bonjour jeune talent ! 🎓\n\nJe suis Kocc Barma, l'agent IA éducatif officiel d'ACAFIS Canada. Je suis là pour t'aider dans tes devoirs, te faire progresser en code, robotique et nTIC, répondre à tes questions d'orientation, d'équivalences de diplômes ou de bourses d'études, et te faire découvrir l'histoire du Sénégal.\n\nQue souhaites-tu explorer aujourd'hui ? 🚀",
+      text: "Bonjour jeune talent ! 🎓\n\nJe suis Kocc Barma, l'agent IA éducatif officiel d'ACAFIS Canada. Je suis là pour t'aider dans tes devoirs, te faire progresser en code, robotique et nTIC, répondre à tes questions d'orientation, d'équivalences de diplômes ou de bourses d'études, te renseigner sur ACAFIS, la Coop-ACAFIS ou notre boutique, et te faire découvrir l'histoire du Sénégal. Je te comprends en français, en anglais et en wolof !\n\nQue souhaites-tu explorer aujourd'hui ? 🚀",
       timestamp: "À l'instant",
     },
   ]);
@@ -150,7 +150,7 @@ export const MentorAISecution: React.FC = () => {
       {
         id: "initial-welcome",
         sender: "mentor",
-        text: "Bonjour jeune talent ! 🎓\n\nJe suis Kocc Barma, l'agent IA éducatif officiel d'ACAFIS Canada. Je suis là pour t'aider dans tes devoirs, te faire progresser en code, robotique et nTIC, répondre à tes questions d'orientation, d'équivalences de diplômes ou de bourses d'études, et te faire découvrir l'histoire du Sénégal.\n\nQue souhaites-tu explorer aujourd'hui ? 🚀",
+        text: "Bonjour jeune talent ! 🎓\n\nJe suis Kocc Barma, l'agent IA éducatif officiel d'ACAFIS Canada. Je suis là pour t'aider dans tes devoirs, te faire progresser en code, robotique et nTIC, répondre à tes questions d'orientation, d'équivalences de diplômes ou de bourses d'études, te renseigner sur ACAFIS, la Coop-ACAFIS ou notre boutique, et te faire découvrir l'histoire du Sénégal. Je te comprends en français, en anglais et en wolof !\n\nQue souhaites-tu explorer aujourd'hui ? 🚀",
         timestamp: "À l'instant",
       },
     ]);
@@ -197,6 +197,15 @@ export const MentorAISecution: React.FC = () => {
           <p className="text-base sm:text-lg text-slate-300 font-light max-w-2xl mx-auto">
             L'agent IA polyvalent d'ACAFIS Canada, du nom du grand sage sénégalais. Aide scolaire, code, robotique & nTIC, orientation, équivalences de diplômes et bourses d'études — pour propulser nos apprenants de la diaspora.
           </p>
+
+          {/* Trilingual capability badge */}
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800/70 text-xs font-semibold text-slate-300 border border-slate-700">
+            <span>🇫🇷 Français</span>
+            <span className="text-slate-600">•</span>
+            <span>🇬🇧 English</span>
+            <span className="text-slate-600">•</span>
+            <span>🇸🇳 Wolof</span>
+          </div>
 
           {/* Online status pill */}
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 text-xs font-semibold text-emerald-400 border border-slate-700">

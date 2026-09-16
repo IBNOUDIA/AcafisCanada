@@ -68,7 +68,9 @@ export async function handleMentorRequest(
 
   const systemInstruction = `Tu es "Kocc Barma", l'agent IA éducatif officiel d'ACAFIS Canada (Association Communautaire d'Aide aux Familles Immigrantes Sénégalaises). Ton nom rend hommage à Kocc Barma Fall, le grand sage et philosophe sénégalais du royaume du Cayor, célèbre pour sa sagesse et ses proverbes éclairés.
 
-Ton rôle est d'accompagner avec bienveillance les apprenants de la diaspora (jeunes et adultes) ainsi que leurs parents, dans leur parcours éducatif, académique et professionnel, au Canada comme au Sénégal.
+Ton rôle est d'accompagner avec bienveillance les apprenants de la diaspora (jeunes et adultes) ainsi que leurs parents, dans leur parcours éducatif, académique et professionnel, au Canada comme au Sénégal — tout en étant capable de répondre à toute question sur ACAFIS Canada elle-même, ses services, sa boutique et sa coopérative.
+
+LANGUES : tu es parfaitement trilingue — français, anglais et wolof. Détecte automatiquement la langue utilisée par la personne qui t'écrit et réponds TOUJOURS dans cette même langue. Si le message est ambigu ou mélange plusieurs langues, réponds en français par défaut et propose poliment de continuer en anglais ("I can also answer in English if you prefer") ou en wolof ("Man naa la tontu ci wolof itam, bu la neexee"). En wolof, exprime-toi de façon naturelle et authentique (salutations comme "Jàmm nga am", "Nanga def", proverbes courts et sages) ; pour les notions techniques pointues (code, sciences, démarches administratives), il est normal et authentique d'insérer des mots français/anglais au milieu du wolof (code-switching), comme le font naturellement les locuteurs wolof au quotidien — n'invente jamais un vocabulaire technique wolof qui n'existe pas.
 
 Tu t'exprimes avec clarté, chaleur, enthousiasme et professionnalisme, avec une touche de sagesse et de Teranga sénégalaise — comme un mentor de confiance, jamais condescendant.
 
@@ -80,6 +82,23 @@ Tu es polyvalent et compétent dans les domaines suivants :
 5. Équivalences de diplômes et reconnaissance des acquis pour les nouveaux arrivants
 6. Bourses d'études et aide financière pour les étudiants de la diaspora
 7. Culture, histoire et patrimoine sénégalais (Teranga, Gorée, Casamance, Musée des Civilisations Noires, Cité Jardin Ndianda)
+
+BASE DE CONNAISSANCES OFFICIELLE ACAFIS CANADA (faits réels — utilise-les pour répondre avec précision, ne les contredis jamais) :
+• Identité : Association Communautaire d'Aide aux Familles Immigrantes Sénégalaises (ACAFIS Canada), organisme à but non lucratif au service de la diaspora sénégalaise, basé au Québec.
+• Adresse : 4845, avenue de Courtrai, suite 101, Montréal, QC H3W 0A2, Canada.
+• Adhésion : cotisation annuelle de 25$ CAD, paiement par virement Interac à finance2@acafis.ca (question secrète "Pays ?", réponse "Senegal"). Inscription via la page "Adhésion & Contact" du site.
+• Contacts : secretariat@acafis.ca (secrétariat général) ; le Président Moustapha Sane est joignable à taphasane1910@gmail.com.
+• Bureau Exécutif (11 membres) : Moustapha Sane (Président), Omar Cisse (Adjoint/VP), Ablaye Diatta (Secrétaire Général), Adama Sow (Secrétaire Général Adjoint), Landiata Dieme (Trésorier Général), Pa Sonko (Trésorier Adjoint), Ibrahima Diop (Controller), Ibnou Amar Dia (Assistant Contrôle & Support), Mounirou Dieme (Président Commission Organisation), Ngoma Dhiediou (Présidente Commission Féminine), Sire Aw (Responsable Communication).
+• Hommage aux anciens Présidents d'ACAFIS : Landiata Dieme, Ibrahima Diop, Omar Cisse, Ibnou Amar Dia, puis Moustapha Sane (actuel).
+• Coop-ACAFIS (coopérative sœur, site coop-acafis.com) : dédiée à l'habitat solidaire et à l'investissement communautaire dans le projet "Cité Jardin" à Ndianda, Sénégal (lotissement écologique, sécurisation foncière, développement agro-écologique). Présidents : Omar Sarr, Souleymane Diallo, puis Omar Sarr de nouveau (actuel, depuis 2024).
+• Boutique officielle : boutique-acafis.vercel.app — produits ACAFIS/Coop-ACAFIS (t-shirts, casquettes, artisanat, etc.), dont les bénéfices financent les bourses jeunesse.
+• Missions & Services (6 axes) : (1) Pont Solidaire Diaspora-Sénégal ; (2) ACAFIS Cité Jardin & Coop-ACAFIS (habitat à Ndianda) ; (3) Éducation, Soutien Scolaire & nTIC (dont toi, Kocc Barma) ; (4) Accueil & Intégration des nouveaux arrivants au Canada (parrainage, réseautage, entraide) ; (5) Acquisition d'un Centre Communautaire ACAFIS — un local qui sera à la fois centre de formation pour les jeunes et lieu d'accueil-conseil pour les nouveaux arrivants (projet en cours) ; (6) Culture, Rassemblements & Mémoire.
+• Programme annuel : Hiver = AG Ordinaire & Journée ACAFIS (bilan, gouvernance) ; Printemps = Conférences sur l'investissement immobilier et l'entrepreneuriat ; Été = Grand BBQ familial & sorties plein air ; Automne = Gala de Solidarité (levée de fonds).
+• Colonie de vacances "Racines & Avenir" (2027-2030) : projet en 3 phases pour envoyer des jeunes de la diaspora (10-17 ans) en immersion au Sénégal (tourisme mémoriel à Gorée, immersion à la Cité Jardin Ndianda, Tech Camp nTIC).
+• Partenaires : Regroupement Général des Sénégalais du Canada (RGSC), Arrondissement de Côte-des-Neiges, Afroleck.
+• Pages du site ACAFIS Canada : Accueil, Espace Jeune, Programme, Média, Missions & Services, Acafis Mentor (toi), Bureau Exécutif, Témoignages, Adhésion & Contact.
+
+CONSIGNES D'ORIENTATION : question sur l'adhésion/le paiement → oriente vers la page "Adhésion & Contact" ou finance2@acafis.ca. Question sur la boutique → mentionne boutique-acafis.vercel.app. Question sur la coopérative/l'investissement à Ndianda → mentionne coop-acafis.com. Question administrative précise que tu ne peux pas trancher → oriente vers secretariat@acafis.ca.
 
 ${topicPrompts[topic] || topicPrompts.general}
 
@@ -106,21 +125,58 @@ Consignes de style : reste concis (150-250 mots max), structure avec des puces c
     console.error("Gemini API call failed:", error);
   }
 
-  // Fallback intelligent responses if API key is not yet set (or the call failed)
-  let fallbackReply = "Excellente question ! Je suis Kocc Barma, et je salue ta curiosité. ";
+  // Fallback intelligent responses if API key is not yet set (or the call failed).
+  // Detected only heuristically here (no real NLU) — the full Gemini path above
+  // does true trilingual understanding via the systemInstruction; this is just
+  // a reasonable offline safety net in the 3 languages Kocc Barma supports.
   const lowerMessage = message.toLowerCase();
-  if (topic === "culture" || lowerMessage.includes("culture") || lowerMessage.includes("senegal")) {
-    fallbackReply += "Le Sénégal est réputé pour sa Teranga (l'hospitalité légendaire) et son riche patrimoine, depuis l'Île de Gorée jusqu'à la magnifique Casamance. Savais-tu que la Cité Jardin à Ndianda est un projet pilote éco-responsable porté par notre communauté pour relier la diaspora à nos racines ?";
-  } else if (topic === "code" || lowerMessage.includes("code") || lowerMessage.includes("robot") || lowerMessage.includes("ia") || lowerMessage.includes("python")) {
-    fallbackReply += "En programmation comme en robotique, le plus important est de décomposer un problème en petites étapes logiques (l'algorithme). Pour débuter, Python et Scratch sont idéaux pour créer des mini-jeux, et un kit comme Arduino permet de faire ses premiers pas en robotique. ACAFIS prépare d'ailleurs des ateliers nTIC lors de la colonie de vacances 2030 à la Cité Jardin !";
-  } else if (topic === "maths" || lowerMessage.includes("math")) {
-    fallbackReply += "Pour maîtriser les maths, la clé réside dans la pratique régulière et la compréhension des concepts de base. N'hésite pas à poser un énoncé précis de ton devoir, nous le résoudrons ensemble étape par étape !";
-  } else if (lowerMessage.includes("équivalence") || lowerMessage.includes("equivalence") || lowerMessage.includes("diplôme") || lowerMessage.includes("diplome") || lowerMessage.includes("bourse")) {
-    fallbackReply += "Pour faire reconnaître un diplôme obtenu à l'étranger, il faut généralement s'adresser au ministère de l'Éducation de ta province ou directement à l'établissement visé. Pour les bourses d'études, plusieurs organismes soutiennent les étudiants immigrants — n'hésite pas à demander au secrétariat d'ACAFIS pour être orienté vers les bonnes ressources !";
-  } else if (topic === "orientation" || lowerMessage.includes("orientation") || lowerMessage.includes("cégep") || lowerMessage.includes("cegep") || lowerMessage.includes("universit")) {
-    fallbackReply += "Le choix d'un parcours d'études se construit à partir de tes intérêts, de tes forces et des besoins du marché du travail. Explore les programmes offerts au cégep et à l'université, et n'hésite pas à me parler de tes passions pour qu'on cible ensemble les métiers d'avenir qui te correspondent !";
+  const detectLanguage = (text: string): "fr" | "en" | "wo" => {
+    const wolofMarkers = ["nanga def", "jàmm", "jamm nga", "naka mu", "dama", "waaw", "deedeet", "ndax", "sama xarit", "yow", "ana", "kocc barma ci wolof"];
+    const englishMarkers = [" the ", " how ", " what ", " you ", " is ", " are ", "hello", "please", "thanks", "school", "scholarship", "homework"];
+    const woScore = wolofMarkers.filter((m) => text.includes(m)).length;
+    const enScore = englishMarkers.filter((m) => text.includes(m)).length;
+    if (woScore > 0 && woScore >= enScore) return "wo";
+    if (enScore > 0) return "en";
+    return "fr";
+  };
+  const lang = detectLanguage(lowerMessage);
+
+  let fallbackReply: string;
+  if (lang === "wo") {
+    fallbackReply =
+      "Jàmm nga am ! Maa ngi ci Kocc Barma, sa dikkeel ci ACAFIS Canada. Bëgg naa la wax ci wolof, waaye ay laaj yu xóot (informatique, bourse, diplôma, ak i sàkkufeeñoo) dañuy gën a leer bu nu ci waxee ci français walla ci english. Bul ragal a laaj ma ci sa làkk bu neex, ma tontu la ak sama xam-xam ! ACAFIS Canada, coop-acafis.com ak boutique-acafis.vercel.app, moom itam sa mbokk lañu — bul ragal a wax ak nun. 🇸🇳";
+  } else if (lang === "en") {
+    fallbackReply = "Great question! I'm Kocc Barma, and I salute your curiosity. ";
+    if (topic === "culture" || lowerMessage.includes("culture") || lowerMessage.includes("senegal")) {
+      fallbackReply += "Senegal is famous for its Teranga (legendary hospitality) and rich heritage, from Gorée Island to the beautiful Casamance region. Did you know the Cité Jardin in Ndianda is an eco-friendly community project led by ACAFIS to reconnect the diaspora with its roots?";
+    } else if (topic === "code" || lowerMessage.includes("code") || lowerMessage.includes("robot") || lowerMessage.includes(" ai ") || lowerMessage.includes("python")) {
+      fallbackReply += "In programming and robotics, the key is breaking a problem into small logical steps (the algorithm). Python and Scratch are great for beginners to build mini-games, and a kit like Arduino lets you take your first steps in robotics. ACAFIS is even preparing nTIC workshops for the 2030 summer camp at the Cité Jardin!";
+    } else if (topic === "maths" || lowerMessage.includes("math")) {
+      fallbackReply += "Mastering math comes down to regular practice and understanding the basics. Share the exact question from your homework and we'll work through it together, step by step!";
+    } else if (lowerMessage.includes("equivalence") || lowerMessage.includes("diploma") || lowerMessage.includes("scholarship")) {
+      fallbackReply += "To have a foreign diploma recognized, you generally need to contact your province's Ministry of Education or the institution directly. For scholarships, several organizations support immigrant students — ask the ACAFIS secretariat (secretariat@acafis.ca) to be pointed to the right resources!";
+    } else if (topic === "orientation" || lowerMessage.includes("orientation") || lowerMessage.includes("cegep") || lowerMessage.includes("university")) {
+      fallbackReply += "Choosing a path starts with your interests, strengths, and the needs of the job market. Explore CEGEP and university programs, and tell me about your passions so we can find the careers of the future that truly fit you!";
+    } else {
+      fallbackReply += "ACAFIS Canada's mission is to give every young person the keys to excel in their studies here in Canada while staying connected to their Senegalese roots. Ask me about your courses, your projects, your orientation — or about ACAFIS itself, the Coop-ACAFIS (coop-acafis.com), or our official shop (boutique-acafis.vercel.app)!";
+    }
   } else {
-    fallbackReply += "Notre mission à ACAFIS Canada est de donner à chaque jeune les clés pour exceller dans ses études ici au Canada tout en restant connecté à ses racines sénégalaises. Pose-moi n'importe quelle question sur tes cours, tes projets ou ton orientation !";
+    fallbackReply = "Excellente question ! Je suis Kocc Barma, et je salue ta curiosité. ";
+    if (topic === "culture" || lowerMessage.includes("culture") || lowerMessage.includes("senegal")) {
+      fallbackReply += "Le Sénégal est réputé pour sa Teranga (l'hospitalité légendaire) et son riche patrimoine, depuis l'Île de Gorée jusqu'à la magnifique Casamance. Savais-tu que la Cité Jardin à Ndianda est un projet pilote éco-responsable porté par notre communauté pour relier la diaspora à nos racines ?";
+    } else if (topic === "code" || lowerMessage.includes("code") || lowerMessage.includes("robot") || lowerMessage.includes("ia") || lowerMessage.includes("python")) {
+      fallbackReply += "En programmation comme en robotique, le plus important est de décomposer un problème en petites étapes logiques (l'algorithme). Pour débuter, Python et Scratch sont idéaux pour créer des mini-jeux, et un kit comme Arduino permet de faire ses premiers pas en robotique. ACAFIS prépare d'ailleurs des ateliers nTIC lors de la colonie de vacances 2030 à la Cité Jardin !";
+    } else if (topic === "maths" || lowerMessage.includes("math")) {
+      fallbackReply += "Pour maîtriser les maths, la clé réside dans la pratique régulière et la compréhension des concepts de base. N'hésite pas à poser un énoncé précis de ton devoir, nous le résoudrons ensemble étape par étape !";
+    } else if (lowerMessage.includes("équivalence") || lowerMessage.includes("equivalence") || lowerMessage.includes("diplôme") || lowerMessage.includes("diplome") || lowerMessage.includes("bourse")) {
+      fallbackReply += "Pour faire reconnaître un diplôme obtenu à l'étranger, il faut généralement s'adresser au ministère de l'Éducation de ta province ou directement à l'établissement visé. Pour les bourses d'études, plusieurs organismes soutiennent les étudiants immigrants — n'hésite pas à demander au secrétariat d'ACAFIS pour être orienté vers les bonnes ressources !";
+    } else if (topic === "orientation" || lowerMessage.includes("orientation") || lowerMessage.includes("cégep") || lowerMessage.includes("cegep") || lowerMessage.includes("universit")) {
+      fallbackReply += "Le choix d'un parcours d'études se construit à partir de tes intérêts, de tes forces et des besoins du marché du travail. Explore les programmes offerts au cégep et à l'université, et n'hésite pas à me parler de tes passions pour qu'on cible ensemble les métiers d'avenir qui te correspondent !";
+    } else if (lowerMessage.includes("boutique") || lowerMessage.includes("coop") || lowerMessage.includes("ndianda") || lowerMessage.includes("cité jardin") || lowerMessage.includes("cite jardin")) {
+      fallbackReply += "La Coop-ACAFIS (coop-acafis.com) porte notre projet d'habitat solidaire Cité Jardin à Ndianda, au Sénégal. Et notre Boutique Officielle (boutique-acafis.vercel.app) propose des produits ACAFIS dont les bénéfices financent les bourses jeunesse. Qu'aimerais-tu savoir de plus ?";
+    } else {
+      fallbackReply += "Notre mission à ACAFIS Canada est de donner à chaque jeune les clés pour exceller dans ses études ici au Canada tout en restant connecté à ses racines sénégalaises. Pose-moi n'importe quelle question sur tes cours, tes projets, ton orientation — ou sur ACAFIS elle-même, la Coop-ACAFIS ou notre boutique officielle !";
+    }
   }
 
   return { status: 200, body: { reply: fallbackReply } };

@@ -18,7 +18,7 @@ import koccBarmaAvatar from "../assets/images/kocc-barma-avatar.jpg";
 const WELCOME_MESSAGE: ChatMessage = {
   id: "initial-welcome",
   sender: "mentor",
-  text: "Bonjour ! 🎓 Je suis Kocc Barma, l'agent IA éducatif d'ACAFIS Canada. Pose-moi une question sur tes études, le code, la robotique, ton orientation ou la culture sénégalaise !",
+  text: "Bonjour ! 🎓 Je suis Kocc Barma, l'agent IA éducatif d'ACAFIS Canada. Pose-moi une question sur tes études, le code, la robotique, ton orientation, ACAFIS, la Coop-ACAFIS, notre boutique ou la culture sénégalaise — en français, en anglais ou en wolof !",
   timestamp: "À l'instant",
 };
 
@@ -36,6 +36,9 @@ export const KoccBarmaWidget: React.FC = () => {
   const [isListening, setIsListening] = useState(false);
   const [voiceEnabled, setVoiceEnabled] = useState(false);
   const [copied, setCopied] = useState(false);
+  // Web Speech recognition needs one fixed locale per session (no browser ships
+  // a Wolof one) — let the user pick between French and English for dictation.
+  const [voiceInputLang, setVoiceInputLang] = useState<"fr-CA" | "en-US">("fr-CA");
 
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
@@ -61,11 +64,21 @@ export const KoccBarmaWidget: React.FC = () => {
   // Avoid duplicating the experience on the dedicated Acafis Mentor page.
   if (location.pathname === "/acafis-mentor") return null;
 
+  // Rough heuristic to pick a voice that actually pronounces the reply well —
+  // no browser ships a Wolof voice, so Wolof text falls back to the French voice.
+  const detectSpeechLang = (text: string): string => {
+    const lower = text.toLowerCase();
+    const englishHits = [" the ", " you ", " is ", " are ", "hello", "thank", "school"].filter((m) =>
+      lower.includes(m)
+    ).length;
+    return englishHits > 0 ? "en-US" : "fr-CA";
+  };
+
   const speak = (text: string) => {
     if (!ttsSupported || !voiceEnabled) return;
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = "fr-CA";
+    utterance.lang = detectSpeechLang(text);
     window.speechSynthesis.speak(utterance);
   };
 
@@ -130,7 +143,7 @@ export const KoccBarmaWidget: React.FC = () => {
 
     const RecognitionCtor = getSpeechRecognitionCtor();
     const recognition = new RecognitionCtor();
-    recognition.lang = "fr-CA";
+    recognition.lang = voiceInputLang;
     recognition.interimResults = false;
     recognition.maxAlternatives = 1;
     recognition.onresult = (event: any) => {
@@ -294,16 +307,27 @@ export const KoccBarmaWidget: React.FC = () => {
             className="p-2.5 border-t border-slate-800 flex items-center gap-1.5 shrink-0"
           >
             {speechSupported && (
-              <button
-                type="button"
-                onClick={toggleListening}
-                title={isListening ? "Arrêter l'écoute" : "Parler à Kocc Barma"}
-                className={`p-2.5 rounded-xl cursor-pointer shrink-0 transition-colors ${
-                  isListening ? "bg-red-500 text-white animate-pulse" : "bg-slate-800 text-slate-300 hover:text-white"
-                }`}
-              >
-                {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
-              </button>
+              <>
+                <button
+                  type="button"
+                  onClick={() => setVoiceInputLang((l) => (l === "fr-CA" ? "en-US" : "fr-CA"))}
+                  disabled={isListening}
+                  title="Langue de dictée vocale"
+                  className="px-2 py-2.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white text-[10px] font-bold shrink-0 cursor-pointer disabled:opacity-50 transition-colors"
+                >
+                  {voiceInputLang === "fr-CA" ? "FR" : "EN"}
+                </button>
+                <button
+                  type="button"
+                  onClick={toggleListening}
+                  title={isListening ? "Arrêter l'écoute" : "Parler à Kocc Barma"}
+                  className={`p-2.5 rounded-xl cursor-pointer shrink-0 transition-colors ${
+                    isListening ? "bg-red-500 text-white animate-pulse" : "bg-slate-800 text-slate-300 hover:text-white"
+                  }`}
+                >
+                  {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+                </button>
+              </>
             )}
             <input
               value={inputValue}
