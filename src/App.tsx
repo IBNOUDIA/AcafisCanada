@@ -19,6 +19,7 @@ import { ContactSection } from "./components/ContactSection";
 import { PaymentDocumentsModal } from "./components/PaymentDocumentsModal";
 import { AuthModal } from "./components/AuthModal";
 import { Footer } from "./components/Footer";
+import { KoccBarmaWidget } from "./components/KoccBarmaWidget";
 import { pathForId, idForPath, PAGE_ROUTES } from "./routes";
 
 // Resets scroll position whenever the route (page) changes.
@@ -176,6 +177,9 @@ const AppShell: React.FC = () => {
           handleOpenCardModal();
         }}
       />
+
+      {/* Kocc Barma floats above every page except its own dedicated page */}
+      <KoccBarmaWidget />
     </div>
   );
 };

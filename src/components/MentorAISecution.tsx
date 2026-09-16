@@ -1,9 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import {
-  Bot,
   Send,
   Sparkles,
-  GraduationCap,
   BookOpen,
   Code2,
   HelpCircle,
@@ -16,6 +14,7 @@ import {
 import { ChatMessage } from "../types";
 import { Reveal } from "./Reveal";
 import mentorHeroPhoto from "../assets/images/mentor-hero.jpg";
+import koccBarmaAvatar from "../assets/images/kocc-barma-avatar.jpg";
 
 export const MentorAISecution: React.FC = () => {
   const [selectedTopic, setSelectedTopic] = useState<string>("culture");
@@ -248,8 +247,8 @@ export const MentorAISecution: React.FC = () => {
           {/* Header of Chat */}
           <div className="px-6 py-4 bg-slate-900/90 border-b border-slate-800 flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-amber-600 flex items-center justify-center text-slate-950 font-bold shadow-md">
-                <Bot className="w-6 h-6" />
+              <div className="w-10 h-10 rounded-full overflow-hidden border-2 border-amber-400/70 shadow-md shrink-0">
+                <img src={koccBarmaAvatar} alt="Kocc Barma" className="w-full h-full object-cover" />
               </div>
               <div>
                 <div className="flex items-center gap-2">
@@ -282,8 +281,8 @@ export const MentorAISecution: React.FC = () => {
                 className={`flex gap-3 ${msg.sender === "user" ? "justify-end" : "justify-start"}`}
               >
                 {msg.sender === "mentor" && (
-                  <div className="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-300 shrink-0 mt-1">
-                    <GraduationCap className="w-4 h-4" />
+                  <div className="w-8 h-8 rounded-full overflow-hidden border border-amber-500/50 shrink-0 mt-1">
+                    <img src={koccBarmaAvatar} alt="Kocc Barma" className="w-full h-full object-cover" />
                   </div>
                 )}
 
@@ -308,8 +307,8 @@ export const MentorAISecution: React.FC = () => {
 
             {isLoading && (
               <div className="flex gap-3 justify-start items-center">
-                <div className="w-8 h-8 rounded-lg bg-amber-500/20 border border-amber-500/30 flex items-center justify-center text-amber-300 shrink-0">
-                  <GraduationCap className="w-4 h-4" />
+                <div className="w-8 h-8 rounded-full overflow-hidden border border-amber-500/50 shrink-0">
+                  <img src={koccBarmaAvatar} alt="Kocc Barma" className="w-full h-full object-cover" />
                 </div>
                 <div className="p-3 rounded-2xl bg-slate-900 border border-slate-800 text-slate-300 text-xs flex items-center gap-2">
                   <div className="flex gap-1">
