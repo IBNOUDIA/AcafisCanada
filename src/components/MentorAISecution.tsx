@@ -25,7 +25,7 @@ export const MentorAISecution: React.FC = () => {
     {
       id: "initial-welcome",
       sender: "mentor",
-      text: "Bonjour jeune talent ! 🎓\n\nJe suis Acafis Mentor, ton agent IA éducatif officiel. Je suis là pour t'aider dans tes devoirs, te faire progresser en programmation (Code, Algorithmique, IA) et te faire découvrir l'histoire du Sénégal.\n\nQue souhaites-tu explorer aujourd'hui ? 🚀",
+      text: "Bonjour jeune talent ! 🎓\n\nJe suis Kocc Barma, l'agent IA éducatif officiel d'ACAFIS Canada. Je suis là pour t'aider dans tes devoirs, te faire progresser en code, robotique et nTIC, répondre à tes questions d'orientation, d'équivalences de diplômes ou de bourses d'études, et te faire découvrir l'histoire du Sénégal.\n\nQue souhaites-tu explorer aujourd'hui ? 🚀",
       timestamp: "À l'instant",
     },
   ]);
@@ -69,26 +69,26 @@ export const MentorAISecution: React.FC = () => {
     },
     {
       id: "code",
-      label: "Découvrir Code & IA",
+      label: "Code, Robotique & nTIC",
       icon: <Code2 className="w-4 h-4 text-purple-500" />,
       color: "border-purple-300 bg-purple-50/70 text-purple-900",
-      description: "Scratch, Python, HTML & Logique",
+      description: "Scratch, Python, Arduino & Logique",
       quickPrompts: [
         "Comment écrire mon premier programme 'Bonjour Monde' en Python ?",
-        "Comment fonctionne une Intelligence Artificielle comme toi ?",
+        "Comment fonctionne un robot programmable comme Arduino ?",
         "Qu'est-ce qu'une boucle 'for' et une variable ?",
       ],
     },
     {
       id: "orientation",
-      label: "Orientation Scolaire",
+      label: "Orientation, Équivalences & Bourses",
       icon: <Compass className="w-4 h-4 text-amber-500" />,
       color: "border-amber-300 bg-amber-50/70 text-amber-900",
-      description: "Cégeps, Universités au Canada & métiers d'avenir",
+      description: "Cégeps, universités, équivalences & bourses d'études",
       quickPrompts: [
         "Quelles études faire au Canada pour travailler en Intelligence Artificielle ?",
-        "Comment fonctionnent les admissions au cégep et à l'université ?",
-        "Conseils pour réussir mes examens de fin d'année",
+        "Comment faire reconnaître un diplôme obtenu au Sénégal (équivalence) ?",
+        "Quelles bourses d'études sont disponibles pour les étudiants immigrants ?",
       ],
     },
   ];
@@ -151,7 +151,7 @@ export const MentorAISecution: React.FC = () => {
       {
         id: "initial-welcome",
         sender: "mentor",
-        text: "Bonjour jeune talent ! 🎓\n\nJe suis Acafis Mentor, ton agent IA éducatif officiel. Je suis là pour t'aider dans tes devoirs, te faire progresser en programmation (Code, Algorithmique, IA) et te faire découvrir l'histoire du Sénégal.\n\nQue souhaites-tu explorer aujourd'hui ? 🚀",
+        text: "Bonjour jeune talent ! 🎓\n\nJe suis Kocc Barma, l'agent IA éducatif officiel d'ACAFIS Canada. Je suis là pour t'aider dans tes devoirs, te faire progresser en code, robotique et nTIC, répondre à tes questions d'orientation, d'équivalences de diplômes ou de bourses d'études, et te faire découvrir l'histoire du Sénégal.\n\nQue souhaites-tu explorer aujourd'hui ? 🚀",
         timestamp: "À l'instant",
       },
     ]);
@@ -191,11 +191,12 @@ export const MentorAISecution: React.FC = () => {
           </div>
 
           <h2 className="text-3xl sm:text-5xl font-black tracking-tight font-display text-white">
-            Acafis Mentor
+            Kocc Barma
           </h2>
+          <p className="text-sm font-semibold text-amber-300 -mt-1">Acafis Mentor</p>
 
           <p className="text-base sm:text-lg text-slate-300 font-light max-w-2xl mx-auto">
-            L'agent IA bienveillant d'ACAFIS Canada dédié à la réussite de nos enfants. Aide aux devoirs, quiz historiques et initiation au code pour propulser nos jeunes talents.
+            L'agent IA polyvalent d'ACAFIS Canada, du nom du grand sage sénégalais. Aide scolaire, code, robotique & nTIC, orientation, équivalences de diplômes et bourses d'études — pour propulser nos apprenants de la diaspora.
           </p>
 
           {/* Online status pill */}
@@ -203,7 +204,7 @@ export const MentorAISecution: React.FC = () => {
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
             <span>Agent AI Actif</span>
             <span className="text-slate-500">•</span>
-            <span className="text-amber-300">Acafis Mentor 🎓</span>
+            <span className="text-amber-300">Kocc Barma 🎓</span>
           </div>
         </Reveal>
 
@@ -252,7 +253,7 @@ export const MentorAISecution: React.FC = () => {
               </div>
               <div>
                 <div className="flex items-center gap-2">
-                  <h3 className="text-sm font-bold text-white">Le Mentor ACAFIS</h3>
+                  <h3 className="text-sm font-bold text-white">Kocc Barma</h3>
                   <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-800">
                     IA Active
                   </span>
