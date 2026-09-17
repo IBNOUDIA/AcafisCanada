@@ -1,5 +1,5 @@
 import React from "react";
-import { Users, Mail, Award } from "lucide-react";
+import { Users, Mail, Phone, Award } from "lucide-react";
 import { BUREAU_MEMBERS, FORMER_PRESIDENTS } from "../data/acafisData";
 import { Reveal, RevealGroup } from "./Reveal";
 import bureauHeroPhoto from "../assets/images/bureau-hero.jpg";
@@ -166,10 +166,20 @@ export const BureauSection: React.FC<BureauSectionProps> = ({ onContactSecretary
                   </p>
                 </div>
 
-                {member.email && (
-                  <div className="pt-3 border-t border-emerald-100/80 flex items-center gap-2 text-xs text-emerald-800 font-medium">
-                    <Mail className="w-3.5 h-3.5" />
-                    <span>{member.email}</span>
+                {(member.email || member.phone) && (
+                  <div className="pt-3 border-t border-emerald-100/80 space-y-1.5">
+                    {member.email && (
+                      <div className="flex items-center gap-2 text-xs text-emerald-800 font-medium">
+                        <Mail className="w-3.5 h-3.5" />
+                        <span>{member.email}</span>
+                      </div>
+                    )}
+                    {member.phone && (
+                      <div className="flex items-center gap-2 text-xs text-emerald-800 font-medium">
+                        <Phone className="w-3.5 h-3.5" />
+                        <span>{member.phone}</span>
+                      </div>
+                    )}
                   </div>
                 )}
               </div>

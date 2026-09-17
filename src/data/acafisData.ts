@@ -13,6 +13,7 @@ export const BUREAU_MEMBERS: BureauMember[] = [
     subCategory: "Présidence Exécutive",
     bio: "Supervise la vision stratégique, les relations institutionnelles Canada-Sénégal et le déploiement des grands projets communautaires.",
     email: "taphasane1910@gmail.com",
+    phone: "+1 (514) 250-7209",
   },
   {
     id: "omar-cisse",
@@ -30,7 +31,7 @@ export const BUREAU_MEMBERS: BureauMember[] = [
     category: "admin_finances",
     subCategory: "Secrétariat",
     bio: "Assure la tenue des registres légaux, les procès-verbaux, les convocations et les correspondances officielles.",
-    email: "secretariat@acafis.ca",
+    email: "abdou.diatta9@gmail.com",
   },
   {
     id: "adama-sow",
