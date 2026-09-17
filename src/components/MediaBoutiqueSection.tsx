@@ -55,7 +55,7 @@ export const MediaBoutiqueSection: React.FC = () => {
       caption: "Familles réunies pour une journée de détente, de partage et de complicité en plein air.",
     },
     {
-      title: "Rencontre du Bureau & Aînés",
+      title: "Consultation avec Meissa Diaw",
       location: "Salle communautaire",
       image: mediaBureauAines,
       caption: "Échanges entre membres du Bureau et aînés de la communauté lors d'une rencontre officielle.",
