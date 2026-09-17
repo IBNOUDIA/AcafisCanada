@@ -11,6 +11,7 @@ export const PAGE_ROUTES: PageRoute[] = [
   { id: "programme", path: "/programme", label: "Programme" },
   { id: "media", path: "/media", label: "Média" },
   { id: "mission-service", path: "/mission-service", label: "Missions & Services" },
+  { id: "projets", path: "/projets", label: "Grands Projets" },
   { id: "acafis-mentor", path: "/acafis-mentor", label: "Acafis Mentor" },
   { id: "bureau", path: "/bureau", label: "Bureau" },
   { id: "temoignages", path: "/temoignages", label: "Témoignages" },

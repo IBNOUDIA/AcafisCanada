@@ -11,6 +11,7 @@ import { CiteJardinProject } from "./components/CiteJardinProject";
 import { ActivitiesProgram } from "./components/ActivitiesProgram";
 import { MediaBoutiqueSection } from "./components/MediaBoutiqueSection";
 import { ServicesSection } from "./components/ServicesSection";
+import { MajorProjectsSection } from "./components/MajorProjectsSection";
 import { MentorAISecution } from "./components/MentorAISecution";
 import { BureauSection } from "./components/BureauSection";
 import { TestimonialsSection } from "./components/TestimonialsSection";
@@ -112,6 +113,15 @@ const AppShell: React.FC = () => {
             path="/mission-service"
             element={
               <ServicesSection onNavigate={handleNavigate} onOpenCardModal={handleOpenCardModal} />
+            }
+          />
+          <Route
+            path="/projets"
+            element={
+              <MajorProjectsSection
+                onNavigate={handleNavigate}
+                onNavigateContact={() => handleNavigate("adhesion")}
+              />
             }
           />
           <Route path="/acafis-mentor" element={<MentorAISecution />} />

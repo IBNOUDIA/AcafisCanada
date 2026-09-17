@@ -28,6 +28,21 @@ export interface ProjectPhase {
   details: string[];
 }
 
+// A major, multi-year ACAFIS undertaking (habitat, infrastructure, etc.) —
+// distinct from the recurring "missions" on the Services page, which don't
+// have a completion arc. Each one gets its own phased roadmap, like the
+// Colonie de Vacances already has.
+export interface MajorProject {
+  id: string;
+  title: string;
+  tagline: string;
+  description: string;
+  roadmap: ProjectPhase[];
+  howToHelp: string[];
+  cta: { label: string; type: "internal" | "external" | "contact"; target: string };
+  photo?: string;
+}
+
 export interface ServiceItem {
   id: string;
   title: string;

@@ -1,9 +1,10 @@
-import { BureauMember, Activity, ProjectPhase, ServiceItem, DocumentItem, BoutiqueItem } from "../types";
+import { BureauMember, Activity, ProjectPhase, ServiceItem, DocumentItem, BoutiqueItem, MajorProject } from "../types";
 import programmeHiver from "../assets/images/programme-hiver.jpg";
 import programmePrintemps from "../assets/images/programme-printemps.jpg";
 import programmeEte from "../assets/images/programme-ete.jpg";
 import programmeAutomne from "../assets/images/programme-automne.jpg";
 import recipiendairesGroupe from "../assets/images/recipiendaires-groupe.jpg";
+import espaceJeuneColonie from "../assets/images/espace-jeune-colonie.jpg";
 
 export const BUREAU_MEMBERS: BureauMember[] = [
   {
@@ -495,4 +496,129 @@ export const PARTNERS_LIST = [
   { name: "Regroupement Général des Sénégalais du Canada (RGSC)", role: "Partenaire Fédérateur" },
   { name: "Arrondissement de Côte-des-Neiges", role: "Partenaire Municipal" },
   { name: "Afroleck", role: "Partenaire Commanditaire" },
+];
+
+// Major, multi-year ACAFIS undertakings — each with its own phased roadmap to
+// help members understand exactly where things stand and how to get involved,
+// the same way the Colonie de Vacances already does.
+export const MAJOR_PROJECTS: MajorProject[] = [
+  {
+    id: "centre-communautaire",
+    title: "Acquisition d'un Centre Communautaire ACAFIS",
+    tagline: "Un local bien à nous, pour toutes nos activités",
+    description: "Aujourd'hui, ACAFIS n'a pas de local permanent : réunions, ateliers et accueil des nouveaux arrivants se font au gré des salles disponibles. L'objectif est d'acquérir un espace fixe qui serve à la fois de centre de formation pour nos jeunes et de lieu d'accueil-conseil pour les nouveaux arrivants — un véritable lieu de brassage, d'entraide et de culture.",
+    roadmap: [
+      {
+        phase: "Étape 1",
+        title: "Comité & Cahier des charges",
+        period: "À initier",
+        status: "upcoming",
+        details: [
+          "Constituer un comité dédié « Centre Communautaire »",
+          "Définir les besoins réels (superficie, activités à héberger, capacité d'accueil)",
+          "Chiffrer un budget prévisionnel (achat ou location, aménagement, entretien annuel)",
+        ],
+      },
+      {
+        phase: "Étape 2",
+        title: "Financement",
+        period: "À initier",
+        status: "upcoming",
+        details: [
+          "Lancer une campagne de dons ciblée auprès des membres",
+          "Identifier les subventions municipales et provinciales pour organismes communautaires",
+          "Explorer des partenariats avec la Coop-ACAFIS ou des mécènes",
+        ],
+      },
+      {
+        phase: "Étape 3",
+        title: "Repérage & Acquisition",
+        period: "À initier",
+        status: "upcoming",
+        details: [
+          "Visiter des locaux disponibles à Montréal (achat ou bail longue durée)",
+          "Négocier et signer une entente",
+          "Obtenir les permis municipaux nécessaires",
+        ],
+      },
+      {
+        phase: "Étape 4",
+        title: "Aménagement & Ouverture",
+        period: "À initier",
+        status: "upcoming",
+        details: [
+          "Travaux d'aménagement (salle de formation, bureau d'accueil, espace commun)",
+          "Recruter et former les bénévoles responsables du lieu",
+          "Grande inauguration communautaire",
+        ],
+      },
+    ],
+    howToHelp: [
+      "Rejoindre le comité Centre Communautaire",
+      "Faire un don pour la campagne de financement",
+      "Signaler un local disponible à Montréal qui pourrait convenir",
+    ],
+    cta: { label: "Rejoindre le comité", type: "contact", target: "adhesion" },
+  },
+  {
+    id: "cite-jardin-coop",
+    title: "Cité-Jardin ACAFIS & Coop-ACAFIS",
+    tagline: "320 logements solidaires à Ndianda, Sénégal",
+    description: "Portée par la Coop-ACAFIS (coopérative sœur, fondée en 2014 à Montréal), la Cité-Jardin est un projet d'habitat solidaire pour la diaspora à Ndianda et Mbodiène, près de Mbour au Sénégal — 320 logements sur environ 14 hectares, avec sécurisation foncière et financement bancaire sur 20 ans.",
+    roadmap: [
+      {
+        phase: "2018-2024",
+        title: "Fondations légales & foncières",
+        period: "Terminé",
+        status: "completed",
+        details: [
+          "Agrément interministériel de l'État du Sénégal obtenu (N° 018485, 2018)",
+          "Sécurisation de 14 hectares à Ndianda (10,5 ha) et Mbodiène (3,5 ha)",
+          "Reconnaissance légale au Canada (NEQ, Loi sur les compagnies du Québec)",
+        ],
+      },
+      {
+        phase: "2025-2027",
+        title: "Financement & Construction",
+        period: "En cours",
+        status: "in_progress",
+        details: [
+          "Permis de construire et activation du financement bancaire BHS (20 ans)",
+          "Lancement du chantier par Ridwan Engineering (conception Studio SAAMS)",
+          "48 acquéreurs déjà engagés dans le projet",
+        ],
+      },
+      {
+        phase: "2028-2030",
+        title: "Livraison des logements",
+        period: "À venir",
+        status: "upcoming",
+        details: [
+          "Livraison des premières villas dès 2028",
+          "Poursuite de la construction des 6 types de villas (F3 à F6)",
+          "Clôture du projet avec les 320 logements livrés d'ici 2030",
+        ],
+      },
+    ],
+    howToHelp: [
+      "Devenir acquéreur d'une villa à la Cité-Jardin",
+      "Investir dans les parts sociales de la Coop-ACAFIS",
+      "Suivre l'avancement sur coop-acafis.com",
+    ],
+    cta: { label: "Découvrir Coop-ACAFIS", type: "external", target: "https://coop-acafis.com" },
+  },
+  {
+    id: "colonie-vacances",
+    title: "Colonie de Vacances « Racines & Avenir »",
+    tagline: "Immersion mémorielle et technologique pour nos jeunes",
+    description: "Un programme d'immersion complet pour les jeunes de la diaspora (10-17 ans), combinant tourisme mémoriel au Sénégal (Gorée, Musée des Civilisations Noires) et ateliers technologiques (code, IA, AgriTech) à la Cité-Jardin de Ndianda.",
+    roadmap: COLONIE_ROADMAP,
+    howToHelp: [
+      "Manifester l'intérêt de votre enfant pour une place",
+      "Devenir partenaire éducatif ou mécène de la colonie",
+      "Contacter le comité jeunesse pour vous impliquer",
+    ],
+    cta: { label: "Voir tous les détails", type: "internal", target: "espace-jeune" },
+    photo: espaceJeuneColonie,
+  },
 ];
