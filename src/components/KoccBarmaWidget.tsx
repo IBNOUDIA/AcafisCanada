@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import { ChatMessage } from "../types";
 import { readFileAsBase64, EncodedFile } from "../lib/fileToBase64";
-import { getSpeechRecognitionCtor, isTtsSupported, detectSpeechLang } from "../lib/voice";
+import { getSpeechRecognitionCtor, isTtsSupported, detectSpeechLang, loadVoices, pickVoice, stripMarkdownForSpeech } from "../lib/voice";
 import koccBarmaAvatar from "../assets/images/kocc-barma-avatar.jpg";
 
 const WELCOME_MESSAGE: ChatMessage = {
@@ -66,11 +66,18 @@ export const KoccBarmaWidget: React.FC = () => {
   // Avoid duplicating the experience on the dedicated Acafis Mentor page.
   if (location.pathname === "/acafis-mentor") return null;
 
-  const speak = (text: string) => {
+  const speak = async (text: string) => {
     if (!ttsSupported || !voiceEnabled) return;
     window.speechSynthesis.cancel();
-    const utterance = new SpeechSynthesisUtterance(text);
-    utterance.lang = detectSpeechLang(text);
+    const lang = detectSpeechLang(text);
+    const utterance = new SpeechSynthesisUtterance(stripMarkdownForSpeech(text));
+    utterance.lang = lang;
+    // Kocc Barma is a wise elder — favor a male-sounding voice and a touch
+    // more gravitas (slightly lower pitch, slightly slower pace) when available.
+    const voice = pickVoice(await loadVoices(), lang);
+    if (voice) utterance.voice = voice;
+    utterance.pitch = 0.85;
+    utterance.rate = 0.95;
     window.speechSynthesis.speak(utterance);
   };
 
