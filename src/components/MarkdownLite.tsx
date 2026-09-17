@@ -52,8 +52,15 @@ export const MarkdownLite: React.FC<{ text: string }> = ({ text }) => {
   };
 
   lines.forEach((rawLine, idx) => {
-    const line = rawLine.replace(/^#{1,6}\s+/, "");
-    const bulletMatch = line.match(/^[-•]\s+(.*)/);
+    const trimmed = rawLine.trimStart();
+    // A lone "---" / "***" horizontal-rule line — just drop it, no <hr> needed
+    // in a chat bubble.
+    if (/^(-{3,}|\*{3,})\s*$/.test(trimmed)) {
+      flushList(`flush-${idx}`);
+      return;
+    }
+    const line = trimmed.replace(/^#{1,6}\s+/, "");
+    const bulletMatch = line.match(/^[-•*]\s+(.*)/);
     const numberedMatch = line.match(/^\d+\.\s+(.*)/);
 
     if (bulletMatch) {
