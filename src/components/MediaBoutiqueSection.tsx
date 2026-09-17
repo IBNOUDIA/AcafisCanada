@@ -58,7 +58,7 @@ export const MediaBoutiqueSection: React.FC = () => {
       title: "Consultation avec Meissa Diaw",
       location: "Salle communautaire",
       image: mediaBureauAines,
-      caption: "Échanges entre membres du Bureau et aînés de la communauté lors d'une rencontre officielle.",
+      caption: "Échanges entre membres du Bureau et Meissa Diaw lors d'une rencontre officielle.",
     },
     {
       title: "Soirée Ndogou Communautaire",
