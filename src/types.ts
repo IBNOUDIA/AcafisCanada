@@ -11,7 +11,7 @@ export interface BureauMember {
 
 export interface Activity {
   id: string;
-  season: "Hiver (Jan-Mars)" | "Printemps (Avril-Juin)" | "Été (Juillet-Sept)" | "Automne (Oct-Déc)";
+  season: "Hiver (Jan-Mars)" | "Printemps (Avril-Juin)" | "Été (Juillet-Sept)" | "Automne (Oct-Déc)" | "Réveillon (31-Déc)";
   title: string;
   subtitle: string;
   description: string;

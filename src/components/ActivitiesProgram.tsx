@@ -10,6 +10,7 @@ import {
   CheckCircle2,
   Bell,
   ArrowRight,
+  PartyPopper,
 } from "lucide-react";
 import { ANNUAL_PROGRAM } from "../data/acafisData";
 import { Activity } from "../types";
@@ -24,6 +25,7 @@ export const ActivitiesProgram: React.FC = () => {
     printemps: <Leaf className="w-5 h-5 text-emerald-500" />,
     ete: <Sun className="w-5 h-5 text-amber-500" />,
     automne: <Flame className="w-5 h-5 text-orange-500" />,
+    reveillon: <PartyPopper className="w-5 h-5 text-rose-500" />,
   };
 
   const currentActivity =
@@ -60,11 +62,11 @@ export const ActivitiesProgram: React.FC = () => {
           </h2>
 
           <p className="text-base sm:text-lg text-slate-600">
-            Quatre grands temps forts tout au long de l'année pour célébrer notre culture, débattre des investissements et rassembler la grande famille ACAFIS.
+            Cinq grands temps forts tout au long de l'année pour célébrer notre culture, débattre des investissements et rassembler la grande famille ACAFIS.
           </p>
 
-          {/* 4 Season Pills */}
-          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 pt-2 max-w-2xl mx-auto">
+          {/* Season Pills */}
+          <div className="grid grid-cols-3 sm:grid-cols-5 gap-2 pt-2 max-w-3xl mx-auto">
             {ANNUAL_PROGRAM.map((act) => {
               const isSelected = activeSeasonId === act.id;
               return (
@@ -178,8 +180,8 @@ export const ActivitiesProgram: React.FC = () => {
 
         </div>
 
-        {/* 4 Cards Summary Grid */}
-        <RevealGroup className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-6xl mx-auto">
+        {/* Cards Summary Grid */}
+        <RevealGroup className="mt-12 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 max-w-7xl mx-auto">
           {ANNUAL_PROGRAM.map((act) => (
             <div
               key={act.id}

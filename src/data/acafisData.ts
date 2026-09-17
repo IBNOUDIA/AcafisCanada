@@ -3,6 +3,7 @@ import programmeHiver from "../assets/images/programme-hiver.jpg";
 import programmePrintemps from "../assets/images/programme-printemps.jpg";
 import programmeEte from "../assets/images/programme-ete.jpg";
 import programmeAutomne from "../assets/images/programme-automne.jpg";
+import recipiendairesGroupe from "../assets/images/recipiendaires-groupe.jpg";
 
 export const BUREAU_MEMBERS: BureauMember[] = [
   {
@@ -228,6 +229,16 @@ export const ANNUAL_PROGRAM: Activity[] = [
     location: "Grande salle de réception métropolitaine",
     tags: ["Gala", "Levée de fonds", "Cité Jardin", "Partenariats"],
     photo: programmeAutomne,
+  },
+  {
+    id: "reveillon",
+    season: "Réveillon (31-Déc)",
+    title: "ACAFIS Célébration Fin d'Année 2025",
+    subtitle: "Réveillon communautaire — le 31 décembre en famille",
+    description: "Notre grande tradition du 31 décembre : toutes les familles ACAFIS réunies pour accueillir la nouvelle année ensemble. Moment fort de la soirée, le jeune qui célèbre ses 18 ans cette année prononce un discours au nom des enfants, pour sa dernière année à recevoir un cadeau — une émotion partagée par toute la communauté.",
+    location: "Café le Cheval — 5320 Chem. Queen Mary, Montréal, QC H3X 1T7",
+    tags: ["Réveillon", "Famille", "Nouvel An", "Tradition"],
+    photo: recipiendairesGroupe,
   },
 ];
 
