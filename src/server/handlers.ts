@@ -52,16 +52,30 @@ interface HandlerResult<T> {
 export interface MentorRequestBody {
   message?: string;
   topic?: string;
+  // Optional document/image attachment for Kocc Barma to analyze (base64, no
+  // "data:...;base64," prefix — stripped client-side by src/lib/fileToBase64.ts).
+  fileData?: string;
+  fileMimeType?: string;
+  fileName?: string;
 }
+
+// Text-like documents are decoded and inlined as plain text in the prompt
+// (simpler and more reliable than multimodal parts for .txt/.md/.csv).
+// Anything else (images, PDF) is sent to Gemini as a native multimodal part.
+const TEXT_LIKE_MIME_PREFIXES = ["text/"];
+const MAX_INLINE_TEXT_CHARS = 20000;
 
 export async function handleMentorRequest(
   body: MentorRequestBody
 ): Promise<HandlerResult<{ reply?: string; error?: string }>> {
-  const { message, topic = "general" } = body;
+  const { message, topic = "general", fileData, fileMimeType, fileName } = body;
 
   if (!message || typeof message !== "string") {
     return { status: 400, body: { error: "Message requis" } };
   }
+
+  const hasAttachment = !!fileData && !!fileMimeType;
+  const isTextLikeAttachment = hasAttachment && TEXT_LIKE_MIME_PREFIXES.some((p) => fileMimeType!.startsWith(p));
 
   const topicPrompts: Record<string, string> = {
     culture: "Focus : Histoire, traditions, géographie, symboles et culture du Sénégal (Teranga, monuments, Gorée, Casamance, Ndianda, etc.).",
@@ -78,6 +92,8 @@ Ton rôle est d'accompagner avec bienveillance les apprenants de la diaspora (je
 LANGUES : tu es parfaitement trilingue — français, anglais et wolof. Détecte automatiquement la langue utilisée par la personne qui t'écrit et réponds TOUJOURS dans cette même langue. Si le message est ambigu ou mélange plusieurs langues, réponds en français par défaut et propose poliment de continuer en anglais ("I can also answer in English if you prefer") ou en wolof ("Man naa la tontu ci wolof itam, bu la neexee"). En wolof, exprime-toi de façon naturelle et authentique (salutations comme "Jàmm nga am", "Nanga def", proverbes courts et sages) ; pour les notions techniques pointues (code, sciences, démarches administratives), il est normal et authentique d'insérer des mots français/anglais au milieu du wolof (code-switching), comme le font naturellement les locuteurs wolof au quotidien — n'invente jamais un vocabulaire technique wolof qui n'existe pas.
 
 Tu t'exprimes avec clarté, chaleur, enthousiasme et professionnalisme, avec une touche de sagesse et de Teranga sénégalaise — comme un mentor de confiance, jamais condescendant.
+
+CAPACITÉS TECHNIQUES : (1) Tu peux lire et analyser un document ou une image que la personne t'envoie en pièce jointe (devoir photographié, PDF, relevé de notes, texte à corriger, etc.) — analyse-le avec soin et donne un retour concret et constructif. (2) Tu as accès à la recherche Google en temps réel : utilise-la pour toute question portant sur une actualité récente, une date précise, un fait qui peut avoir changé, ou un sujet hors de tes connaissances de base — et dans ce cas, indique brièvement que l'information vient d'une recherche en ligne.
 
 Tu es polyvalent et compétent dans les domaines suivants :
 1. Aide scolaire et académique (maths, sciences, français, méthodologie de travail) du primaire au cégep/université
@@ -128,12 +144,29 @@ Consignes de style : reste concis (150-250 mots max), structure avec des puces c
   try {
     const ai = getGeminiClient();
     if (ai) {
+      // Text-like attachments (.txt, .md, .csv…) are simply decoded and folded
+      // into the prompt text; images/PDFs are sent as a native multimodal part.
+      let effectiveMessage = message;
+      let contents: string | { role: "user"; parts: Array<Record<string, unknown>> } = message;
+
+      if (hasAttachment && isTextLikeAttachment) {
+        const decoded = Buffer.from(fileData!, "base64").toString("utf-8").slice(0, MAX_INLINE_TEXT_CHARS);
+        effectiveMessage = `${message}\n\n[Document joint : "${fileName || "document.txt"}"]\n${decoded}`;
+        contents = effectiveMessage;
+      } else if (hasAttachment) {
+        contents = {
+          role: "user",
+          parts: [{ text: message }, { inlineData: { mimeType: fileMimeType, data: fileData } }],
+        };
+      }
+
       const response = await ai.models.generateContent({
         model: "gemini-3.8-flash",
-        contents: message,
+        contents,
         config: {
           systemInstruction,
           temperature: 0.7,
+          tools: [{ googleSearch: {} }],
         },
       });
 
@@ -144,6 +177,19 @@ Consignes de style : reste concis (150-250 mots max), structure avec des puces c
     }
   } catch (error) {
     console.error("Gemini API call failed:", error);
+  }
+
+  // Document/image analysis strictly requires the live Gemini connection — the
+  // canned fallback branches below would otherwise silently ignore the file
+  // and answer as if nothing was attached, which would be misleading.
+  if (hasAttachment) {
+    return {
+      status: 200,
+      body: {
+        reply:
+          "Je vois que tu as joint un document, mais je ne peux pas l'analyser pour l'instant (connexion IA indisponible). Réessaie dans un instant, ou décris-moi son contenu en quelques mots et je ferai de mon mieux pour t'aider !",
+      },
+    };
   }
 
   // Fallback intelligent responses if API key is not yet set (or the call failed).

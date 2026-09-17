@@ -10,9 +10,18 @@ import {
   Compass,
   Lightbulb,
   Award,
+  Mic,
+  MicOff,
+  Volume2,
+  VolumeX,
+  Paperclip,
+  FileText,
+  X,
 } from "lucide-react";
 import { ChatMessage } from "../types";
 import { Reveal } from "./Reveal";
+import { readFileAsBase64, EncodedFile } from "../lib/fileToBase64";
+import { getSpeechRecognitionCtor, isTtsSupported, detectSpeechLang } from "../lib/voice";
 import mentorHeroPhoto from "../assets/images/mentor-hero.jpg";
 import koccBarmaAvatar from "../assets/images/kocc-barma-avatar.jpg";
 
@@ -29,7 +38,18 @@ export const MentorAISecution: React.FC = () => {
     },
   ]);
 
+  const [isListening, setIsListening] = useState(false);
+  const [voiceEnabled, setVoiceEnabled] = useState(false);
+  const [voiceInputLang, setVoiceInputLang] = useState<"fr-CA" | "en-US">("fr-CA");
+  const [attachedFile, setAttachedFile] = useState<EncodedFile | null>(null);
+  const [attachError, setAttachError] = useState<string | null>(null);
+
   const messagesContainerRef = useRef<HTMLDivElement>(null);
+  const recognitionRef = useRef<any>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const speechSupported = typeof window !== "undefined" && !!getSpeechRecognitionCtor();
+  const ttsSupported = isTtsSupported();
 
   useEffect(() => {
     // Scroll only the internal chat container, never the page — scrollIntoView()
@@ -40,6 +60,57 @@ export const MentorAISecution: React.FC = () => {
       container.scrollTop = container.scrollHeight;
     }
   }, [messages, isLoading]);
+
+  // Stop any speech synthesis if this section unmounts mid-utterance.
+  useEffect(() => {
+    return () => {
+      if (ttsSupported) window.speechSynthesis.cancel();
+    };
+  }, [ttsSupported]);
+
+  const speak = (text: string) => {
+    if (!ttsSupported || !voiceEnabled) return;
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(text);
+    utterance.lang = detectSpeechLang(text);
+    window.speechSynthesis.speak(utterance);
+  };
+
+  const toggleListening = () => {
+    if (!speechSupported) return;
+    if (isListening) {
+      recognitionRef.current?.stop();
+      setIsListening(false);
+      return;
+    }
+    const RecognitionCtor = getSpeechRecognitionCtor();
+    const recognition = new RecognitionCtor();
+    recognition.lang = voiceInputLang;
+    recognition.interimResults = false;
+    recognition.maxAlternatives = 1;
+    recognition.onresult = (event: any) => {
+      const transcript = event.results?.[0]?.[0]?.transcript;
+      if (transcript) setInputValue(transcript);
+    };
+    recognition.onend = () => setIsListening(false);
+    recognition.onerror = () => setIsListening(false);
+    recognitionRef.current = recognition;
+    recognition.start();
+    setIsListening(true);
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = "";
+    if (!file) return;
+    setAttachError(null);
+    try {
+      const encoded = await readFileAsBase64(file);
+      setAttachedFile(encoded);
+    } catch (err) {
+      setAttachError(err instanceof Error ? err.message : "Fichier invalide");
+    }
+  };
 
   const topics = [
     {
@@ -94,17 +165,21 @@ export const MentorAISecution: React.FC = () => {
 
   const handleSendMessage = async (textToSend?: string) => {
     const messageContent = (textToSend || inputValue).trim();
-    if (!messageContent || isLoading) return;
+    if ((!messageContent && !attachedFile) || isLoading) return;
 
+    const fileToSend = attachedFile;
+    const effectiveMessage = messageContent || "Peux-tu analyser ce document et me donner ton avis ?";
     const userMsg: ChatMessage = {
       id: `user-${Date.now()}`,
       sender: "user",
-      text: messageContent,
+      text: messageContent || "(Document joint sans message)",
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      attachmentName: fileToSend?.name,
     };
 
     setMessages((prev) => [...prev, userMsg]);
     setInputValue("");
+    setAttachedFile(null);
     setIsLoading(true);
 
     try {
@@ -112,8 +187,11 @@ export const MentorAISecution: React.FC = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          message: messageContent,
+          message: effectiveMessage,
           topic: selectedTopic,
+          ...(fileToSend
+            ? { fileData: fileToSend.base64, fileMimeType: fileToSend.mimeType, fileName: fileToSend.name }
+            : {}),
         }),
       });
 
@@ -122,21 +200,23 @@ export const MentorAISecution: React.FC = () => {
       }
 
       const data = await response.json();
+      const replyText: string = data.reply || "Excellente question ! Poursuivons notre apprentissage.";
       const mentorMsg: ChatMessage = {
         id: `mentor-${Date.now()}`,
         sender: "mentor",
-        text: data.reply || "Excellente question ! Poursuivons notre apprentissage.",
+        text: replyText,
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
         topic: selectedTopic,
       };
 
       setMessages((prev) => [...prev, mentorMsg]);
+      speak(replyText);
     } catch (error) {
       console.warn("Using offline fallback for Mentor ACAFIS:", error);
       const fallbackMsg: ChatMessage = {
         id: `mentor-${Date.now()}`,
         sender: "mentor",
-        text: `Bravo pour ta curiosité ! En tant que Mentor ACAFIS, je te félicite pour cette question sur "${messageContent}". Rappelle-toi que chaque effort d'apprentissage te rapproche de tes rêves. N'hésite pas à demander à tes parents ou aux tuteurs bénévoles d'ACAFIS lors de nos ateliers du samedi !`,
+        text: `Bravo pour ta curiosité ! En tant que Mentor ACAFIS, je te félicite pour cette question sur "${effectiveMessage}". Rappelle-toi que chaque effort d'apprentissage te rapproche de tes rêves. N'hésite pas à demander à tes parents ou aux tuteurs bénévoles d'ACAFIS lors de nos ateliers du samedi !`,
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       };
       setMessages((prev) => [...prev, fallbackMsg]);
@@ -272,14 +352,27 @@ export const MentorAISecution: React.FC = () => {
               </div>
             </div>
 
-            <button
-              onClick={handleResetChat}
-              className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors text-xs flex items-center gap-1 cursor-pointer"
-              title="Réinitialiser la conversation"
-            >
-              <RotateCcw className="w-4 h-4" />
-              <span className="hidden sm:inline">Nouveau</span>
-            </button>
+            <div className="flex items-center gap-1.5">
+              {ttsSupported && (
+                <button
+                  onClick={() => setVoiceEnabled((v) => !v)}
+                  title={voiceEnabled ? "Désactiver la lecture vocale" : "Activer la lecture vocale des réponses"}
+                  className={`p-2 rounded-lg cursor-pointer transition-colors ${
+                    voiceEnabled ? "bg-amber-400 text-slate-950" : "text-slate-400 hover:text-white hover:bg-slate-800"
+                  }`}
+                >
+                  {voiceEnabled ? <Volume2 className="w-4 h-4" /> : <VolumeX className="w-4 h-4" />}
+                </button>
+              )}
+              <button
+                onClick={handleResetChat}
+                className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors text-xs flex items-center gap-1 cursor-pointer"
+                title="Réinitialiser la conversation"
+              >
+                <RotateCcw className="w-4 h-4" />
+                <span className="hidden sm:inline">Nouveau</span>
+              </button>
+            </div>
           </div>
 
           {/* Messages Feed */}
@@ -302,6 +395,12 @@ export const MentorAISecution: React.FC = () => {
                       : "bg-slate-900 border border-slate-800 text-slate-200 rounded-tl-xs whitespace-pre-line"
                   }`}
                 >
+                  {msg.attachmentName && (
+                    <div className="flex items-center gap-1.5 mb-1.5 text-xs font-semibold opacity-90">
+                      <FileText className="w-3.5 h-3.5" />
+                      <span className="truncate">{msg.attachmentName}</span>
+                    </div>
+                  )}
                   {msg.text}
                   <div
                     className={`text-[10px] mt-1.5 ${
@@ -349,6 +448,27 @@ export const MentorAISecution: React.FC = () => {
             ))}
           </div>
 
+          {/* Attached file preview / error */}
+          {(attachedFile || attachError) && (
+            <div className="px-4 pt-3 bg-slate-900 border-t border-slate-800/60">
+              {attachedFile && (
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-lg bg-slate-800 border border-slate-700 text-xs text-slate-200 max-w-full">
+                  <FileText className="w-3.5 h-3.5 text-amber-400 shrink-0" />
+                  <span className="truncate">{attachedFile.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => setAttachedFile(null)}
+                    className="text-slate-400 hover:text-white cursor-pointer shrink-0"
+                    aria-label="Retirer le fichier"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
+              {attachError && <p className="text-xs text-red-400 mt-1">{attachError}</p>}
+            </div>
+          )}
+
           {/* Input Area */}
           <form
             onSubmit={(e) => {
@@ -357,6 +477,48 @@ export const MentorAISecution: React.FC = () => {
             }}
             className="p-4 bg-slate-900 border-t border-slate-800 flex items-center gap-2"
           >
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*,.pdf,.txt,.md,.csv"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              title="Joindre un document ou une image à analyser"
+              className="p-3 rounded-xl bg-slate-950 text-slate-300 hover:text-white border border-slate-800 cursor-pointer shrink-0 transition-colors"
+            >
+              <Paperclip className="w-4 h-4" />
+            </button>
+
+            {speechSupported && (
+              <>
+                <button
+                  type="button"
+                  onClick={() => setVoiceInputLang((l) => (l === "fr-CA" ? "en-US" : "fr-CA"))}
+                  disabled={isListening}
+                  title="Langue de dictée vocale"
+                  className="px-2.5 py-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-300 hover:text-white text-[10px] font-bold shrink-0 cursor-pointer disabled:opacity-50 transition-colors"
+                >
+                  {voiceInputLang === "fr-CA" ? "FR" : "EN"}
+                </button>
+                <button
+                  type="button"
+                  onClick={toggleListening}
+                  title={isListening ? "Arrêter l'écoute" : "Parler à Kocc Barma"}
+                  className={`p-3 rounded-xl cursor-pointer shrink-0 transition-colors ${
+                    isListening
+                      ? "bg-red-500 text-white animate-pulse"
+                      : "bg-slate-950 border border-slate-800 text-slate-300 hover:text-white"
+                  }`}
+                >
+                  {isListening ? <MicOff className="w-4 h-4" /> : <Mic className="w-4 h-4" />}
+                </button>
+              </>
+            )}
+
             <input
               id="mentor-input-message"
               type="text"
@@ -370,7 +532,7 @@ export const MentorAISecution: React.FC = () => {
             <button
               id="mentor-btn-submit"
               type="submit"
-              disabled={isLoading || !inputValue.trim()}
+              disabled={isLoading || (!inputValue.trim() && !attachedFile)}
               className="px-5 py-3 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 disabled:opacity-50 text-slate-950 font-bold text-sm flex items-center gap-1.5 shadow-md cursor-pointer transition-all shrink-0"
             >
               <span>Envoyer</span>

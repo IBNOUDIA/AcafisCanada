@@ -11,8 +11,12 @@ import {
   Trash2,
   X,
   Check,
+  Paperclip,
+  FileText,
 } from "lucide-react";
 import { ChatMessage } from "../types";
+import { readFileAsBase64, EncodedFile } from "../lib/fileToBase64";
+import { getSpeechRecognitionCtor, isTtsSupported, detectSpeechLang } from "../lib/voice";
 import koccBarmaAvatar from "../assets/images/kocc-barma-avatar.jpg";
 
 const WELCOME_MESSAGE: ChatMessage = {
@@ -21,11 +25,6 @@ const WELCOME_MESSAGE: ChatMessage = {
   text: "Bonjour ! 🎓 Je suis Kocc Barma, l'agent IA éducatif d'ACAFIS Canada. Pose-moi une question sur tes études, le code, la robotique, ton orientation, ACAFIS, la Coop-ACAFIS, notre boutique ou la culture sénégalaise — en français, en anglais ou en wolof !",
   timestamp: "À l'instant",
 };
-
-// Web Speech API isn't fully typed in the default DOM lib — narrow "any" casts
-// keep this optional, progressively-enhanced feature isolated to this file.
-const getSpeechRecognitionCtor = (): any =>
-  (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
 
 export const KoccBarmaWidget: React.FC = () => {
   const location = useLocation();
@@ -39,12 +38,15 @@ export const KoccBarmaWidget: React.FC = () => {
   // Web Speech recognition needs one fixed locale per session (no browser ships
   // a Wolof one) — let the user pick between French and English for dictation.
   const [voiceInputLang, setVoiceInputLang] = useState<"fr-CA" | "en-US">("fr-CA");
+  const [attachedFile, setAttachedFile] = useState<EncodedFile | null>(null);
+  const [attachError, setAttachError] = useState<string | null>(null);
 
   const messagesContainerRef = useRef<HTMLDivElement>(null);
   const recognitionRef = useRef<any>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const speechSupported = typeof window !== "undefined" && !!getSpeechRecognitionCtor();
-  const ttsSupported = typeof window !== "undefined" && "speechSynthesis" in window;
+  const ttsSupported = isTtsSupported();
   const shareSupported = typeof navigator !== "undefined" && !!(navigator as any).share;
 
   useEffect(() => {
@@ -64,16 +66,6 @@ export const KoccBarmaWidget: React.FC = () => {
   // Avoid duplicating the experience on the dedicated Acafis Mentor page.
   if (location.pathname === "/acafis-mentor") return null;
 
-  // Rough heuristic to pick a voice that actually pronounces the reply well —
-  // no browser ships a Wolof voice, so Wolof text falls back to the French voice.
-  const detectSpeechLang = (text: string): string => {
-    const lower = text.toLowerCase();
-    const englishHits = [" the ", " you ", " is ", " are ", "hello", "thank", "school"].filter((m) =>
-      lower.includes(m)
-    ).length;
-    return englishHits > 0 ? "en-US" : "fr-CA";
-  };
-
   const speak = (text: string) => {
     if (!ttsSupported || !voiceEnabled) return;
     window.speechSynthesis.cancel();
@@ -82,25 +74,47 @@ export const KoccBarmaWidget: React.FC = () => {
     window.speechSynthesis.speak(utterance);
   };
 
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    e.target.value = ""; // allow re-selecting the same file later
+    if (!file) return;
+    setAttachError(null);
+    try {
+      const encoded = await readFileAsBase64(file);
+      setAttachedFile(encoded);
+    } catch (err) {
+      setAttachError(err instanceof Error ? err.message : "Fichier invalide");
+    }
+  };
+
   const handleSend = async (textToSend?: string) => {
     const content = (textToSend ?? inputValue).trim();
-    if (!content || isLoading) return;
+    if ((!content && !attachedFile) || isLoading) return;
 
+    const fileToSend = attachedFile;
     const userMsg: ChatMessage = {
       id: `user-${Date.now()}`,
       sender: "user",
-      text: content,
+      text: content || "(Document joint sans message)",
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      attachmentName: fileToSend?.name,
     };
     setMessages((prev) => [...prev, userMsg]);
     setInputValue("");
+    setAttachedFile(null);
     setIsLoading(true);
 
     try {
       const res = await fetch("/api/mentor", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ message: content, topic: "general" }),
+        body: JSON.stringify({
+          message: content || "Peux-tu analyser ce document et me donner ton avis ?",
+          topic: "general",
+          ...(fileToSend
+            ? { fileData: fileToSend.base64, fileMimeType: fileToSend.mimeType, fileName: fileToSend.name }
+            : {}),
+        }),
       });
       if (!res.ok) throw new Error("network");
       const data = await res.json();
@@ -280,6 +294,12 @@ export const KoccBarmaWidget: React.FC = () => {
                       : "bg-slate-900 border border-slate-800 text-slate-200 rounded-tl-xs"
                   }`}
                 >
+                  {msg.attachmentName && (
+                    <div className="flex items-center gap-1 mb-1 text-[10px] font-semibold opacity-90">
+                      <FileText className="w-3 h-3" />
+                      <span className="truncate">{msg.attachmentName}</span>
+                    </div>
+                  )}
                   {msg.text}
                   <div className={`text-[9px] mt-1 ${msg.sender === "user" ? "text-emerald-200" : "text-slate-500"}`}>
                     {msg.timestamp}
@@ -298,6 +318,27 @@ export const KoccBarmaWidget: React.FC = () => {
             )}
           </div>
 
+          {/* Attached file preview / error */}
+          {(attachedFile || attachError) && (
+            <div className="px-2.5 pt-2 shrink-0">
+              {attachedFile && (
+                <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-slate-800 border border-slate-700 text-[11px] text-slate-200 max-w-full">
+                  <FileText className="w-3 h-3 text-amber-400 shrink-0" />
+                  <span className="truncate">{attachedFile.name}</span>
+                  <button
+                    type="button"
+                    onClick={() => setAttachedFile(null)}
+                    className="text-slate-400 hover:text-white cursor-pointer shrink-0"
+                    aria-label="Retirer le fichier"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              )}
+              {attachError && <p className="text-[10px] text-red-400 mt-1">{attachError}</p>}
+            </div>
+          )}
+
           {/* Input */}
           <form
             onSubmit={(e) => {
@@ -306,6 +347,21 @@ export const KoccBarmaWidget: React.FC = () => {
             }}
             className="p-2.5 border-t border-slate-800 flex items-center gap-1.5 shrink-0"
           >
+            <input
+              ref={fileInputRef}
+              type="file"
+              accept="image/*,.pdf,.txt,.md,.csv"
+              onChange={handleFileChange}
+              className="hidden"
+            />
+            <button
+              type="button"
+              onClick={() => fileInputRef.current?.click()}
+              title="Joindre un document ou une image à analyser"
+              className="p-2.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white cursor-pointer shrink-0 transition-colors"
+            >
+              <Paperclip className="w-4 h-4" />
+            </button>
             {speechSupported && (
               <>
                 <button
@@ -338,7 +394,7 @@ export const KoccBarmaWidget: React.FC = () => {
             />
             <button
               type="submit"
-              disabled={isLoading || !inputValue.trim()}
+              disabled={isLoading || (!inputValue.trim() && !attachedFile)}
               className="p-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 disabled:opacity-50 text-slate-950 shrink-0 cursor-pointer transition-colors"
               aria-label="Envoyer"
             >

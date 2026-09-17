@@ -74,6 +74,7 @@ export interface ChatMessage {
   text: string;
   timestamp: string;
   topic?: string;
+  attachmentName?: string;
 }
 
 export interface MemberRecord {
