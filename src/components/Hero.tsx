@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { SenegalFlagBadge, SenegalRibbon } from "./SenegalFlagBadge";
 import { Reveal } from "./Reveal";
+import { PAYMENT_INTERAC_INFO } from "../data/acafisData";
 import heroCommunityPhoto from "../assets/images/hero-communaute-bbq.jpg";
 
 interface HeroProps {
@@ -33,7 +34,7 @@ export const Hero: React.FC<HeroProps> = ({
   const [activeImpactTab, setActiveImpactTab] = useState<number>(0);
 
   const handleCopyEmail = () => {
-    navigator.clipboard.writeText("finance2@acafis.ca");
+    navigator.clipboard.writeText(PAYMENT_INTERAC_INFO.email);
     setCopiedEmail(true);
     setTimeout(() => setCopiedEmail(false), 2000);
   };
@@ -196,7 +197,7 @@ export const Hero: React.FC<HeroProps> = ({
                 ) : (
                   <>
                     <Copy className="w-3.5 h-3.5 text-sky-400" />
-                    <span>finance2@acafis.ca</span>
+                    <span>{PAYMENT_INTERAC_INFO.email}</span>
                   </>
                 )}
               </button>

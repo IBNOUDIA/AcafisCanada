@@ -15,7 +15,7 @@ import {
 } from "lucide-react";
 import { AcafisLogo } from "./AcafisLogo";
 import { SenegalFlagBadge, SenegalRibbon } from "./SenegalFlagBadge";
-import { EXTERNAL_LINKS } from "../data/acafisData";
+import { EXTERNAL_LINKS, PAYMENT_INTERAC_INFO } from "../data/acafisData";
 import { PAGE_ROUTES } from "../routes";
 
 interface NavbarProps {
@@ -81,7 +81,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   }, []);
 
   const handleCopyEmail = () => {
-    navigator.clipboard.writeText("finance2@acafis.ca");
+    navigator.clipboard.writeText(PAYMENT_INTERAC_INFO.email);
     setCopiedEmail(true);
     setTimeout(() => setCopiedEmail(false), 2200);
   };
@@ -136,7 +136,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             ) : (
               <>
                 <Copy className="w-3 h-3 text-sky-300" />
-                <span>finance2@acafis.ca</span>
+                <span>{PAYMENT_INTERAC_INFO.email}</span>
               </>
             )}
           </button>

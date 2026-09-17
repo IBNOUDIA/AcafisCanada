@@ -31,8 +31,13 @@ function getResendClient(): Resend | null {
   return resendClient;
 }
 
-const CONTACT_TO_EMAIL = process.env.CONTACT_TO_EMAIL || "secretariat@acafis.ca";
-const MEMBERSHIP_TO_EMAIL = process.env.MEMBERSHIP_TO_EMAIL || "finance2@acafis.ca";
+// TEMPORAIRE (phase de test) : tant qu'aucun domaine n'est verifie sur Resend,
+// le compte gratuit ne peut livrer des courriels qu'a l'adresse du proprietaire
+// du compte Resend. On route donc les deux formulaires vers diaamar757@gmail.com
+// le temps des tests, avant de revenir aux adresses officielles ci-dessous une
+// fois un domaine ACAFIS verifie sur resend.com/domains.
+const CONTACT_TO_EMAIL = process.env.CONTACT_TO_EMAIL || "diaamar757@gmail.com"; // officiel : secretariat@acafis.ca
+const MEMBERSHIP_TO_EMAIL = process.env.MEMBERSHIP_TO_EMAIL || "diaamar757@gmail.com"; // officiel : acafisfinance2@gmail.com
 const EMAIL_FROM = process.env.RESEND_FROM_EMAIL || "ACAFIS Canada <onboarding@resend.dev>";
 
 interface HandlerResult<T> {
@@ -86,7 +91,7 @@ Tu es polyvalent et compétent dans les domaines suivants :
 BASE DE CONNAISSANCES OFFICIELLE ACAFIS CANADA (faits réels — utilise-les pour répondre avec précision, ne les contredis jamais) :
 • Identité : Association Communautaire d'Aide aux Familles Immigrantes Sénégalaises (ACAFIS Canada), organisme à but non lucratif au service de la diaspora sénégalaise, basé au Québec.
 • Adresse : 4845, avenue de Courtrai, suite 101, Montréal, QC H3W 0A2, Canada.
-• Adhésion : cotisation annuelle de 25$ CAD, paiement par virement Interac à finance2@acafis.ca (question secrète "Pays ?", réponse "Senegal"). Inscription via la page "Adhésion & Contact" du site.
+• Adhésion : cotisation annuelle de 25$ CAD, paiement par virement Interac à acafisfinance2@gmail.com (question secrète "Pays ?", réponse "Senegal"). Inscription via la page "Adhésion & Contact" du site.
 • Contacts : secretariat@acafis.ca (secrétariat général) ; le Président Moustapha Sane est joignable à taphasane1910@gmail.com ou au +1 (514) 250-7209 ; le Secrétaire Général Ablaye Diatta est joignable à abdou.diatta9@gmail.com.
 • Bureau Exécutif (11 membres) : Moustapha Sane (Président), Omar Cisse (Adjoint/VP), Ablaye Diatta (Secrétaire Général), Adama Sow (Secrétaire Général Adjoint), Landiata Dieme (Trésorier Général), Pa Sonko (Trésorier Adjoint), Ibrahima Diop (Controller), Ibnou Amar Dia (Assistant Contrôle & Support), Mounirou Dieme (Président Commission Organisation), Ngoma Dhiediou (Présidente Commission Féminine), Sire Aw (Responsable Communication).
 • Hommage aux anciens Présidents d'ACAFIS : Landiata Dieme, Ibrahima Diop, Omar Cisse, Ibnou Amar Dia, puis Moustapha Sane (actuel).
@@ -114,7 +119,7 @@ REPÈRES CULTURELS & HISTORIQUES SUR LE SÉNÉGAL (faits fiables à réutiliser 
 • Le Musée des Civilisations Noires a ouvert ses portes à Dakar en décembre 2018.
 • Kocc Barma Fall, dont tu portes le nom, était un philosophe et sage wolof du XVIIe siècle à la cour du royaume du Cayor, célèbre pour ses maximes de sagesse populaire encore citées aujourd'hui.
 
-CONSIGNES D'ORIENTATION : question sur l'adhésion/le paiement → oriente vers la page "Adhésion & Contact" ou finance2@acafis.ca. Question sur la boutique → mentionne boutique-acafis.vercel.app. Question sur la coopérative/l'investissement à Ndianda → mentionne coop-acafis.com. Question administrative précise que tu ne peux pas trancher → oriente vers secretariat@acafis.ca.
+CONSIGNES D'ORIENTATION : question sur l'adhésion/le paiement → oriente vers la page "Adhésion & Contact" ou acafisfinance2@gmail.com. Question sur la boutique → mentionne boutique-acafis.vercel.app. Question sur la coopérative/l'investissement à Ndianda → mentionne coop-acafis.com. Question administrative précise que tu ne peux pas trancher → oriente vers secretariat@acafis.ca.
 
 ${topicPrompts[topic] || topicPrompts.general}
 
