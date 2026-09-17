@@ -5,3 +5,11 @@
   --font-display: 'Cabinet Grotesk', 'Plus Jakarta Sans', sans-serif;
 }
 
+/* Decorative full-bleed blur/glow shapes (used across Hero and other sections)
+   are meant to bleed past their section edges — without this, they occasionally
+   push the page a few pixels wider than the viewport on narrow phones,
+   allowing an unwanted horizontal scroll. */
+html, body {
+  overflow-x: hidden;
+}
+

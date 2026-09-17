@@ -160,7 +160,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             onClick={() => handleLinkClick("accueil")}
             className="cursor-pointer group select-none transition-transform hover:scale-102 duration-150 flex items-center gap-3 shrink-0"
           >
-            <AcafisLogo size="md" textColor="dark" />
+            <AcafisLogo size="md" textColor="dark" hideTextOnMobile />
           </div>
 
           {/* Right Action Buttons */}

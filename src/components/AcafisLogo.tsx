@@ -6,6 +6,11 @@ interface AcafisLogoProps {
   size?: "sm" | "md" | "lg" | "xl";
   showText?: boolean;
   textColor?: "dark" | "light";
+  // Hides the tagline text below the sm breakpoint — used in the Navbar where
+  // logo + tagline + the mobile menu controls would otherwise be too tight to
+  // fit on the narrowest common phone widths (~390px), causing a horizontal
+  // scroll on every page.
+  hideTextOnMobile?: boolean;
 }
 
 // Official logo file is a wide lockup (icon + "ACAFIS" wordmark + full name) on a
@@ -17,6 +22,7 @@ export const AcafisLogo: React.FC<AcafisLogoProps> = ({
   size = "md",
   showText = true,
   textColor = "dark",
+  hideTextOnMobile = false,
 }) => {
   const heightMap = {
     sm: "h-10",
@@ -57,8 +63,8 @@ export const AcafisLogo: React.FC<AcafisLogoProps> = ({
       {showText && (
         <span
           className={`font-medium tracking-wide uppercase leading-tight ${subTextSizeMap[size]} ${
-            textColor === "light" ? "text-emerald-300/80" : "text-emerald-800 font-semibold"
-          }`}
+            hideTextOnMobile ? "hidden sm:inline-block" : ""
+          } ${textColor === "light" ? "text-emerald-300/80" : "text-emerald-800 font-semibold"}`}
         >
           Diaspora Solidaire
           <br />
