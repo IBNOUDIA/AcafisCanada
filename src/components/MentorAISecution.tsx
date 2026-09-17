@@ -21,6 +21,7 @@ import {
 import { ChatMessage } from "../types";
 import { Reveal } from "./Reveal";
 import { readFileAsBase64, EncodedFile } from "../lib/fileToBase64";
+import { MarkdownLite } from "./MarkdownLite";
 import { getSpeechRecognitionCtor, isTtsSupported, detectSpeechLang, loadVoices, pickVoice, stripMarkdownForSpeech } from "../lib/voice";
 import mentorHeroPhoto from "../assets/images/mentor-hero.jpg";
 import koccBarmaAvatar from "../assets/images/kocc-barma-avatar.jpg";
@@ -408,7 +409,7 @@ export const MentorAISecution: React.FC = () => {
                       <span className="truncate">{msg.attachmentName}</span>
                     </div>
                   )}
-                  {msg.text}
+                  {msg.sender === "mentor" ? <MarkdownLite text={msg.text} /> : msg.text}
                   <div
                     className={`text-[10px] mt-1.5 ${
                       msg.sender === "user" ? "text-emerald-200 text-right" : "text-slate-500"

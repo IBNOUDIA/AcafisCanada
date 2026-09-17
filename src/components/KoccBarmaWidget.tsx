@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { ChatMessage } from "../types";
 import { readFileAsBase64, EncodedFile } from "../lib/fileToBase64";
+import { MarkdownLite } from "./MarkdownLite";
 import { getSpeechRecognitionCtor, isTtsSupported, detectSpeechLang, loadVoices, pickVoice, stripMarkdownForSpeech } from "../lib/voice";
 import koccBarmaAvatar from "../assets/images/kocc-barma-avatar.jpg";
 
@@ -307,7 +308,7 @@ export const KoccBarmaWidget: React.FC = () => {
                       <span className="truncate">{msg.attachmentName}</span>
                     </div>
                   )}
-                  {msg.text}
+                  {msg.sender === "mentor" ? <MarkdownLite text={msg.text} /> : msg.text}
                   <div className={`text-[9px] mt-1 ${msg.sender === "user" ? "text-emerald-200" : "text-slate-500"}`}>
                     {msg.timestamp}
                   </div>
