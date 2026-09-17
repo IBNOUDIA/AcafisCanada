@@ -621,4 +621,159 @@ export const MAJOR_PROJECTS: MajorProject[] = [
     cta: { label: "Voir tous les détails", type: "internal", target: "espace-jeune" },
     photo: espaceJeuneColonie,
   },
+  {
+    id: "equipe-soccer",
+    title: "Mise sur Pied d'une Équipe de Soccer Ados",
+    tagline: "Le sport comme vecteur de cohésion et de santé pour nos jeunes",
+    description: "Structurer une véritable équipe de soccer pour les adolescents de la diaspora (13-17 ans), au-delà des tournois amicaux improvisés lors du Grand BBQ estival — entraînements réguliers, esprit d'équipe et fierté ACAFIS.",
+    roadmap: [
+      {
+        phase: "Étape 1",
+        title: "Mobilisation & Recrutement",
+        period: "À initier",
+        status: "upcoming",
+        details: [
+          "Sonder l'intérêt des familles pour leurs ados (13-17 ans)",
+          "Recruter un entraîneur ou une entraîneuse bénévole",
+          "Constituer une première liste de joueurs et joueuses",
+        ],
+      },
+      {
+        phase: "Étape 2",
+        title: "Structuration",
+        period: "À initier",
+        status: "upcoming",
+        details: [
+          "Choisir un format (récréatif ou ligue compétitive locale)",
+          "Acquérir l'équipement (maillots, ballons, matériel d'entraînement)",
+          "Souscrire les assurances nécessaires",
+        ],
+      },
+      {
+        phase: "Étape 3",
+        title: "Terrain & Calendrier",
+        period: "À initier",
+        status: "upcoming",
+        details: [
+          "Réserver un terrain municipal pour des entraînements réguliers",
+          "Établir un calendrier de la saison (entraînements et matchs amicaux)",
+        ],
+      },
+      {
+        phase: "Étape 4",
+        title: "Lancement",
+        period: "À initier",
+        status: "upcoming",
+        details: [
+          "Match inaugural de l'équipe ACAFIS",
+          "Intégration au programme jeunesse annuel",
+        ],
+      },
+    ],
+    howToHelp: [
+      "Devenir entraîneur ou assistant bénévole",
+      "Inscrire votre ado (13-17 ans)",
+      "Faire don d'équipement sportif",
+    ],
+    cta: { label: "Manifester mon intérêt", type: "contact", target: "adhesion" },
+  },
+  {
+    id: "projet-culinaire",
+    title: "Projet Culinaire ACAFIS",
+    tagline: "Transmettre et faire rayonner la cuisine sénégalaise",
+    description: "Initié l'an dernier lors de nos soirées communautaires (Ndogou, Grand BBQ), ce projet vise à transmettre les recettes traditionnelles sénégalaises entre générations et, à terme, à en faire rayonner la richesse au-delà de nos membres.",
+    roadmap: [
+      {
+        phase: "Phase 1",
+        title: "Lancement",
+        period: "2025",
+        status: "completed",
+        details: [
+          "Premiers ateliers culinaires lors des soirées communautaires (Ndogou, BBQ)",
+          "Recueil des premières recettes traditionnelles auprès des aînées",
+        ],
+      },
+      {
+        phase: "Phase 2",
+        title: "Structuration",
+        period: "En cours",
+        status: "in_progress",
+        details: [
+          "Mettre en place un calendrier régulier d'ateliers culinaires",
+          "Identifier des cheffes et chefs bénévoles pour animer les sessions",
+          "Constituer un recueil écrit des recettes partagées",
+        ],
+      },
+      {
+        phase: "Phase 3",
+        title: "Rayonnement",
+        period: "À venir",
+        status: "upcoming",
+        details: [
+          "Envisager un livre de recettes ACAFIS ou un service traiteur solidaire",
+          "Ouvrir certains ateliers au grand public pour faire rayonner la culture sénégalaise",
+        ],
+      },
+    ],
+    howToHelp: [
+      "Partager une recette traditionnelle",
+      "Participer aux ateliers culinaires",
+      "Devenir cheffe ou chef bénévole animateur",
+    ],
+    cta: { label: "Partager ma recette", type: "contact", target: "adhesion" },
+  },
+  {
+    id: "foyer-ndianda",
+    title: "Foyer Socio-Culturel de Ndianda",
+    tagline: "Un lieu de vie communautaire au cœur de la Cité-Jardin",
+    description: "Distinct des logements de la Cité-Jardin, ce foyer serait un espace commun à Ndianda dédié aux activités socio-culturelles — pour la communauté locale et pour les familles de la diaspora en visite, dans le même esprit de brassage et d'entraide que le futur Centre Communautaire au Canada.",
+    roadmap: [
+      {
+        phase: "Étape 1",
+        title: "Définition du projet",
+        period: "À initier",
+        status: "upcoming",
+        details: [
+          "Consulter la communauté locale de Ndianda sur les besoins réels",
+          "Définir la vocation du foyer (salle polyvalente, bibliothèque, espace jeunesse)",
+        ],
+      },
+      {
+        phase: "Étape 2",
+        title: "Partenariat avec Coop-ACAFIS",
+        period: "À initier",
+        status: "upcoming",
+        details: [
+          "Identifier un terrain disponible au sein ou à proximité de la Cité-Jardin",
+          "Articuler le projet avec le calendrier de développement de la Coop-ACAFIS",
+        ],
+      },
+      {
+        phase: "Étape 3",
+        title: "Financement",
+        period: "À initier",
+        status: "upcoming",
+        details: [
+          "Lancer une collecte de fonds dédiée",
+          "Explorer des partenariats avec des institutions culturelles sénégalaises",
+        ],
+      },
+      {
+        phase: "Étape 4",
+        title: "Construction & Ouverture",
+        period: "À initier",
+        status: "upcoming",
+        details: [
+          "Construction du foyer",
+          "Programmation des premières activités socio-culturelles",
+        ],
+      },
+    ],
+    howToHelp: [
+      "Contribuer à la collecte de fonds dédiée",
+      "Partager vos idées pour la vocation du foyer",
+      "Vous impliquer via le comité Cité-Jardin",
+    ],
+    cta: { label: "Proposer une idée", type: "contact", target: "adhesion" },
+  },
 ];

@@ -3,6 +3,9 @@ import {
   Building,
   Home,
   TreePine,
+  Trophy,
+  ChefHat,
+  Landmark,
   CheckCircle2,
   Clock,
   Circle,
@@ -24,6 +27,9 @@ const PROJECT_ICONS: Record<string, React.ReactNode> = {
   "centre-communautaire": <Building className="w-5 h-5" />,
   "cite-jardin-coop": <Home className="w-5 h-5" />,
   "colonie-vacances": <TreePine className="w-5 h-5" />,
+  "equipe-soccer": <Trophy className="w-5 h-5" />,
+  "projet-culinaire": <ChefHat className="w-5 h-5" />,
+  "foyer-ndianda": <Landmark className="w-5 h-5" />,
 };
 
 const STATUS_STYLES: Record<string, { icon: React.ReactNode; label: string; className: string }> = {
