@@ -5,6 +5,9 @@ import programmeEte from "../assets/images/programme-ete.jpg";
 import programmeAutomne from "../assets/images/programme-automne.jpg";
 import recipiendairesGroupe from "../assets/images/recipiendaires-groupe.jpg";
 import espaceJeuneColonie from "../assets/images/espace-jeune-colonie.jpg";
+import partnerRgsc from "../assets/images/partner-rgsc.png";
+import partnerAfroleck from "../assets/images/partner-afroleck.png";
+import partnerCdnNdg from "../assets/images/partner-cdn-ndg.jpg";
 
 const L = (fr: string, en: string): Localized => ({ fr, en });
 const LA = (fr: string[], en: string[]): Localized<string[]> => ({ fr, en });
@@ -717,9 +720,9 @@ export const PAYMENT_INTERAC_INFO = {
 };
 
 export const PARTNERS_LIST = [
-  { name: "Regroupement Général des Sénégalais du Canada (RGSC)", role: L("Partenaire Fédérateur", "Founding Partner") },
-  { name: "Arrondissement de Côte-des-Neiges", role: L("Partenaire Municipal", "Municipal Partner") },
-  { name: "Afroleck", role: L("Partenaire Commanditaire", "Sponsoring Partner") },
+  { name: "Regroupement Général des Sénégalais du Canada (RGSC)", role: L("Partenaire Fédérateur", "Founding Partner"), logo: partnerRgsc },
+  { name: "Arrondissement de Côte-des-Neiges–Notre-Dame-de-Grâce", role: L("Partenaire Municipal", "Municipal Partner"), logo: partnerCdnNdg },
+  { name: "Afroleck", role: L("Partenaire Commanditaire", "Sponsoring Partner"), logo: partnerAfroleck },
 ];
 
 // Major, multi-year ACAFIS undertakings — each with its own phased roadmap to

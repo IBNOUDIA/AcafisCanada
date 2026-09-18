@@ -3,7 +3,6 @@ import {
   ShoppingBag,
   Image as ImageIcon,
   Heart,
-  Handshake,
   Check,
   Sparkles,
   ExternalLink,
@@ -182,21 +181,27 @@ export const MediaBoutiqueSection: React.FC = () => {
         {/* 2. Tab: Partenaires */}
         {activeTab === "partenaires" && (
           <Reveal className="max-w-4xl mx-auto">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {PARTNERS_LIST.map((partner, idx) => (
                 <div
                   key={idx}
-                  className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs flex items-center justify-between"
+                  className="p-5 rounded-2xl bg-white border border-slate-200 shadow-xs flex flex-col items-center text-center gap-3 hover:shadow-md transition-shadow"
                 >
+                  <div className="w-full h-20 flex items-center justify-center">
+                    <img
+                      src={partner.logo}
+                      alt={partner.name}
+                      className="max-h-20 max-w-full object-contain"
+                    />
+                  </div>
                   <div className="space-y-0.5">
-                    <h4 className="text-sm font-bold text-slate-900">
+                    <h4 className="text-xs font-bold text-slate-900 leading-tight">
                       {partner.name}
                     </h4>
-                    <span className="text-xs text-emerald-800 font-medium">
+                    <span className="inline-block text-[10px] text-emerald-800 font-semibold bg-emerald-50 border border-emerald-200 rounded-full px-2 py-0.5 mt-1">
                       {partner.role[lang]}
                     </span>
                   </div>
-                  <Handshake className="w-5 h-5 text-slate-400" />
                 </div>
               ))}
             </div>
