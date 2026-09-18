@@ -31,13 +31,13 @@ function getResendClient(): Resend | null {
   return resendClient;
 }
 
-// TEMPORAIRE (phase de test) : tant qu'aucun domaine n'est verifie sur Resend,
-// le compte gratuit ne peut livrer des courriels qu'a l'adresse du proprietaire
-// du compte Resend. On route donc les deux formulaires vers diaamar757@gmail.com
-// le temps des tests, avant de revenir aux adresses officielles ci-dessous une
-// fois un domaine ACAFIS verifie sur resend.com/domains.
-const CONTACT_TO_EMAIL = process.env.CONTACT_TO_EMAIL || "diaamar757@gmail.com"; // officiel : secretariat@acafis.ca
-const MEMBERSHIP_TO_EMAIL = process.env.MEMBERSHIP_TO_EMAIL || "diaamar757@gmail.com"; // officiel : acafisfinance2@gmail.com
+// TEMPORAIRE (en attendant l'achat et la verification du domaine acafis.ca) :
+// sur decision du bureau, les deux formulaires sont routes vers le courriel du
+// president Moustapha Sane le temps de la transition, avant de revenir aux
+// adresses officielles ci-dessous une fois un domaine ACAFIS verifie sur
+// resend.com/domains.
+const CONTACT_TO_EMAIL = process.env.CONTACT_TO_EMAIL || "taphasane1910@gmail.com"; // officiel : secretariat@acafis.ca
+const MEMBERSHIP_TO_EMAIL = process.env.MEMBERSHIP_TO_EMAIL || "taphasane1910@gmail.com"; // officiel : acafisfinance2@gmail.com
 const EMAIL_FROM = process.env.RESEND_FROM_EMAIL || "ACAFIS Canada <onboarding@resend.dev>";
 
 interface HandlerResult<T> {
