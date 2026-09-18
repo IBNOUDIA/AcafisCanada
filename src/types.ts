@@ -1,31 +1,41 @@
+// A value that reads differently in French vs English — real prose content
+// (bios, descriptions, roadmap steps...) uses this instead of a plain string
+// so every component can resolve it with `field[lang]`. Proper names, email
+// addresses, phone numbers and other language-independent facts stay plain
+// strings.
+export interface Localized<T = string> {
+  fr: T;
+  en: T;
+}
+
 export interface BureauMember {
   id: string;
   name: string;
-  role: string;
+  role: Localized;
   category: "presidence" | "admin_finances" | "commissions" | "communication";
-  subCategory?: string;
-  bio?: string;
+  subCategory?: Localized;
+  bio?: Localized;
   email?: string;
   phone?: string;
 }
 
 export interface Activity {
   id: string;
-  season: "Hiver (Jan-Mars)" | "Printemps (Avril-Juin)" | "Été (Juillet-Sept)" | "Automne (Oct-Déc)" | "Réveillon (31-Déc)";
-  title: string;
-  subtitle: string;
-  description: string;
+  season: Localized;
+  title: Localized;
+  subtitle: Localized;
+  description: Localized;
   location: string;
-  tags: string[];
+  tags: Localized<string[]>;
   photo?: string;
 }
 
 export interface ProjectPhase {
-  phase: string;
-  title: string;
-  period: string;
+  phase: Localized;
+  title: Localized;
+  period: Localized;
   status: "completed" | "in_progress" | "upcoming";
-  details: string[];
+  details: Localized<string[]>;
 }
 
 // A major, multi-year ACAFIS undertaking (habitat, infrastructure, etc.) —
@@ -34,43 +44,43 @@ export interface ProjectPhase {
 // Colonie de Vacances already has.
 export interface MajorProject {
   id: string;
-  title: string;
-  tagline: string;
-  description: string;
+  title: Localized;
+  tagline: Localized;
+  description: Localized;
   roadmap: ProjectPhase[];
-  howToHelp: string[];
-  cta: { label: string; type: "internal" | "external" | "contact"; target: string };
+  howToHelp: Localized<string[]>;
+  cta: { label: Localized; type: "internal" | "external" | "contact"; target: string };
   photo?: string;
 }
 
 export interface ServiceItem {
   id: string;
-  title: string;
-  shortDesc: string;
-  description: string;
+  title: Localized;
+  shortDesc: Localized;
+  description: Localized;
   iconName: string;
   category: "diaspora" | "education" | "habitat" | "solidarity";
-  deliverables: string[];
+  deliverables: Localized<string[]>;
 }
 
 export interface Testimonial {
   id: string;
   name: string;
-  role: string;
+  role: Localized;
   city: string;
   avatar: string;
-  quote: string;
-  highlight: string;
+  quote: Localized;
+  highlight: Localized;
   rating: number;
 }
 
 export interface DocumentItem {
   id: string;
-  title: string;
-  type: string;
+  title: Localized;
+  type: Localized;
   size: string;
-  description: string;
-  contentSummary: string[];
+  description: Localized;
+  contentSummary: Localized<string[]>;
 }
 
 export interface BoutiqueItem {

@@ -2,6 +2,7 @@ import React from "react";
 import { Users, Mail, Phone, Award } from "lucide-react";
 import { BUREAU_MEMBERS, FORMER_PRESIDENTS } from "../data/acafisData";
 import { Reveal, RevealGroup } from "./Reveal";
+import { useTranslation } from "../i18n/translations";
 import bureauHeroPhoto from "../assets/images/bureau-hero.jpg";
 
 interface BureauSectionProps {
@@ -9,6 +10,7 @@ interface BureauSectionProps {
 }
 
 export const BureauSection: React.FC<BureauSectionProps> = ({ onContactSecretary }) => {
+  const { t, lang } = useTranslation();
   const presidence = BUREAU_MEMBERS.filter((m) => m.category === "presidence");
   const adminFinances = BUREAU_MEMBERS.filter((m) => m.category === "admin_finances");
   const commissionsAndCom = BUREAU_MEMBERS.filter(
@@ -31,7 +33,7 @@ export const BureauSection: React.FC<BureauSectionProps> = ({ onContactSecretary
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/10 to-transparent" />
           <div className="absolute bottom-4 left-5 right-5">
             <span className="text-sm sm:text-base font-bold text-white font-display">
-              Une équipe unie, engagée pour la diaspora
+              {t("bureau.photoCaption")}
             </span>
           </div>
         </Reveal>
@@ -40,29 +42,29 @@ export const BureauSection: React.FC<BureauSectionProps> = ({ onContactSecretary
         <Reveal className="max-w-3xl mx-auto text-center space-y-4 mb-14">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-sky-100 text-sky-900 border border-sky-300">
             <Users className="w-3.5 h-3.5 text-emerald-700" />
-            <span>Gouvernance Démocratique • Canada 🇨🇦 & Sénégal 🇸🇳</span>
+            <span>{t("bureau.badge")}</span>
           </div>
 
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight font-display">
-            Bureau Exécutif ACAFIS Canada
+            {t("bureau.title")}
           </h2>
 
           <p className="text-base sm:text-lg text-slate-600">
-            Une équipe engagée et démocratiquement élue de <strong className="text-slate-900">11 Membres du Bureau</strong>, dévouée au renforcement des liens entre le Canada et le Sénégal.
+            {t("bureau.introPart1")} <strong className="text-slate-900">{t("bureau.introStrong")}</strong>{t("bureau.introPart2")}
           </p>
 
           <div className="grid grid-cols-3 gap-2 max-w-md mx-auto pt-2 text-center text-[11px]">
             <div className="p-2.5 rounded-xl bg-white border border-slate-200 shadow-xs">
               <span className="block text-emerald-700 font-bold text-base">11</span>
-              <span className="text-slate-500">Membres Élus</span>
+              <span className="text-slate-500">{t("bureau.statMembers")}</span>
             </div>
             <div className="p-2.5 rounded-xl bg-white border border-slate-200 shadow-xs">
               <span className="block text-amber-600 font-bold text-base">3</span>
-              <span className="text-slate-500">Pôles d'Action</span>
+              <span className="text-slate-500">{t("bureau.statPoles")}</span>
             </div>
             <div className="p-2.5 rounded-xl bg-white border border-slate-200 shadow-xs">
               <span className="block text-sky-700 font-bold text-base">2</span>
-              <span className="text-slate-500">Pays Représentés</span>
+              <span className="text-slate-500">{t("bureau.statCountries")}</span>
             </div>
           </div>
         </Reveal>
@@ -70,19 +72,24 @@ export const BureauSection: React.FC<BureauSectionProps> = ({ onContactSecretary
         {/* Organigramme ACAFIS : Bureau -> Commissions -> AG */}
         <Reveal className="mb-16 max-w-4xl mx-auto">
           <h3 className="text-center text-lg font-bold text-slate-900 font-display mb-8">
-            Organigramme d'ACAFIS Canada
+            {t("bureau.orgChartTitle")}
           </h3>
 
           <div className="flex flex-col items-center">
             {/* Bureau */}
             <div className="px-6 py-3 rounded-xl bg-emerald-800 text-white font-bold text-sm shadow-md">
-              Bureau Exécutif
+              {t("bureau.executiveBureau")}
             </div>
             <div className="w-px h-8 bg-slate-300" />
 
             {/* Commissions row */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
-              {["Commission Organisation", "Commission Scientifique", "Commission Jeunesse", "Commission Féminine"].map((label) => (
+              {[
+                t("bureau.commission.organisation"),
+                t("bureau.commission.scientifique"),
+                t("bureau.commission.jeunesse"),
+                t("bureau.commission.feminine"),
+              ].map((label) => (
                 <div
                   key={label}
                   className="px-4 py-2.5 rounded-xl bg-teal-700 text-white font-semibold text-xs shadow-sm text-center"
@@ -96,8 +103,8 @@ export const BureauSection: React.FC<BureauSectionProps> = ({ onContactSecretary
 
             {/* AG */}
             <div className="px-6 py-3 rounded-xl bg-amber-500 text-slate-950 font-bold text-sm shadow-md text-center">
-              Assemblée Générale (AG)
-              <div className="text-[11px] font-medium">via le Panel ACAFIS WhatsApp</div>
+              {t("bureau.generalAssembly")}
+              <div className="text-[11px] font-medium">{t("bureau.viaWhatsapp")}</div>
             </div>
           </div>
         </Reveal>
@@ -105,14 +112,14 @@ export const BureauSection: React.FC<BureauSectionProps> = ({ onContactSecretary
         {/* Pyramide hiérarchique du Bureau */}
         <Reveal className="mb-16 max-w-3xl mx-auto">
           <h3 className="text-center text-lg font-bold text-slate-900 font-display mb-8">
-            Hiérarchie du Bureau
+            {t("bureau.hierarchyTitle")}
           </h3>
           <div className="flex flex-col items-center gap-3">
             <div className="px-5 py-2 rounded-lg bg-amber-400 text-slate-950 font-bold text-sm shadow-sm">
-              {presidence.find((m) => m.role === "Président")?.name || "Président"}
+              {presidence.find((m) => m.role.fr === "Président")?.name || "Président"}
             </div>
             <div className="px-5 py-2 rounded-lg bg-emerald-600 text-white font-semibold text-sm shadow-sm">
-              {presidence.find((m) => m.role !== "Président")?.name || "Vice-Président"}
+              {presidence.find((m) => m.role.fr !== "Président")?.name || "Vice-Président"}
             </div>
             <div className="flex flex-wrap justify-center gap-2 max-w-2xl">
               {[...adminFinances, ...commissionsAndCom].map((m) => (
@@ -132,10 +139,10 @@ export const BureauSection: React.FC<BureauSectionProps> = ({ onContactSecretary
             </div>
             <div>
               <h3 className="text-lg font-bold text-slate-900 tracking-tight">
-                Présidence & Vice-Présidence
+                {t("bureau.branch1.title")}
               </h3>
               <p className="text-xs text-slate-500">
-                Direction exécutive et représentation officielle
+                {t("bureau.branch1.subtitle")}
               </p>
             </div>
           </div>
@@ -150,7 +157,7 @@ export const BureauSection: React.FC<BureauSectionProps> = ({ onContactSecretary
                 <div>
                   <div className="flex items-center justify-between mb-3">
                     <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-700 text-white shadow-xs">
-                      {member.role}
+                      {member.role[lang]}
                     </span>
                     <span className="text-xs font-semibold text-emerald-800">
                       ACAFIS Canada
@@ -162,7 +169,7 @@ export const BureauSection: React.FC<BureauSectionProps> = ({ onContactSecretary
                   </h4>
 
                   <p className="text-sm text-slate-600 leading-relaxed mb-4">
-                    {member.bio}
+                    {member.bio?.[lang]}
                   </p>
                 </div>
 
@@ -195,10 +202,10 @@ export const BureauSection: React.FC<BureauSectionProps> = ({ onContactSecretary
             </div>
             <div>
               <h3 className="text-lg font-bold text-slate-900 tracking-tight">
-                Administration, Finances & Contrôle
+                {t("bureau.branch2.title")}
               </h3>
               <p className="text-xs text-slate-500">
-                Secrétariat, Trésorerie générale et Contrôle de conformité
+                {t("bureau.branch2.subtitle")}
               </p>
             </div>
           </div>
@@ -213,12 +220,12 @@ export const BureauSection: React.FC<BureauSectionProps> = ({ onContactSecretary
                 <div>
                   <div className="flex items-center justify-between mb-2">
                     <span className="px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-teal-50 text-teal-800 border border-teal-200">
-                      {member.subCategory}
+                      {member.subCategory?.[lang]}
                     </span>
                   </div>
 
                   <div className="text-xs font-semibold text-emerald-700 mb-1">
-                    {member.role}
+                    {member.role[lang]}
                   </div>
 
                   <h4 className="text-lg font-bold text-slate-900 font-display mb-2">
@@ -226,7 +233,7 @@ export const BureauSection: React.FC<BureauSectionProps> = ({ onContactSecretary
                   </h4>
 
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    {member.bio}
+                    {member.bio?.[lang]}
                   </p>
                 </div>
 
@@ -249,10 +256,10 @@ export const BureauSection: React.FC<BureauSectionProps> = ({ onContactSecretary
             </div>
             <div>
               <h3 className="text-lg font-bold text-slate-900 tracking-tight">
-                Commissions Opérationnelles & Communication
+                {t("bureau.branch3.title")}
               </h3>
               <p className="text-xs text-slate-500">
-                Organisation d'événements, action féminine & diffusion
+                {t("bureau.branch3.subtitle")}
               </p>
             </div>
           </div>
@@ -266,11 +273,11 @@ export const BureauSection: React.FC<BureauSectionProps> = ({ onContactSecretary
               >
                 <div>
                   <span className="inline-block px-2.5 py-0.5 rounded-md text-[11px] font-bold bg-amber-50 text-amber-900 border border-amber-200 mb-2">
-                    {member.subCategory}
+                    {member.subCategory?.[lang]}
                   </span>
 
                   <div className="text-xs font-semibold text-amber-800 mb-1">
-                    {member.role}
+                    {member.role[lang]}
                   </div>
 
                   <h4 className="text-lg font-bold text-slate-900 font-display mb-2">
@@ -278,7 +285,7 @@ export const BureauSection: React.FC<BureauSectionProps> = ({ onContactSecretary
                   </h4>
 
                   <p className="text-xs text-slate-600 leading-relaxed">
-                    {member.bio}
+                    {member.bio?.[lang]}
                   </p>
                 </div>
 
@@ -298,14 +305,13 @@ export const BureauSection: React.FC<BureauSectionProps> = ({ onContactSecretary
           <Reveal className="max-w-3xl mx-auto text-center space-y-4 mb-10">
             <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300">
               <Award className="w-3.5 h-3.5 text-amber-700" />
-              <span>Mémoire & Reconnaissance</span>
+              <span>{t("bureau.tribute.badge")}</span>
             </div>
             <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-display">
-              Hommage à Nos Présidents
+              {t("bureau.tribute.title")}
             </h3>
             <p className="text-base text-slate-600">
-              Depuis la fondation, plusieurs présidents se sont succédé à la tête d'ACAFIS Canada et de la
-              Coop-ACAFIS. Cette page leur rend hommage pour leur dévouement envers notre communauté.
+              {t("bureau.tribute.intro")}
             </p>
           </Reveal>
 
@@ -313,26 +319,26 @@ export const BureauSection: React.FC<BureauSectionProps> = ({ onContactSecretary
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 max-w-5xl mx-auto">
               <div>
                 <h4 className="text-sm font-bold text-emerald-800 uppercase tracking-wider mb-4 text-center lg:text-left">
-                  Présidents d'ACAFIS Canada
+                  {t("bureau.tribute.acafisColumn")}
                 </h4>
                 <RevealGroup className="space-y-3">
                   {formerAcafisPresidents.map((p) => (
                     <div key={p.id} className="p-4 rounded-xl bg-white border border-slate-200 shadow-xs flex items-center justify-between">
                       <span className="text-sm font-bold text-slate-900">{p.name}</span>
-                      <span className="text-xs text-slate-500">{p.years}</span>
+                      <span className="text-xs text-slate-500">{p.years[lang]}</span>
                     </div>
                   ))}
                 </RevealGroup>
               </div>
               <div>
                 <h4 className="text-sm font-bold text-teal-800 uppercase tracking-wider mb-4 text-center lg:text-left">
-                  Présidents de la Coop-ACAFIS
+                  {t("bureau.tribute.coopColumn")}
                 </h4>
                 <RevealGroup className="space-y-3">
                   {formerCoopPresidents.map((p) => (
                     <div key={p.id} className="p-4 rounded-xl bg-white border border-slate-200 shadow-xs flex items-center justify-between">
                       <span className="text-sm font-bold text-slate-900">{p.name}</span>
-                      <span className="text-xs text-slate-500">{p.years}</span>
+                      <span className="text-xs text-slate-500">{p.years[lang]}</span>
                     </div>
                   ))}
                 </RevealGroup>
@@ -341,14 +347,13 @@ export const BureauSection: React.FC<BureauSectionProps> = ({ onContactSecretary
           ) : (
             <Reveal className="max-w-xl mx-auto text-center p-6 rounded-2xl bg-amber-50 border border-amber-200">
               <p className="text-sm text-amber-900">
-                Aidez-nous à honorer nos anciens présidents : partagez leurs noms et années de mandat pour qu'ils
-                trouvent leur place ici.
+                {t("bureau.tribute.emptyMessage")}
               </p>
               <button
                 onClick={onContactSecretary}
                 className="mt-3 px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-amber-600 hover:bg-amber-700 transition-colors cursor-pointer"
               >
-                Partager ces noms
+                {t("bureau.tribute.shareNames")}
               </button>
             </Reveal>
           )}
@@ -358,17 +363,17 @@ export const BureauSection: React.FC<BureauSectionProps> = ({ onContactSecretary
         <div className="mt-12 p-6 rounded-2xl bg-slate-50 border border-slate-200 flex flex-col sm:flex-row items-center justify-between gap-4">
           <div className="text-center sm:text-left">
             <h4 className="text-sm font-bold text-slate-900">
-              Vous souhaitez soumettre un projet ou échanger avec le Bureau ?
+              {t("bureau.contactBar.title")}
             </h4>
             <p className="text-xs text-slate-600">
-              Le secrétariat général et les présidents de commissions sont à votre écoute.
+              {t("bureau.contactBar.subtitle")}
             </p>
           </div>
           <button
             onClick={onContactSecretary}
             className="px-5 py-2.5 rounded-xl text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 transition-colors shadow-xs shrink-0 cursor-pointer"
           >
-            Écrire au Secrétariat Général
+            {t("bureau.contactBar.cta")}
           </button>
         </div>
 

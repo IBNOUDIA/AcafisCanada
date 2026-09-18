@@ -3,9 +3,11 @@ import { MessageSquareHeart } from "lucide-react";
 import { ACAFIS_VIDEOS } from "../data/acafisData";
 import { Reveal } from "./Reveal";
 import { VideoGrid } from "./VideoGrid";
+import { useTranslation } from "../i18n/translations";
 import testimonialsHeroPhoto from "../assets/images/temoignages-hero.jpg";
 
 export const TestimonialsSection: React.FC = () => {
+  const { t } = useTranslation();
   const videos = ACAFIS_VIDEOS.filter((v) => v.category === "temoignage");
 
   return (
@@ -16,15 +18,15 @@ export const TestimonialsSection: React.FC = () => {
         <Reveal className="max-w-3xl mx-auto text-center space-y-4 mb-10">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300">
             <MessageSquareHeart className="w-3.5 h-3.5 text-amber-700" />
-            <span>Voix de la Communauté • Teranga Sénégalaise 🇸🇳</span>
+            <span>{t("temoignages.badge")}</span>
           </div>
 
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight font-display">
-            Ce que nos membres disent d'ACAFIS Canada
+            {t("temoignages.title")}
           </h2>
 
           <p className="text-base sm:text-lg text-slate-600">
-            Retours d'expérience de familles, jeunes apprenants et investisseurs solidaires de Montréal, Ottawa, Québec et au-delà.
+            {t("temoignages.intro")}
           </p>
         </Reveal>
 
@@ -38,7 +40,7 @@ export const TestimonialsSection: React.FC = () => {
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/10 to-transparent" />
           <div className="absolute bottom-4 left-5 right-5">
             <span className="text-sm sm:text-base font-bold text-white font-display">
-              La Teranga au quotidien — nos membres réunis en toute convivialité
+              {t("temoignages.photoCaption")}
             </span>
           </div>
         </Reveal>
@@ -49,10 +51,10 @@ export const TestimonialsSection: React.FC = () => {
             <Reveal className="max-w-3xl mx-auto text-center space-y-3 mb-10">
               <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-900 border border-emerald-300">
                 <MessageSquareHeart className="w-3.5 h-3.5 text-emerald-700" />
-                <span>En Vidéo</span>
+                <span>{t("common.videoSection")}</span>
               </div>
               <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-display">
-                Témoignages Vidéo de Nos Membres
+                {t("temoignages.videosTitle")}
               </h3>
             </Reveal>
 

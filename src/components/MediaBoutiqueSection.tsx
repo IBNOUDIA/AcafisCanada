@@ -12,6 +12,7 @@ import {
 import { PARTNERS_LIST, EXTERNAL_LINKS, ACAFIS_VIDEOS } from "../data/acafisData";
 import { Reveal, RevealGroup } from "./Reveal";
 import { VideoGrid } from "./VideoGrid";
+import { useTranslation, TranslationKey } from "../i18n/translations";
 import mediaBbqEte from "../assets/images/media-bbq-ete.jpg";
 import mediaRassemblement from "../assets/images/media-rassemblement.jpg";
 import mediaJeunesseCalypso from "../assets/images/media-jeunesse-calypso.jpg";
@@ -32,118 +33,32 @@ import mediaDrummondville from "../assets/images/media-drummondville.jpg";
 import mediaBbqDrummondville from "../assets/images/media-bbq-drummondville.jpg";
 
 export const MediaBoutiqueSection: React.FC = () => {
+  const { t, lang } = useTranslation();
   const [activeTab, setActiveTab] = useState<"media" | "partenaires">("media");
   const [orderedItem, setOrderedItem] = useState<string | null>(null);
 
+  const g = (n: number) => t(`media.gallery.title${n}` as TranslationKey);
+  const c = (n: number) => t(`media.gallery.caption${n}` as TranslationKey);
+
   const mediaGallery = [
-    {
-      title: "Grand BBQ Familial de l'Été",
-      location: "Parc communautaire, Québec",
-      image: mediaBbqEte,
-      caption: "Retrouvailles fraternelles des familles de la diaspora autour des grillades et de la Teranga.",
-    },
-    {
-      title: "Rassemblement Communautaire",
-      location: "Pique-nique en plein air",
-      image: mediaRassemblement,
-      caption: "Moment de détente et de fraternité entre membres autour d'un pique-nique estival.",
-    },
-    {
-      title: "Journée Familiale au Parc",
-      location: "Parc, Québec",
-      image: mediaJeunesseCalypso,
-      caption: "Familles réunies pour une journée de détente, de partage et de complicité en plein air.",
-    },
-    {
-      title: "Consultation avec Meissa Diaw",
-      location: "Salle communautaire",
-      image: mediaBureauAines,
-      caption: "Échanges entre membres du Bureau et Meissa Diaw lors d'une rencontre officielle.",
-    },
-    {
-      title: "Soirée Ndogou Communautaire",
-      location: "Salle communautaire",
-      image: mediaNdogou,
-      caption: "Les jeunes de la diaspora réunis pour rompre le jeûne ensemble dans la convivialité.",
-    },
-    {
-      title: "Soirée Festive en Groupe",
-      location: "Sortie communautaire",
-      image: mediaExcursion,
-      caption: "Petits et grands réunis pour une soirée festive, drapeau sénégalais fièrement porté.",
-    },
-    {
-      title: "Rencontre Amicale entre Membres",
-      location: "Salle St-Édouard",
-      image: mediaSouvenir1,
-      caption: "Deux membres de la communauté réunis avant une activité ACAFIS.",
-    },
-    {
-      title: "Gala de Solidarité",
-      location: "Soirée de gala",
-      image: mediaSouvenir2,
-      caption: "Ambiance de fête et de fraternité lors d'un gala annuel de solidarité ACAFIS.",
-    },
-    {
-      title: "Rassemblement Amical en Plein Air",
-      location: "Parc, Québec",
-      image: mediaSouvenir3,
-      caption: "Membres et familles réunis pour un moment convivial en pleine nature.",
-    },
-    {
-      title: "Complicité Entre Amies",
-      location: "Parc, Québec",
-      image: mediaSouvenir4,
-      caption: "Trois membres de la communauté partagent un moment de fraternité et de bonne humeur.",
-    },
-    {
-      title: "Moment en Famille au Bord de l'Eau",
-      location: "Parc, Québec",
-      image: mediaSouvenir5,
-      caption: "Familles et enfants réunis pour une belle journée ensoleillée entre amis.",
-    },
-    {
-      title: "Élégance et Fraternité Féminine",
-      location: "Parc, Québec",
-      image: mediaSouvenir6,
-      caption: "Les femmes de la diaspora célèbrent leur culture et leur amitié en tenues traditionnelles.",
-    },
-    {
-      title: "Un Couple de la Communauté",
-      location: "Salle communautaire",
-      image: mediaSouvenir8,
-      caption: "Portrait chaleureux d'un couple de membres lors d'un événement ACAFIS.",
-    },
-    {
-      title: "Cinq Femmes, Une Même Fierté",
-      location: "Salle communautaire",
-      image: mediaSouvenir9,
-      caption: "Un moment de complicité et d'élégance partagée entre membres de la communauté.",
-    },
-    {
-      title: "Diplôme d'Honneur — Graduation de Kine",
-      location: "Montréal, Juin 2012",
-      image: mediaKineGraduation,
-      caption: "ACAFIS célèbre la réussite académique d'une jeune de la diaspora avec un diplôme d'honneur.",
-    },
-    {
-      title: "Célébration en Famille",
-      location: "Montréal, Juin 2012",
-      image: mediaKineGroupe,
-      caption: "Famille et amis réunis pour célébrer ensemble cette belle réussite scolaire.",
-    },
-    {
-      title: "Sortie à Drummondville",
-      location: "Drummondville, QC",
-      image: mediaDrummondville,
-      caption: "Défilé haut en couleur lors d'une sortie communautaire à Drummondville.",
-    },
-    {
-      title: "BBQ d'Équipe à Drummondville",
-      location: "Drummondville, QC",
-      image: mediaBbqDrummondville,
-      caption: "Grillades entre membres malgré la pluie — la bonne humeur reste au rendez-vous !",
-    },
+    { title: g(1), location: t("media.loc.parcCommunautaire"), image: mediaBbqEte, caption: c(1) },
+    { title: g(2), location: t("media.loc.piqueNique"), image: mediaRassemblement, caption: c(2) },
+    { title: g(3), location: t("media.loc.parc"), image: mediaJeunesseCalypso, caption: c(3) },
+    { title: g(4), location: t("media.loc.salleCommunautaire"), image: mediaBureauAines, caption: c(4) },
+    { title: g(5), location: t("media.loc.salleCommunautaire"), image: mediaNdogou, caption: c(5) },
+    { title: g(6), location: t("media.loc.sortieCommunautaire"), image: mediaExcursion, caption: c(6) },
+    { title: g(7), location: t("media.loc.salleStEdouard"), image: mediaSouvenir1, caption: c(7) },
+    { title: g(8), location: t("media.loc.soireeGala"), image: mediaSouvenir2, caption: c(8) },
+    { title: g(9), location: t("media.loc.parc"), image: mediaSouvenir3, caption: c(9) },
+    { title: g(10), location: t("media.loc.parc"), image: mediaSouvenir4, caption: c(10) },
+    { title: g(11), location: t("media.loc.parc"), image: mediaSouvenir5, caption: c(11) },
+    { title: g(12), location: t("media.loc.parc"), image: mediaSouvenir6, caption: c(12) },
+    { title: g(13), location: t("media.loc.salleCommunautaire"), image: mediaSouvenir8, caption: c(13) },
+    { title: g(14), location: t("media.loc.salleCommunautaire"), image: mediaSouvenir9, caption: c(14) },
+    { title: g(15), location: "Montréal, Juin 2012", image: mediaKineGraduation, caption: c(15) },
+    { title: g(16), location: "Montréal, Juin 2012", image: mediaKineGroupe, caption: c(16) },
+    { title: g(17), location: "Drummondville, QC", image: mediaDrummondville, caption: c(17) },
+    { title: g(18), location: "Drummondville, QC", image: mediaBbqDrummondville, caption: c(18) },
   ];
 
   const communityVideos = ACAFIS_VIDEOS.filter((v) => v.category === "communaute");
@@ -156,15 +71,15 @@ export const MediaBoutiqueSection: React.FC = () => {
         <Reveal className="max-w-3xl mx-auto text-center space-y-4 mb-10">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-sky-100 text-sky-900 border border-sky-300">
             <Sparkles className="w-3.5 h-3.5 text-emerald-600" />
-            <span>Vie Communautaire & Culture Sénégalaise 🇸🇳</span>
+            <span>{t("media.badge")}</span>
           </div>
 
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight font-display">
-            Média, Boutique Solidaire & Partenaires
+            {t("media.title")}
           </h2>
 
           <p className="text-base text-slate-600 max-w-xl mx-auto">
-            Retrouvez les moments forts de notre communauté, notre galerie photos officielle et notre boutique de solidarité.
+            {t("media.intro")}
           </p>
 
           {/* Sub Navigation Tabs */}
@@ -177,7 +92,7 @@ export const MediaBoutiqueSection: React.FC = () => {
                   : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200"
               }`}
             >
-              Média & Galerie Photo
+              {t("media.tabGallery")}
             </button>
 
             <button
@@ -188,7 +103,7 @@ export const MediaBoutiqueSection: React.FC = () => {
                   : "bg-white text-slate-700 hover:bg-slate-100 border border-slate-200"
               }`}
             >
-              Partenaires
+              {t("media.tabPartners")}
             </button>
           </div>
         </Reveal>
@@ -199,14 +114,14 @@ export const MediaBoutiqueSection: React.FC = () => {
             <div className="flex items-center justify-center sm:justify-start gap-2">
               <ShoppingBag className="w-4 h-4 text-amber-300" />
               <span className="text-xs font-bold uppercase tracking-wider text-amber-300">
-                Boutique Officielle en Ligne
+                {t("media.boutiqueLabel")}
               </span>
             </div>
             <h4 className="text-base font-bold font-display">
-              Accédez directement à boutique-acafis.vercel.app
+              {t("media.boutiqueTitle")}
             </h4>
             <p className="text-xs text-slate-300">
-              Commandez vos articles aux couleurs de l'association pour financer les projets d'éducation et la Cité Jardin.
+              {t("media.boutiqueDesc")}
             </p>
           </div>
 
@@ -216,7 +131,7 @@ export const MediaBoutiqueSection: React.FC = () => {
             rel="noopener noreferrer"
             className="px-5 py-2.5 rounded-xl text-xs font-bold text-slate-950 bg-amber-400 hover:bg-amber-300 transition-colors flex items-center gap-2 shrink-0 shadow-sm"
           >
-            <span>Ouvrir la Boutique en Ligne</span>
+            <span>{t("media.boutiqueCta")}</span>
             <ExternalLink className="w-3.5 h-3.5" />
           </a>
         </div>
@@ -258,7 +173,7 @@ export const MediaBoutiqueSection: React.FC = () => {
         {activeTab === "media" && communityVideos.length > 0 && (
           <div className="mt-14 max-w-6xl mx-auto">
             <h3 className="text-center text-lg font-bold text-slate-900 font-display mb-8">
-              Vidéos de la Communauté
+              {t("media.communityVideosTitle")}
             </h3>
             <VideoGrid videos={communityVideos} />
           </div>
@@ -278,7 +193,7 @@ export const MediaBoutiqueSection: React.FC = () => {
                       {partner.name}
                     </h4>
                     <span className="text-xs text-emerald-800 font-medium">
-                      {partner.role}
+                      {partner.role[lang]}
                     </span>
                   </div>
                   <Handshake className="w-5 h-5 text-slate-400" />
@@ -288,7 +203,7 @@ export const MediaBoutiqueSection: React.FC = () => {
 
             <div className="mt-4 p-5 rounded-2xl bg-sky-50 border border-sky-200 border-dashed text-center">
               <p className="text-xs text-sky-900">
-                Des partenariats avec des institutions culturelles et de jeunesse au Sénégal seront annoncés prochainement.
+                {t("media.partnersComingSoon")}
               </p>
             </div>
           </Reveal>

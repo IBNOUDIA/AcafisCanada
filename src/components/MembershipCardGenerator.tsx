@@ -17,6 +17,7 @@ import { PAYMENT_INTERAC_INFO } from "../data/acafisData";
 import { SenegalFlagBadge } from "./SenegalFlagBadge";
 import { MemberRecord } from "../types";
 import { Reveal } from "./Reveal";
+import { useTranslation } from "../i18n/translations";
 import acafisLogoOfficial from "../assets/images/acafis-logo-official.jpg";
 import adhesionHeroPhoto from "../assets/images/adhesion-hero.jpg";
 
@@ -27,6 +28,7 @@ interface MembershipCardGeneratorProps {
 export const MembershipCardGenerator: React.FC<MembershipCardGeneratorProps> = ({
   onOpenPaymentModal,
 }) => {
+  const { t, lang } = useTranslation();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
@@ -69,7 +71,7 @@ export const MembershipCardGenerator: React.FC<MembershipCardGeneratorProps> = (
         firstName: firstName.trim(),
         lastName: lastName.trim().toUpperCase(),
         email: email.trim(),
-        phone: phone.trim() || "Non renseigné",
+        phone: phone.trim() || t("adhesion.notProvided"),
         city: city.trim() || "Canada",
         membershipYear: new Date().getFullYear(),
         annualFee: "25 CAD",
@@ -105,7 +107,7 @@ export const MembershipCardGenerator: React.FC<MembershipCardGeneratorProps> = (
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/10 to-transparent" />
           <div className="absolute bottom-4 left-5 right-5">
             <span className="text-sm sm:text-base font-bold text-white font-display">
-              Rejoignez une communauté chaleureuse et solidaire
+              {t("adhesion.photoCaption")}
             </span>
           </div>
         </Reveal>
@@ -114,15 +116,15 @@ export const MembershipCardGenerator: React.FC<MembershipCardGeneratorProps> = (
         <div className="max-w-3xl mx-auto text-center space-y-3 mb-12">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-sky-100 text-sky-900 border border-sky-300">
             <UserCheck className="w-3.5 h-3.5 text-emerald-700" />
-            <span>Adhésion Solidaire • Canada 🇨🇦 & Sénégal 🇸🇳</span>
+            <span>{t("adhesion.badge")}</span>
           </div>
 
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight font-display">
-            Devenir Membre d'ACAFIS Canada
+            {t("adhesion.title")}
           </h2>
 
           <p className="text-base text-slate-600 max-w-2xl mx-auto">
-            Rejoignez notre réseau de solidarité. Enregistrez vos coordonnées pour générer immédiatement votre carte numérique officielle et régler votre cotisation annuelle de <strong>25$ canadien (25 CAD)</strong>.
+            {t("adhesion.intro1")} <strong>{t("adhesion.introAmount")}</strong>.
           </p>
         </div>
 
@@ -132,10 +134,10 @@ export const MembershipCardGenerator: React.FC<MembershipCardGeneratorProps> = (
           <div className="lg:col-span-6 bg-white rounded-2xl p-6 sm:p-8 border border-slate-200 shadow-sm">
             <div className="flex items-center justify-between border-b border-slate-100 pb-4 mb-6">
               <h3 className="text-lg font-bold text-slate-900 font-display">
-                Formulaire d'Enregistrement
+                {t("adhesion.formTitle")}
               </h3>
               <span className="px-3 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-200">
-                Cotisation : 25$ CAD / an
+                {t("adhesion.formFeeBadge")}
               </span>
             </div>
 
@@ -143,7 +145,7 @@ export const MembershipCardGenerator: React.FC<MembershipCardGeneratorProps> = (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                    Prénom *
+                    {t("adhesion.labelFirstName")}
                   </label>
                   <input
                     id="member-input-firstname"
@@ -158,7 +160,7 @@ export const MembershipCardGenerator: React.FC<MembershipCardGeneratorProps> = (
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                    Nom *
+                    {t("adhesion.labelLastName")}
                   </label>
                   <input
                     id="member-input-lastname"
@@ -174,7 +176,7 @@ export const MembershipCardGenerator: React.FC<MembershipCardGeneratorProps> = (
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Courriel (Email) *
+                  {t("adhesion.labelEmail")}
                 </label>
                 <div className="relative">
                   <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
@@ -193,7 +195,7 @@ export const MembershipCardGenerator: React.FC<MembershipCardGeneratorProps> = (
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                    Téléphone
+                    {t("adhesion.labelPhone")}
                   </label>
                   <div className="relative">
                     <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
@@ -210,7 +212,7 @@ export const MembershipCardGenerator: React.FC<MembershipCardGeneratorProps> = (
 
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                    Ville / Région
+                    {t("adhesion.labelCity")}
                   </label>
                   <div className="relative">
                     <MapPin className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
@@ -219,7 +221,7 @@ export const MembershipCardGenerator: React.FC<MembershipCardGeneratorProps> = (
                       type="text"
                       value={city}
                       onChange={(e) => setCity(e.target.value)}
-                      placeholder="Montréal, Ottawa, etc."
+                      placeholder={t("adhesion.placeholderCity")}
                       className="w-full pl-10 pr-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-hidden focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
                     />
                   </div>
@@ -234,26 +236,26 @@ export const MembershipCardGenerator: React.FC<MembershipCardGeneratorProps> = (
                   className="w-full py-3.5 px-6 rounded-xl font-bold text-white bg-emerald-700 hover:bg-emerald-800 shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Sparkles className="w-4 h-4 text-amber-300" />
-                  <span>{isSubmitting ? "Création en cours..." : "Générer ma Carte de Membre"}</span>
+                  <span>{isSubmitting ? t("adhesion.generating") : t("adhesion.generateBtn")}</span>
                 </button>
               </div>
 
               {/* Interac reminder box */}
               <div className="p-3.5 rounded-xl bg-slate-50 border border-slate-200 text-xs text-slate-600 space-y-1.5">
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-800">Paiement Cotisation (Virement Interac) :</span>
+                  <span className="font-bold text-slate-800">{t("adhesion.interacReminder")}</span>
                   <button
                     type="button"
                     onClick={copyInteracEmail}
                     className="text-emerald-700 hover:underline flex items-center gap-1 font-semibold cursor-pointer"
                   >
                     <Copy className="w-3 h-3" />
-                    <span>{copiedInterac ? "Copié !" : "Copier le courriel"}</span>
+                    <span>{copiedInterac ? t("common.copied") : t("adhesion.copyEmail")}</span>
                   </button>
                 </div>
                 <p className="font-mono text-emerald-800 font-semibold">{PAYMENT_INTERAC_INFO.email}</p>
                 <p className="text-[11px] text-slate-500">
-                  Question secrète : <strong>{PAYMENT_INTERAC_INFO.secretQuestion}</strong> | Réponse : <strong>{PAYMENT_INTERAC_INFO.secretAnswer}</strong>
+                  {t("adhesion.secretQuestionLabel")} <strong>{PAYMENT_INTERAC_INFO.secretQuestion[lang]}</strong> | {t("adhesion.secretAnswerLabel")} <strong>{PAYMENT_INTERAC_INFO.secretAnswer}</strong>
                 </p>
               </div>
             </form>
@@ -263,11 +265,11 @@ export const MembershipCardGenerator: React.FC<MembershipCardGeneratorProps> = (
           <div className="lg:col-span-6 space-y-4">
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                Aperçu Numérique de la Carte
+                {t("adhesion.cardPreviewLabel")}
               </span>
               {generatedMember && (
                 <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
-                  Générée avec succès
+                  {t("adhesion.generatedSuccess")}
                 </span>
               )}
             </div>
@@ -297,7 +299,7 @@ export const MembershipCardGenerator: React.FC<MembershipCardGeneratorProps> = (
                       ACAFIS CANADA
                     </h4>
                     <p className="text-[10px] text-emerald-300 font-medium">
-                      Carte Officielle d'Adhérent
+                      {t("adhesion.officialCard")}
                     </p>
                   </div>
                 </div>
@@ -319,7 +321,7 @@ export const MembershipCardGenerator: React.FC<MembershipCardGeneratorProps> = (
 
                   <div className="text-right">
                     <span className="block text-[10px] uppercase text-emerald-300 tracking-wider">
-                      Identifiant Membre
+                      {t("adhesion.memberIdLabel")}
                     </span>
                     <span className="font-mono text-xs font-bold text-amber-300">
                       {generatedMember ? generatedMember.memberId : "ACAFIS-2026-0000"}
@@ -329,7 +331,7 @@ export const MembershipCardGenerator: React.FC<MembershipCardGeneratorProps> = (
 
                 <div>
                   <span className="block text-[10px] uppercase tracking-wider text-slate-400">
-                    Titulaire de la carte
+                    {t("adhesion.cardHolderLabel")}
                   </span>
                   <h3 className="text-lg sm:text-xl font-black tracking-wide text-white font-display">
                     {generatedMember
@@ -346,15 +348,15 @@ export const MembershipCardGenerator: React.FC<MembershipCardGeneratorProps> = (
                 <div>
                   <div className="flex items-center gap-4 text-[11px] text-slate-300">
                     <div>
-                      <span className="block text-[9px] uppercase text-slate-400">Année</span>
+                      <span className="block text-[9px] uppercase text-slate-400">{t("adhesion.yearLabel")}</span>
                       <span className="font-bold text-white">2026</span>
                     </div>
                     <div>
-                      <span className="block text-[9px] uppercase text-slate-400">Cotisation</span>
+                      <span className="block text-[9px] uppercase text-slate-400">{t("adhesion.feeLabel")}</span>
                       <span className="font-bold text-amber-300">25 CAD</span>
                     </div>
                     <div>
-                      <span className="block text-[9px] uppercase text-slate-400">Ville</span>
+                      <span className="block text-[9px] uppercase text-slate-400">{t("adhesion.cityLabel")}</span>
                       <span className="font-medium text-slate-200">
                         {generatedMember ? generatedMember.city : city || "Montréal"}
                       </span>
@@ -382,7 +384,7 @@ export const MembershipCardGenerator: React.FC<MembershipCardGeneratorProps> = (
                 className="flex-1 py-2.5 px-4 rounded-xl text-xs font-bold text-slate-800 bg-white hover:bg-slate-50 border border-slate-300 shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <Printer className="w-4 h-4 text-slate-600" />
-                <span>Imprimer ma Carte</span>
+                <span>{t("adhesion.printCard")}</span>
               </button>
 
               <button
@@ -390,7 +392,7 @@ export const MembershipCardGenerator: React.FC<MembershipCardGeneratorProps> = (
                 className="flex-1 py-2.5 px-4 rounded-xl text-xs font-bold text-emerald-950 bg-amber-400 hover:bg-amber-300 shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
               >
                 <CreditCard className="w-4 h-4" />
-                <span>Payer les 25$ CAD (Interac)</span>
+                <span>{t("adhesion.payInterac")}</span>
               </button>
             </div>
           </div>

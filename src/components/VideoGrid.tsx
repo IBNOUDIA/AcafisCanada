@@ -3,6 +3,7 @@ import { AcafisVideo } from "../data/acafisData";
 import { RevealGroup } from "./Reveal";
 import { FacebookVideoEmbed } from "./FacebookVideoEmbed";
 import { YouTubeEmbed } from "./YouTubeEmbed";
+import { useTranslation } from "../i18n/translations";
 
 interface VideoGridProps {
   videos: AcafisVideo[];
@@ -17,6 +18,7 @@ const extractYouTubeId = (url: string): string | null => {
 // Shared video grid used across pages to render a themed slice of ACAFIS_VIDEOS
 // (see acafisData.ts — each video is dispatched by category to its matching page).
 export const VideoGrid: React.FC<VideoGridProps> = ({ videos, className = "" }) => {
+  const { lang } = useTranslation();
   if (videos.length === 0) return null;
 
   return (
@@ -27,8 +29,8 @@ export const VideoGrid: React.FC<VideoGridProps> = ({ videos, className = "" }) 
           <div key={video.id} className="space-y-3">
             {youtubeId ? <YouTubeEmbed videoId={youtubeId} /> : <FacebookVideoEmbed url={video.url} />}
             <div className="text-center">
-              <h4 className="text-sm font-bold text-slate-900">{video.name}</h4>
-              <span className="text-xs text-emerald-800 font-medium">{video.role}</span>
+              <h4 className="text-sm font-bold text-slate-900">{video.name[lang]}</h4>
+              <span className="text-xs text-emerald-800 font-medium">{video.role[lang]}</span>
             </div>
           </div>
         );

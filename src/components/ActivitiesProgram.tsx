@@ -15,9 +15,11 @@ import {
 import { ANNUAL_PROGRAM } from "../data/acafisData";
 import { Activity } from "../types";
 import { Reveal, RevealGroup } from "./Reveal";
+import { useTranslation } from "../i18n/translations";
 import programmeHeroPhoto from "../assets/images/programme-hero.jpg";
 
 export const ActivitiesProgram: React.FC = () => {
+  const { t, lang } = useTranslation();
   const [activeSeasonId, setActiveSeasonId] = useState<string>("ete");
 
   const seasonIcons: Record<string, React.ReactNode> = {
@@ -45,7 +47,7 @@ export const ActivitiesProgram: React.FC = () => {
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/10 to-transparent" />
           <div className="absolute bottom-4 left-5 right-5">
             <span className="text-sm sm:text-base font-bold text-white font-display">
-              Nos saisons, nos rassemblements — la vie communautaire ACAFIS toute l'année
+              {t("programme.bannerCaption")}
             </span>
           </div>
         </Reveal>
@@ -54,15 +56,15 @@ export const ActivitiesProgram: React.FC = () => {
         <Reveal className="max-w-3xl mx-auto text-center space-y-4 mb-14">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300">
             <Calendar className="w-3.5 h-3.5 text-amber-700" />
-            <span>Calendrier Diaspora & Sénégal 🇸🇳 2026</span>
+            <span>{t("programme.badge")}</span>
           </div>
 
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight font-display">
-            Programme d'Activités Annuelles
+            {t("programme.title")}
           </h2>
 
           <p className="text-base sm:text-lg text-slate-600">
-            Cinq grands temps forts tout au long de l'année pour célébrer notre culture, débattre des investissements et rassembler la grande famille ACAFIS.
+            {t("programme.intro")}
           </p>
 
           {/* Season Pills */}
@@ -82,10 +84,10 @@ export const ActivitiesProgram: React.FC = () => {
                 >
                   <div className="flex items-center gap-1">
                     {seasonIcons[act.id]}
-                    <span>{act.season.split(" ")[0]}</span>
+                    <span>{act.season[lang].split(" ")[0]}</span>
                   </div>
                   <span className={`text-[10px] font-medium ${isSelected ? "text-emerald-200" : "text-slate-400"}`}>
-                    {act.season.split(" ")[1]}
+                    {act.season[lang].split(" ").slice(1).join(" ")}
                   </span>
                 </button>
               );
@@ -100,17 +102,17 @@ export const ActivitiesProgram: React.FC = () => {
             <div className="space-y-1">
               <div className="flex items-center gap-2">
                 <span className="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 border border-emerald-200">
-                  {currentActivity.season}
+                  {currentActivity.season[lang]}
                 </span>
                 <span className="text-xs font-semibold text-slate-500">
-                  Événement Officiel ACAFIS
+                  {t("common.officialEvent")}
                 </span>
               </div>
               <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 font-display">
-                {currentActivity.title}
+                {currentActivity.title[lang]}
               </h3>
               <p className="text-sm font-medium text-emerald-700">
-                {currentActivity.subtitle}
+                {currentActivity.subtitle[lang]}
               </p>
             </div>
 
@@ -124,7 +126,7 @@ export const ActivitiesProgram: React.FC = () => {
             <div className="relative rounded-2xl overflow-hidden h-56 sm:h-72 mb-6 shadow-sm">
               <img
                 src={currentActivity.photo}
-                alt={currentActivity.title}
+                alt={currentActivity.title[lang]}
                 className="absolute inset-0 w-full h-full object-cover"
               />
             </div>
@@ -132,15 +134,15 @@ export const ActivitiesProgram: React.FC = () => {
 
           <div className="space-y-6">
             <p className="text-base text-slate-700 leading-relaxed">
-              {currentActivity.description}
+              {currentActivity.description[lang]}
             </p>
 
             {/* Tags */}
             <div className="flex flex-wrap items-center gap-2">
               <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mr-1">
-                Thématiques :
+                {t("common.themes")}
               </span>
-              {currentActivity.tags.map((tag, idx) => (
+              {currentActivity.tags[lang].map((tag, idx) => (
                 <span
                   key={idx}
                   className="px-3 py-1 rounded-lg text-xs font-semibold bg-slate-100 text-slate-800 border border-slate-200"
@@ -155,24 +157,24 @@ export const ActivitiesProgram: React.FC = () => {
               <div className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                 <div>
-                  <strong className="text-slate-900 block">Accès Membre :</strong>
-                  <span className="text-slate-600">Gratuit ou tarif réduit avec carte de membre</span>
+                  <strong className="text-slate-900 block">{t("common.memberAccess")}</strong>
+                  <span className="text-slate-600">{t("common.memberAccessDesc")}</span>
                 </div>
               </div>
 
               <div className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                 <div>
-                  <strong className="text-slate-900 block">Format :</strong>
-                  <span className="text-slate-600">Présentiel & retransmission hybride</span>
+                  <strong className="text-slate-900 block">{t("common.format")}</strong>
+                  <span className="text-slate-600">{t("common.formatDesc")}</span>
                 </div>
               </div>
 
               <div className="flex items-start gap-2">
                 <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                 <div>
-                  <strong className="text-slate-900 block">Encadrement :</strong>
-                  <span className="text-slate-600">Com. Organisation & Bénévoles</span>
+                  <strong className="text-slate-900 block">{t("common.supervision")}</strong>
+                  <span className="text-slate-600">{t("common.supervisionDesc")}</span>
                 </div>
               </div>
             </div>
@@ -194,15 +196,15 @@ export const ActivitiesProgram: React.FC = () => {
             >
               <div className="flex items-center justify-between mb-2">
                 <span className="text-[11px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded">
-                  {act.season}
+                  {act.season[lang]}
                 </span>
                 {seasonIcons[act.id]}
               </div>
               <h4 className="text-sm font-bold text-slate-900 font-display mb-1">
-                {act.title}
+                {act.title[lang]}
               </h4>
               <p className="text-xs text-slate-500 line-clamp-2">
-                {act.description}
+                {act.description[lang]}
               </p>
             </div>
           ))}

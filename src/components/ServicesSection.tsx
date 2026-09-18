@@ -15,6 +15,7 @@ import {
 import { SERVICES_MISSIONS, PAYMENT_INTERAC_INFO, ACAFIS_VIDEOS } from "../data/acafisData";
 import { Reveal, RevealGroup } from "./Reveal";
 import { VideoGrid } from "./VideoGrid";
+import { useTranslation } from "../i18n/translations";
 import servicesHeroPhoto from "../assets/images/services-hero.jpg";
 
 interface ServicesSectionProps {
@@ -26,6 +27,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
   onNavigate,
   onOpenCardModal,
 }) => {
+  const { t, lang } = useTranslation();
   const [activeCategory, setActiveCategory] = useState<string>("all");
   const educationVideos = ACAFIS_VIDEOS.filter((v) => v.category === "education");
 
@@ -56,7 +58,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/10 to-transparent" />
           <div className="absolute bottom-4 left-5 right-5">
             <span className="text-sm sm:text-base font-bold text-white font-display">
-              La solidarité en action, au service de toute la communauté
+              {t("services.bannerCaption")}
             </span>
           </div>
         </Reveal>
@@ -65,25 +67,25 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
         <Reveal className="max-w-3xl mx-auto text-center space-y-4 mb-14">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-sky-100 text-sky-900 border border-sky-300">
             <ShieldCheck className="w-3.5 h-3.5 text-emerald-700" />
-            <span>Missions Fondatrices • Canada & Sénégal 🇸🇳</span>
+            <span>{t("services.badge")}</span>
           </div>
 
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight font-display">
-            Missions & Services d'ACAFIS Canada
+            {t("services.title")}
           </h2>
 
           <p className="text-base sm:text-lg text-slate-600 leading-relaxed">
-            ACAFIS Canada structure la solidarité de la diaspora pour offrir des solutions concrètes : de l'accès sécurisé à l'habitat au Sénégal à l'accompagnement éducatif de nos enfants au Canada.
+            {t("services.intro")}
           </p>
 
           {/* Category Filter Tabs */}
           <div className="flex flex-wrap items-center justify-center gap-2 pt-2">
             {[
-              { id: "all", label: "Toutes les Missions" },
-              { id: "habitat", label: "Cité Jardin & Habitat" },
-              { id: "education", label: "Éducation & nTIC" },
-              { id: "diaspora", label: "Développement & Culture" },
-              { id: "solidarity", label: "Intégration & Entraide" },
+              { id: "all", label: t("services.tab.all") },
+              { id: "habitat", label: t("services.tab.habitat") },
+              { id: "education", label: t("services.tab.education") },
+              { id: "diaspora", label: t("services.tab.diaspora") },
+              { id: "solidarity", label: t("services.tab.solidarity") },
             ].map(tab => (
               <button
                 key={tab.id}
@@ -114,22 +116,22 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
                 </div>
 
                 <h3 className="text-xl font-bold text-slate-900 tracking-tight font-display mb-2">
-                  {service.title}
+                  {service.title[lang]}
                 </h3>
 
                 <p className="text-sm font-medium text-emerald-800 mb-3 bg-emerald-50/60 p-2 rounded-lg border border-emerald-100/60">
-                  {service.shortDesc}
+                  {service.shortDesc[lang]}
                 </p>
 
                 <p className="text-sm text-slate-600 leading-relaxed mb-5">
-                  {service.description}
+                  {service.description[lang]}
                 </p>
 
                 <div className="space-y-2 pt-2 border-t border-slate-100">
                   <p className="text-xs font-bold text-slate-800 uppercase tracking-wider">
-                    Engagements & Services :
+                    {t("services.commitments")}
                   </p>
-                  {service.deliverables.map((item, idx) => (
+                  {service.deliverables[lang].map((item, idx) => (
                     <div key={idx} className="flex items-start gap-2 text-xs text-slate-700">
                       <Check className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                       <span>{item}</span>
@@ -144,7 +146,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
                     onClick={() => onNavigate("espace-jeune")}
                     className="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-teal-800 bg-teal-50 hover:bg-teal-100 border border-teal-200 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                   >
-                    <span>Explorer Cité Jardin & Coop</span>
+                    <span>{t("services.cta.citeJardin")}</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 ) : service.id === "education-ntic" ? (
@@ -152,7 +154,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
                     onClick={() => onNavigate("acafis-mentor")}
                     className="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-amber-900 bg-amber-50 hover:bg-amber-100 border border-amber-200 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                   >
-                    <span>Lancer Le Mentor ACAFIS IA</span>
+                    <span>{t("services.cta.mentor")}</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 ) : (
@@ -160,7 +162,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
                     onClick={onOpenCardModal}
                     className="w-full py-2.5 px-4 rounded-xl text-xs font-semibold text-slate-700 hover:text-emerald-800 bg-slate-50 hover:bg-emerald-50/50 border border-slate-200 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                   >
-                    <span>Participer en tant que membre</span>
+                    <span>{t("services.cta.member")}</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </button>
                 )}
@@ -175,10 +177,10 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
             <Reveal className="max-w-3xl mx-auto text-center space-y-3 mb-10">
               <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-amber-100 text-amber-900 border border-amber-300">
                 <GraduationCap className="w-3.5 h-3.5 text-amber-700" />
-                <span>En Vidéo</span>
+                <span>{t("common.videoSection")}</span>
               </div>
               <h3 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight font-display">
-                Conférences & Panels Éducation
+                {t("services.videosTitle")}
               </h3>
             </Reveal>
             <VideoGrid videos={educationVideos} />
@@ -189,10 +191,10 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
         <div className="mt-14 p-6 sm:p-8 rounded-2xl bg-gradient-to-r from-emerald-900 via-teal-900 to-slate-900 text-white shadow-lg flex flex-col lg:flex-row items-center justify-between gap-6">
           <div className="space-y-2 text-center lg:text-left">
             <h3 className="text-xl sm:text-2xl font-bold font-display tracking-tight text-white">
-              Bénéficiez de tous les services ACAFIS avec la carte de membre 2026
+              {t("services.membershipBarTitle")}
             </h3>
             <p className="text-sm text-emerald-200/90 max-w-2xl">
-              Pour seulement <strong>{PAYMENT_INTERAC_INFO.annualFeeCAD}$ CAD par an</strong>, accédez aux projets Coop-ACAFIS, soutenez la colonie de vacances 2030, offrez le tutorat IA à vos enfants et participez aux assemblées avec droit de vote.
+              {t("services.membershipBarDesc1")} <strong>{PAYMENT_INTERAC_INFO.annualFeeCAD}$ CAD</strong> {t("services.membershipBarDesc2")}
             </p>
           </div>
           <div className="flex items-center gap-3 shrink-0">
@@ -200,7 +202,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
               onClick={onOpenCardModal}
               className="px-6 py-3 rounded-xl text-xs sm:text-sm font-bold bg-amber-400 hover:bg-amber-300 text-slate-950 shadow-md transition-transform hover:scale-105 cursor-pointer"
             >
-              Générer ma Carte de Membre
+              {t("services.membershipBarCta")}
             </button>
           </div>
         </div>

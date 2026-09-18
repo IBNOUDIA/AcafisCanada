@@ -17,6 +17,7 @@ import {
 } from "lucide-react";
 import { MAJOR_PROJECTS } from "../data/acafisData";
 import { Reveal, RevealGroup } from "./Reveal";
+import { useTranslation, TranslationKey } from "../i18n/translations";
 
 interface MajorProjectsSectionProps {
   onNavigate: (sectionId: string) => void;
@@ -32,20 +33,20 @@ const PROJECT_ICONS: Record<string, React.ReactNode> = {
   "foyer-ndianda": <Landmark className="w-5 h-5" />,
 };
 
-const STATUS_STYLES: Record<string, { icon: React.ReactNode; label: string; className: string }> = {
+const STATUS_STYLES: Record<string, { icon: React.ReactNode; labelKey: TranslationKey; className: string }> = {
   completed: {
     icon: <CheckCircle2 className="w-3.5 h-3.5" />,
-    label: "Terminé",
+    labelKey: "common.status.completed",
     className: "bg-emerald-100 text-emerald-800 border-emerald-300",
   },
   in_progress: {
     icon: <Clock className="w-3.5 h-3.5" />,
-    label: "En cours",
+    labelKey: "common.status.inProgress",
     className: "bg-amber-100 text-amber-900 border-amber-300",
   },
   upcoming: {
     icon: <Circle className="w-3.5 h-3.5" />,
-    label: "À venir",
+    labelKey: "common.status.upcoming",
     className: "bg-slate-100 text-slate-600 border-slate-300",
   },
 };
@@ -54,6 +55,7 @@ export const MajorProjectsSection: React.FC<MajorProjectsSectionProps> = ({
   onNavigate,
   onNavigateContact,
 }) => {
+  const { t, lang } = useTranslation();
   const [expandedId, setExpandedId] = useState<string | null>(MAJOR_PROJECTS[0]?.id ?? null);
 
   return (
@@ -64,16 +66,15 @@ export const MajorProjectsSection: React.FC<MajorProjectsSectionProps> = ({
         <Reveal className="max-w-3xl mx-auto text-center space-y-4 mb-14">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-900 border border-emerald-300">
             <HeartHandshake className="w-3.5 h-3.5 text-emerald-700" />
-            <span>Bâtir ensemble, étape par étape</span>
+            <span>{t("projets.badge")}</span>
           </div>
 
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight font-display">
-            Nos Grands Projets
+            {t("projets.title")}
           </h2>
 
           <p className="text-base sm:text-lg text-slate-600">
-            Au-delà de nos activités récurrentes, ACAFIS porte plusieurs grands chantiers de longue haleine.
-            Voici où ils en sont, et comment vous pouvez concrètement aider à les faire avancer.
+            {t("projets.intro")}
           </p>
         </Reveal>
 
@@ -93,9 +94,9 @@ export const MajorProjectsSection: React.FC<MajorProjectsSectionProps> = ({
                   </div>
                   <div className="flex-1 min-w-0">
                     <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 font-display">
-                      {project.title}
+                      {project.title[lang]}
                     </h3>
-                    <p className="text-sm text-emerald-700 font-medium">{project.tagline}</p>
+                    <p className="text-sm text-emerald-700 font-medium">{project.tagline[lang]}</p>
                   </div>
                   <div className="shrink-0 self-start sm:self-center">
                     {isExpanded ? (
@@ -109,20 +110,20 @@ export const MajorProjectsSection: React.FC<MajorProjectsSectionProps> = ({
                 {isExpanded && (
                   <div className="px-6 sm:px-8 pb-8 space-y-8 border-t border-slate-100 pt-6">
                     <p className="text-sm sm:text-base text-slate-700 leading-relaxed">
-                      {project.description}
+                      {project.description[lang]}
                     </p>
 
                     {/* Roadmap */}
                     <div>
                       <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
-                        Feuille de route
+                        {t("projets.roadmapLabel")}
                       </h4>
                       <RevealGroup className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         {project.roadmap.map((step) => {
                           const statusStyle = STATUS_STYLES[step.status];
                           return (
                             <div
-                              key={step.phase}
+                              key={step.phase.fr}
                               className={`rounded-2xl p-5 border ${
                                 step.status === "in_progress"
                                   ? "bg-amber-50/50 border-amber-300 ring-1 ring-amber-400/30"
@@ -130,20 +131,20 @@ export const MajorProjectsSection: React.FC<MajorProjectsSectionProps> = ({
                               }`}
                             >
                               <div className="flex items-center justify-between mb-2">
-                                <span className="text-xs font-bold text-slate-700">{step.phase}</span>
+                                <span className="text-xs font-bold text-slate-700">{step.phase[lang]}</span>
                                 <span
                                   className={`inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-bold border ${statusStyle.className}`}
                                 >
                                   {statusStyle.icon}
-                                  {statusStyle.label}
+                                  {t(statusStyle.labelKey)}
                                 </span>
                               </div>
                               <h5 className="text-sm font-bold text-slate-900 font-display mb-1">
-                                {step.title}
+                                {step.title[lang]}
                               </h5>
-                              <p className="text-[11px] text-slate-500 font-medium mb-2">{step.period}</p>
+                              <p className="text-[11px] text-slate-500 font-medium mb-2">{step.period[lang]}</p>
                               <ul className="space-y-1.5 text-xs text-slate-600">
-                                {step.details.map((d, i) => (
+                                {step.details[lang].map((d, i) => (
                                   <li key={i} className="flex items-start gap-1.5">
                                     <span className="text-emerald-600 mt-0.5">•</span>
                                     <span>{d}</span>
@@ -160,10 +161,10 @@ export const MajorProjectsSection: React.FC<MajorProjectsSectionProps> = ({
                     <div className="flex flex-col sm:flex-row gap-6 sm:items-center justify-between p-5 rounded-2xl bg-emerald-50/60 border border-emerald-100">
                       <div>
                         <h4 className="text-xs font-bold text-emerald-800 uppercase tracking-wider mb-2">
-                          Comment aider
+                          {t("projets.howToHelp")}
                         </h4>
                         <ul className="space-y-1 text-xs text-slate-700">
-                          {project.howToHelp.map((h, i) => (
+                          {project.howToHelp[lang].map((h, i) => (
                             <li key={i} className="flex items-start gap-1.5">
                               <span className="text-emerald-600 mt-0.5">✓</span>
                               <span>{h}</span>
@@ -180,7 +181,7 @@ export const MajorProjectsSection: React.FC<MajorProjectsSectionProps> = ({
                         }}
                         className="shrink-0 px-5 py-3 rounded-xl text-sm font-bold text-white bg-emerald-700 hover:bg-emerald-600 transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-sm"
                       >
-                        <span>{project.cta.label}</span>
+                        <span>{project.cta.label[lang]}</span>
                         {project.cta.type === "external" ? (
                           <ExternalLink className="w-4 h-4" />
                         ) : (

@@ -18,19 +18,21 @@ import { ChatMessage } from "../types";
 import { readFileAsBase64, EncodedFile } from "../lib/fileToBase64";
 import { MarkdownLite } from "./MarkdownLite";
 import { getSpeechRecognitionCtor, isTtsSupported, detectSpeechLang, loadVoices, pickVoice, stripMarkdownForSpeech } from "../lib/voice";
+import { useTranslation } from "../i18n/translations";
 import koccBarmaAvatar from "../assets/images/kocc-barma-avatar.jpg";
 
-const WELCOME_MESSAGE: ChatMessage = {
-  id: "initial-welcome",
-  sender: "mentor",
-  text: "Bonjour ! 🎓 Je suis Kocc Barma, l'agent IA éducatif d'ACAFIS Canada. Pose-moi une question sur tes études, le code, la robotique, ton orientation, ACAFIS, la Coop-ACAFIS, notre boutique ou la culture sénégalaise — en français, en anglais ou en wolof !",
-  timestamp: "À l'instant",
-};
-
 export const KoccBarmaWidget: React.FC = () => {
+  const { t } = useTranslation();
+  const getWelcomeMessage = (): ChatMessage => ({
+    id: "initial-welcome",
+    sender: "mentor",
+    text: t("widget.welcomeMessage"),
+    timestamp: t("mentor.justNow"),
+  });
+
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<ChatMessage[]>([WELCOME_MESSAGE]);
+  const [messages, setMessages] = useState<ChatMessage[]>([getWelcomeMessage()]);
   const [inputValue, setInputValue] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [isListening, setIsListening] = useState(false);
@@ -91,7 +93,7 @@ export const KoccBarmaWidget: React.FC = () => {
       const encoded = await readFileAsBase64(file);
       setAttachedFile(encoded);
     } catch (err) {
-      setAttachError(err instanceof Error ? err.message : "Fichier invalide");
+      setAttachError(err instanceof Error ? err.message : t("mentor.invalidFile"));
     }
   };
 
@@ -103,7 +105,7 @@ export const KoccBarmaWidget: React.FC = () => {
     const userMsg: ChatMessage = {
       id: `user-${Date.now()}`,
       sender: "user",
-      text: content || "(Document joint sans message)",
+      text: content || t("mentor.noMessageWithFile"),
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       attachmentName: fileToSend?.name,
     };
@@ -117,7 +119,7 @@ export const KoccBarmaWidget: React.FC = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          message: content || "Peux-tu analyser ce document et me donner ton avis ?",
+          message: content || t("mentor.defaultFileQuestion"),
           topic: "general",
           ...(fileToSend
             ? { fileData: fileToSend.base64, fileMimeType: fileToSend.mimeType, fileName: fileToSend.name }
@@ -126,7 +128,7 @@ export const KoccBarmaWidget: React.FC = () => {
       });
       if (!res.ok) throw new Error("network");
       const data = await res.json();
-      const reply: string = data.reply || "Bonjour ! Comment puis-je t'aider aujourd'hui ?";
+      const reply: string = data.reply || t("widget.defaultReply");
       setMessages((prev) => [
         ...prev,
         {
@@ -138,8 +140,7 @@ export const KoccBarmaWidget: React.FC = () => {
       ]);
       speak(reply);
     } catch {
-      const fallback =
-        "Bonne question ! Pour une réponse plus complète, rends-toi sur la page Acafis Mentor. En attendant, n'hésite pas à me donner plus de détails !";
+      const fallback = t("widget.fallbackReply");
       setMessages((prev) => [
         ...prev,
         {
@@ -181,7 +182,7 @@ export const KoccBarmaWidget: React.FC = () => {
 
   const getTranscript = () =>
     messages
-      .map((m) => `${m.sender === "user" ? "Moi" : "Kocc Barma"} (${m.timestamp}) : ${m.text}`)
+      .map((m) => `${m.sender === "user" ? t("widget.transcriptMe") : "Kocc Barma"} (${m.timestamp}) : ${m.text}`)
       .join("\n\n");
 
   const handleCopy = async () => {
@@ -199,7 +200,7 @@ export const KoccBarmaWidget: React.FC = () => {
     if (shareSupported) {
       try {
         await (navigator as any).share({
-          title: "Conversation avec Kocc Barma — ACAFIS Canada",
+          title: t("widget.shareTitle"),
           text: transcript,
         });
       } catch {
@@ -212,7 +213,7 @@ export const KoccBarmaWidget: React.FC = () => {
 
   const handleClear = () => {
     if (ttsSupported) window.speechSynthesis.cancel();
-    setMessages([WELCOME_MESSAGE]);
+    setMessages([getWelcomeMessage()]);
   };
 
   return (
@@ -222,8 +223,8 @@ export const KoccBarmaWidget: React.FC = () => {
         <button
           onClick={() => setIsOpen(true)}
           className="fixed bottom-5 right-5 z-40 w-16 h-16 rounded-full shadow-2xl border-2 border-amber-400 overflow-hidden hover:scale-105 transition-transform cursor-pointer bg-slate-950"
-          aria-label="Ouvrir Kocc Barma, l'agent IA ACAFIS"
-          title="Kocc Barma — Agent IA ACAFIS"
+          aria-label={t("widget.openAria")}
+          title={t("widget.openTitle")}
         >
           <img src={koccBarmaAvatar} alt="Kocc Barma" className="w-full h-full object-cover" />
           <span className="absolute top-0.5 right-0.5 w-4 h-4 rounded-full bg-emerald-400 border-2 border-slate-950 animate-pulse" />
@@ -242,14 +243,14 @@ export const KoccBarmaWidget: React.FC = () => {
               <div className="min-w-0">
                 <h4 className="text-sm font-bold text-white leading-tight truncate">Kocc Barma</h4>
                 <span className="text-[10px] text-emerald-400 flex items-center gap-1">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> En ligne
+                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400" /> {t("widget.online")}
                 </span>
               </div>
             </div>
             <button
               onClick={() => setIsOpen(false)}
               className="p-1.5 rounded-lg text-slate-400 hover:bg-slate-800 hover:text-white cursor-pointer shrink-0"
-              aria-label="Fermer"
+              aria-label={t("common.close")}
             >
               <X className="w-4 h-4" />
             </button>
@@ -260,7 +261,7 @@ export const KoccBarmaWidget: React.FC = () => {
             {ttsSupported && (
               <button
                 onClick={() => setVoiceEnabled((v) => !v)}
-                title={voiceEnabled ? "Désactiver la lecture vocale" : "Activer la lecture vocale des réponses"}
+                title={voiceEnabled ? t("mentor.disableVoice") : t("mentor.enableVoice")}
                 className={`p-1.5 rounded-lg cursor-pointer transition-colors ${
                   voiceEnabled ? "bg-amber-400 text-slate-950" : "bg-slate-800 text-slate-400 hover:text-white"
                 }`}
@@ -270,21 +271,21 @@ export const KoccBarmaWidget: React.FC = () => {
             )}
             <button
               onClick={handleCopy}
-              title="Copier la conversation"
+              title={t("widget.copyConversation")}
               className="p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-white cursor-pointer transition-colors"
             >
               {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
             </button>
             <button
               onClick={handleShare}
-              title="Partager la conversation"
+              title={t("widget.shareConversation")}
               className="p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-white cursor-pointer transition-colors"
             >
               <Share2 className="w-3.5 h-3.5" />
             </button>
             <button
               onClick={handleClear}
-              title="Supprimer la conversation"
+              title={t("widget.deleteConversation")}
               className="ml-auto p-1.5 rounded-lg bg-slate-800 text-slate-400 hover:text-red-400 cursor-pointer transition-colors"
             >
               <Trash2 className="w-3.5 h-3.5" />
@@ -337,7 +338,7 @@ export const KoccBarmaWidget: React.FC = () => {
                     type="button"
                     onClick={() => setAttachedFile(null)}
                     className="text-slate-400 hover:text-white cursor-pointer shrink-0"
-                    aria-label="Retirer le fichier"
+                    aria-label={t("mentor.removeFile")}
                   >
                     <X className="w-3 h-3" />
                   </button>
@@ -365,7 +366,7 @@ export const KoccBarmaWidget: React.FC = () => {
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              title="Joindre un document ou une image à analyser"
+              title={t("mentor.attachTitle")}
               className="p-2.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white cursor-pointer shrink-0 transition-colors"
             >
               <Paperclip className="w-4 h-4" />
@@ -376,7 +377,7 @@ export const KoccBarmaWidget: React.FC = () => {
                   type="button"
                   onClick={() => setVoiceInputLang((l) => (l === "fr-CA" ? "en-US" : "fr-CA"))}
                   disabled={isListening}
-                  title="Langue de dictée vocale"
+                  title={t("mentor.voiceInputLangTitle")}
                   className="px-2 py-2.5 rounded-xl bg-slate-800 text-slate-300 hover:text-white text-[10px] font-bold shrink-0 cursor-pointer disabled:opacity-50 transition-colors"
                 >
                   {voiceInputLang === "fr-CA" ? "FR" : "EN"}
@@ -384,7 +385,7 @@ export const KoccBarmaWidget: React.FC = () => {
                 <button
                   type="button"
                   onClick={toggleListening}
-                  title={isListening ? "Arrêter l'écoute" : "Parler à Kocc Barma"}
+                  title={isListening ? t("mentor.stopListening") : t("mentor.startListening")}
                   className={`p-2.5 rounded-xl cursor-pointer shrink-0 transition-colors ${
                     isListening ? "bg-red-500 text-white animate-pulse" : "bg-slate-800 text-slate-300 hover:text-white"
                   }`}
@@ -396,7 +397,7 @@ export const KoccBarmaWidget: React.FC = () => {
             <input
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Pose ta question..."
+              placeholder={t("widget.placeholder")}
               disabled={isLoading}
               className="flex-1 min-w-0 bg-slate-900 text-white placeholder-slate-500 rounded-xl px-3 py-2.5 text-xs border border-slate-800 focus:outline-hidden focus:border-amber-400 focus:ring-1 focus:ring-amber-400"
             />
@@ -404,7 +405,7 @@ export const KoccBarmaWidget: React.FC = () => {
               type="submit"
               disabled={isLoading || (!inputValue.trim() && !attachedFile)}
               className="p-2.5 rounded-xl bg-amber-400 hover:bg-amber-300 disabled:opacity-50 text-slate-950 shrink-0 cursor-pointer transition-colors"
-              aria-label="Envoyer"
+              aria-label={t("mentor.send")}
             >
               <Send className="w-4 h-4" />
             </button>

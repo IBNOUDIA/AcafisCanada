@@ -13,6 +13,7 @@ import {
   HelpCircle,
 } from "lucide-react";
 import { PAYMENT_INTERAC_INFO } from "../data/acafisData";
+import { useTranslation } from "../i18n/translations";
 
 interface ContactSectionProps {
   onOpenPaymentModal: () => void;
@@ -23,6 +24,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
   onOpenPaymentModal,
   onOpenDocumentsModal,
 }) => {
+  const { t, lang } = useTranslation();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -34,12 +36,12 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
   const [submitError, setSubmitError] = useState("");
 
   const subjectOptions = [
-    { id: "adhesion", label: "Adhésion & Carte Membre (25$ CAD)" },
-    { id: "cite_jardin", label: "Coop-ACAFIS & Cité Jardin Ndianda" },
-    { id: "colonie2030", label: "Colonie 'Racines & Avenir' 2030" },
-    { id: "mentor_ia", label: "Espace Jeune & Le Mentor IA" },
-    { id: "partenariat", label: "Partenariat Institutionnel / Sponsoring" },
-    { id: "autre", label: "Autre demande au Secrétariat" },
+    { id: "adhesion", label: t("contact.subject.adhesion") },
+    { id: "cite_jardin", label: t("contact.subject.citeJardin") },
+    { id: "colonie2030", label: t("contact.subject.colonie") },
+    { id: "mentor_ia", label: t("contact.subject.mentor") },
+    { id: "partenariat", label: t("contact.subject.partenariat") },
+    { id: "autre", label: t("contact.subject.autre") },
   ];
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -91,15 +93,15 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
         <div className="max-w-3xl mx-auto text-center space-y-4 mb-14">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-sky-100 text-sky-900 border border-sky-300">
             <Mail className="w-3.5 h-3.5 text-sky-700" />
-            <span>Écoute & Proximité • Canada 🇨🇦 & Sénégal 🇸🇳</span>
+            <span>{t("contact.badge")}</span>
           </div>
 
           <h2 className="text-3xl sm:text-4xl font-extrabold text-slate-900 tracking-tight font-display">
-            Formulaire de Contact Intuitif
+            {t("contact.title")}
           </h2>
 
           <p className="text-base sm:text-lg text-slate-600">
-            Une question sur votre adhésion, la Cité Jardin, Le Mentor IA ou les activités communautaires ? Écrivez-nous directement, nous vous répondrons sous 24 à 48 heures.
+            {t("contact.intro")}
           </p>
         </div>
 
@@ -112,18 +114,18 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
             <div className="p-6 rounded-2xl bg-slate-50 border border-slate-200 space-y-4">
               <h3 className="text-base font-bold text-slate-900 font-display flex items-center gap-2">
                 <Building className="w-4 h-4 text-emerald-700" />
-                <span>Secrétariat Général & Bureau Exécutif</span>
+                <span>{t("contact.card1Title")}</span>
               </h3>
 
               <p className="text-xs text-slate-600 leading-relaxed">
-                Association Communautaire d'Aide aux Familles Immigrantes Sénégalaises (ACAFIS Canada).
+                {t("contact.card1Desc")}
               </p>
 
               <div className="space-y-3 pt-2 text-xs text-slate-700">
                 <div className="flex items-start gap-2.5">
                   <Mail className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                   <div>
-                    <span className="font-semibold block text-slate-900">Secrétariat :</span>
+                    <span className="font-semibold block text-slate-900">{t("contact.secretariatLabel")}</span>
                     <a href="mailto:secretariat@acafis.ca" className="text-emerald-700 hover:underline">
                       secretariat@acafis.ca
                     </a>
@@ -133,7 +135,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                 <div className="flex items-start gap-2.5">
                   <Mail className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                   <div>
-                    <span className="font-semibold block text-slate-900">Présidence :</span>
+                    <span className="font-semibold block text-slate-900">{t("contact.presidencyLabel")}</span>
                     <a href="mailto:taphasane1910@gmail.com" className="text-emerald-700 hover:underline">
                       taphasane1910@gmail.com
                     </a>
@@ -143,7 +145,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                 <div className="flex items-start gap-2.5">
                   <MapPin className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                   <div>
-                    <span className="font-semibold block text-slate-900">Siège au Canada :</span>
+                    <span className="font-semibold block text-slate-900">{t("contact.hqLabel")}</span>
                     <span>4845, avenue de Courtrai, suite 101, Montréal, QC H3W 0A2, Canada</span>
                   </div>
                 </div>
@@ -155,7 +157,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
               <div className="flex items-center justify-between">
                 <span className="text-xs font-bold uppercase tracking-wider text-amber-300 flex items-center gap-1.5">
                   <CreditCard className="w-3.5 h-3.5" />
-                  Paiement des Cotisations
+                  {t("contact.paymentsTitle")}
                 </span>
                 <span className="text-xs font-bold bg-amber-400 text-slate-950 px-2 py-0.5 rounded-full">
                   {PAYMENT_INTERAC_INFO.annualFeeCAD} CAD
@@ -163,33 +165,33 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
               </div>
 
               <p className="text-xs text-emerald-100 leading-relaxed">
-                Pour régler votre cotisation statutaire ou faire un don solidaire :
+                {t("contact.paymentsDesc")}
               </p>
 
               <div className="p-3 rounded-xl bg-black/30 border border-emerald-500/30 text-xs space-y-1 font-mono">
-                <div className="text-emerald-300 font-bold">Courriel : {PAYMENT_INTERAC_INFO.email}</div>
-                <div className="text-slate-300">Question : <span className="text-white font-bold">{PAYMENT_INTERAC_INFO.secretQuestion}</span></div>
-                <div className="text-slate-300">Réponse : <span className="text-white font-bold">{PAYMENT_INTERAC_INFO.secretAnswer}</span></div>
+                <div className="text-emerald-300 font-bold">{t("contact.emailLabel")} {PAYMENT_INTERAC_INFO.email}</div>
+                <div className="text-slate-300">{t("contact.questionLabel")} <span className="text-white font-bold">{PAYMENT_INTERAC_INFO.secretQuestion[lang]}</span></div>
+                <div className="text-slate-300">{t("contact.answerLabel")} <span className="text-white font-bold">{PAYMENT_INTERAC_INFO.secretAnswer}</span></div>
               </div>
 
               <button
                 onClick={onOpenPaymentModal}
                 className="text-xs font-semibold text-amber-300 hover:text-amber-200 underline cursor-pointer"
               >
-                Consulter le guide complet des paiements & reçus →
+                {t("contact.paymentsGuideLink")}
               </button>
             </div>
 
             {/* Info Card 3: Documents Shortcut */}
             <div className="p-4 rounded-2xl bg-white border border-slate-200 flex items-center justify-between text-xs">
               <span className="font-semibold text-slate-800">
-                Statuts & Règlement Intérieur ACAFIS
+                {t("contact.documentsLabel")}
               </span>
               <button
                 onClick={onOpenDocumentsModal}
                 className="font-bold text-emerald-700 hover:underline cursor-pointer"
               >
-                Consulter les PDF
+                {t("contact.documentsLink")}
               </button>
             </div>
 
@@ -204,29 +206,29 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                   <CheckCircle2 className="w-8 h-8" />
                 </div>
                 <h3 className="text-xl font-bold text-slate-900 font-display">
-                  Message Transmis avec Succès !
+                  {t("contact.successTitle")}
                 </h3>
                 <p className="text-sm text-slate-600 max-w-md mx-auto">
-                  Merci pour votre message. Le secrétariat d'ACAFIS Canada a bien reçu votre demande et vous contactera dans les plus brefs délais.
+                  {t("contact.successDesc")}
                 </p>
                 <button
                   onClick={() => setSubmitSuccess(false)}
                   className="px-6 py-2.5 rounded-xl text-xs font-bold text-emerald-800 bg-emerald-50 hover:bg-emerald-100 border border-emerald-200 transition-colors cursor-pointer"
                 >
-                  Envoyer un autre message
+                  {t("contact.sendAnother")}
                 </button>
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
                 <h3 className="text-lg font-bold text-slate-900 font-display border-b border-slate-100 pb-3 mb-2">
-                  Envoyez-nous un Message
+                  {t("contact.formTitle")}
                 </h3>
 
                 {/* Name & Email */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                      Nom complet *
+                      {t("contact.labelFullName")}
                     </label>
                     <input
                       id="contact-input-name"
@@ -241,7 +243,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
 
                   <div>
                     <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                      Courriel (Email) *
+                      {t("contact.labelEmail")}
                     </label>
                     <input
                       id="contact-input-email"
@@ -259,7 +261,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                      Numéro de téléphone
+                      {t("contact.labelPhone")}
                     </label>
                     <input
                       id="contact-input-phone"
@@ -273,7 +275,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
 
                   <div>
                     <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                      Objet de la demande *
+                      {t("contact.labelSubject")}
                     </label>
                     <select
                       id="contact-select-subject"
@@ -293,7 +295,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                 {/* Message */}
                 <div>
                   <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                    Votre message *
+                    {t("contact.labelMessage")}
                   </label>
                   <textarea
                     id="contact-textarea-message"
@@ -301,7 +303,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                     rows={5}
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
-                    placeholder="Écrivez votre message ici avec tous les détails nécessaires..."
+                    placeholder={t("contact.placeholderMessage")}
                     className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-hidden focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
                   />
                 </div>
@@ -314,12 +316,12 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                     className="w-full py-3.5 px-6 rounded-xl font-bold text-white bg-emerald-700 hover:bg-emerald-800 shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
                   >
                     <Send className="w-4 h-4" />
-                    <span>{isSubmitting ? "Envoi en cours..." : "Transmettre mon Message au Secrétariat"}</span>
+                    <span>{isSubmitting ? t("contact.sending") : t("contact.sendBtn")}</span>
                   </button>
                 </div>
 
                 <p className="text-[11px] text-slate-500 text-center">
-                  Vos informations sont strictement confidentielles et réservées à la gestion interne d'ACAFIS Canada.
+                  {t("contact.confidentiality")}
                 </p>
               </form>
             )}

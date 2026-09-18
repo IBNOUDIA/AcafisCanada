@@ -10,6 +10,7 @@ import {
   Sparkles,
 } from "lucide-react";
 import { PAYMENT_INTERAC_INFO } from "../data/acafisData";
+import { useTranslation } from "../i18n/translations";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -22,6 +23,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   onClose,
   onOpenCardModal,
 }) => {
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [memberId, setMemberId] = useState("");
   const [isLogged, setIsLogged] = useState(false);
@@ -41,7 +43,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         <button
           onClick={onClose}
           className="absolute top-4 right-4 p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
-          aria-label="Fermer"
+          aria-label={t("common.close")}
         >
           <X className="w-5 h-5" />
         </button>
@@ -52,17 +54,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <UserCheck className="w-7 h-7" />
             </div>
             <h3 className="text-xl font-bold text-slate-900 font-display">
-              Bienvenue sur votre Espace Membre
+              {t("authModal.welcomeTitle")}
             </h3>
             <p className="text-xs text-slate-600">
-              Connecté en tant que <strong>{email}</strong>. Vous avez accès aux votes de l'Assemblée Générale, au suivi foncier de la Cité Jardin et aux ateliers nTIC.
+              {t("authModal.welcomeDesc1")} <strong>{email}</strong>{t("authModal.welcomeDesc2")}
             </p>
             <div className="pt-2">
               <button
                 onClick={onClose}
                 className="w-full py-3 px-4 rounded-xl text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 transition-colors cursor-pointer"
               >
-                Accéder au Tableau de Bord
+                {t("authModal.dashboardBtn")}
               </button>
             </div>
           </div>
@@ -73,17 +75,17 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 <LogIn className="w-6 h-6" />
               </div>
               <h3 className="text-xl font-bold text-slate-900 font-display">
-                Espace Membre ACAFIS
+                {t("authModal.title")}
               </h3>
               <p className="text-xs text-slate-500">
-                Identifiez-vous avec votre adresse courriel ou votre numéro de membre ACAFIS.
+                {t("authModal.desc")}
               </p>
             </div>
 
             <form onSubmit={handleLogin} className="space-y-4">
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Courriel du Membre
+                  {t("authModal.labelEmail")}
                 </label>
                 <div className="relative">
                   <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
@@ -100,7 +102,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
               <div>
                 <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
-                  Numéro de Carte ou Mot de Passe (Facultatif)
+                  {t("authModal.labelPassword")}
                 </label>
                 <div className="relative">
                   <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
@@ -118,13 +120,13 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 type="submit"
                 className="w-full py-3 px-4 rounded-xl text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 shadow-md transition-colors flex items-center justify-center gap-2 cursor-pointer"
               >
-                <span>Connexion Sécurisée</span>
+                <span>{t("authModal.loginBtn")}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </form>
 
             <div className="pt-4 border-t border-slate-100 text-center text-xs space-y-2">
-              <span className="text-slate-500">Pas encore inscrit pour 2026 ?</span>
+              <span className="text-slate-500">{t("authModal.notRegistered")}</span>
               <button
                 onClick={() => {
                   onClose();
@@ -132,7 +134,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 }}
                 className="block mx-auto font-bold text-emerald-700 hover:underline cursor-pointer"
               >
-                Générer ma carte & Adhérer ({PAYMENT_INTERAC_INFO.annualFeeCAD}$ CAD) →
+                {t("authModal.generateCard")} ({PAYMENT_INTERAC_INFO.annualFeeCAD}$ CAD) →
               </button>
             </div>
           </div>

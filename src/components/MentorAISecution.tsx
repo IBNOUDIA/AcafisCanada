@@ -23,10 +23,12 @@ import { Reveal } from "./Reveal";
 import { readFileAsBase64, EncodedFile } from "../lib/fileToBase64";
 import { MarkdownLite } from "./MarkdownLite";
 import { getSpeechRecognitionCtor, isTtsSupported, detectSpeechLang, loadVoices, pickVoice, stripMarkdownForSpeech } from "../lib/voice";
+import { useTranslation } from "../i18n/translations";
 import mentorHeroPhoto from "../assets/images/mentor-hero.jpg";
 import koccBarmaAvatar from "../assets/images/kocc-barma-avatar.jpg";
 
 export const MentorAISecution: React.FC = () => {
+  const { t, lang } = useTranslation();
   const [selectedTopic, setSelectedTopic] = useState<string>("culture");
   const [inputValue, setInputValue] = useState<string>("");
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -34,8 +36,8 @@ export const MentorAISecution: React.FC = () => {
     {
       id: "initial-welcome",
       sender: "mentor",
-      text: "Bonjour jeune talent ! 🎓\n\nJe suis Kocc Barma, l'agent IA éducatif officiel d'ACAFIS Canada. Je suis là pour t'aider dans tes devoirs, te faire progresser en code, robotique et nTIC, répondre à tes questions d'orientation, d'équivalences de diplômes ou de bourses d'études, te renseigner sur ACAFIS, la Coop-ACAFIS ou notre boutique, et te faire découvrir l'histoire du Sénégal. Je te comprends en français, en anglais et en wolof !\n\nQue souhaites-tu explorer aujourd'hui ? 🚀",
-      timestamp: "À l'instant",
+      text: t("mentor.welcomeMessage"),
+      timestamp: t("mentor.justNow"),
     },
   ]);
 
@@ -116,57 +118,57 @@ export const MentorAISecution: React.FC = () => {
       const encoded = await readFileAsBase64(file);
       setAttachedFile(encoded);
     } catch (err) {
-      setAttachError(err instanceof Error ? err.message : "Fichier invalide");
+      setAttachError(err instanceof Error ? err.message : t("mentor.invalidFile"));
     }
   };
 
   const topics = [
     {
       id: "culture",
-      label: "Quiz Culture Sénégal",
+      label: t("mentor.topic.culture.label"),
       icon: <HelpCircle className="w-4 h-4 text-emerald-500" />,
       color: "border-emerald-300 bg-emerald-50/70 text-emerald-900",
-      description: "Histoire, patrimoine, Teranga & géographie",
+      description: t("mentor.topic.culture.desc"),
       quickPrompts: [
-        "Lance-moi une question quiz sur l'Île de Gorée",
-        "Raconte-moi l'histoire du Musée des Civilisations Noires de Dakar",
-        "Quels sont les fleuves et les régions du Sénégal ?",
+        t("mentor.topic.culture.q1"),
+        t("mentor.topic.culture.q2"),
+        t("mentor.topic.culture.q3"),
       ],
     },
     {
       id: "maths",
-      label: "Aide Maths & Sciences",
+      label: t("mentor.topic.maths.label"),
       icon: <BookOpen className="w-4 h-4 text-blue-500" />,
       color: "border-blue-300 bg-blue-50/70 text-blue-900",
-      description: "Du primaire au secondaire & cégep",
+      description: t("mentor.topic.maths.desc"),
       quickPrompts: [
-        "Aide-moi à comprendre le théorème de Pythagore facilement",
-        "Comment résoudre une équation avec des fractions ?",
-        "Explique-moi le cycle de l'eau et la photosynthèse",
+        t("mentor.topic.maths.q1"),
+        t("mentor.topic.maths.q2"),
+        t("mentor.topic.maths.q3"),
       ],
     },
     {
       id: "code",
-      label: "Code, Robotique & nTIC",
+      label: t("mentor.topic.code.label"),
       icon: <Code2 className="w-4 h-4 text-purple-500" />,
       color: "border-purple-300 bg-purple-50/70 text-purple-900",
-      description: "Scratch, Python, Arduino & Logique",
+      description: t("mentor.topic.code.desc"),
       quickPrompts: [
-        "Comment écrire mon premier programme 'Bonjour Monde' en Python ?",
-        "Comment fonctionne un robot programmable comme Arduino ?",
-        "Qu'est-ce qu'une boucle 'for' et une variable ?",
+        t("mentor.topic.code.q1"),
+        t("mentor.topic.code.q2"),
+        t("mentor.topic.code.q3"),
       ],
     },
     {
       id: "orientation",
-      label: "Orientation, Équivalences & Bourses",
+      label: t("mentor.topic.orientation.label"),
       icon: <Compass className="w-4 h-4 text-amber-500" />,
       color: "border-amber-300 bg-amber-50/70 text-amber-900",
-      description: "Cégeps, universités, équivalences & bourses d'études",
+      description: t("mentor.topic.orientation.desc"),
       quickPrompts: [
-        "Quelles études faire au Canada pour travailler en Intelligence Artificielle ?",
-        "Comment faire reconnaître un diplôme obtenu au Sénégal (équivalence) ?",
-        "Quelles bourses d'études sont disponibles pour les étudiants immigrants ?",
+        t("mentor.topic.orientation.q1"),
+        t("mentor.topic.orientation.q2"),
+        t("mentor.topic.orientation.q3"),
       ],
     },
   ];
@@ -176,11 +178,11 @@ export const MentorAISecution: React.FC = () => {
     if ((!messageContent && !attachedFile) || isLoading) return;
 
     const fileToSend = attachedFile;
-    const effectiveMessage = messageContent || "Peux-tu analyser ce document et me donner ton avis ?";
+    const effectiveMessage = messageContent || t("mentor.defaultFileQuestion");
     const userMsg: ChatMessage = {
       id: `user-${Date.now()}`,
       sender: "user",
-      text: messageContent || "(Document joint sans message)",
+      text: messageContent || t("mentor.noMessageWithFile"),
       timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       attachmentName: fileToSend?.name,
     };
@@ -208,7 +210,7 @@ export const MentorAISecution: React.FC = () => {
       }
 
       const data = await response.json();
-      const replyText: string = data.reply || "Excellente question ! Poursuivons notre apprentissage.";
+      const replyText: string = data.reply || t("mentor.connectionError");
       const mentorMsg: ChatMessage = {
         id: `mentor-${Date.now()}`,
         sender: "mentor",
@@ -224,7 +226,7 @@ export const MentorAISecution: React.FC = () => {
       const fallbackMsg: ChatMessage = {
         id: `mentor-${Date.now()}`,
         sender: "mentor",
-        text: `Bravo pour ta curiosité ! En tant que Mentor ACAFIS, je te félicite pour cette question sur "${effectiveMessage}". Rappelle-toi que chaque effort d'apprentissage te rapproche de tes rêves. N'hésite pas à demander à tes parents ou aux tuteurs bénévoles d'ACAFIS lors de nos ateliers du samedi !`,
+        text: `${t("mentor.fallbackReply")} "${effectiveMessage}"${t("mentor.fallbackReply2")}`,
         timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
       };
       setMessages((prev) => [...prev, fallbackMsg]);
@@ -238,8 +240,8 @@ export const MentorAISecution: React.FC = () => {
       {
         id: "initial-welcome",
         sender: "mentor",
-        text: "Bonjour jeune talent ! 🎓\n\nJe suis Kocc Barma, l'agent IA éducatif officiel d'ACAFIS Canada. Je suis là pour t'aider dans tes devoirs, te faire progresser en code, robotique et nTIC, répondre à tes questions d'orientation, d'équivalences de diplômes ou de bourses d'études, te renseigner sur ACAFIS, la Coop-ACAFIS ou notre boutique, et te faire découvrir l'histoire du Sénégal. Je te comprends en français, en anglais et en wolof !\n\nQue souhaites-tu explorer aujourd'hui ? 🚀",
-        timestamp: "À l'instant",
+        text: t("mentor.welcomeMessage"),
+        timestamp: t("mentor.justNow"),
       },
     ]);
   };
@@ -265,7 +267,7 @@ export const MentorAISecution: React.FC = () => {
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950/85 via-slate-950/20 to-transparent" />
           <div className="absolute bottom-4 left-5 right-5">
             <span className="text-sm sm:text-base font-bold text-white font-display">
-              Nos jeunes s'initient au code et à la technologie
+              {t("mentor.heroCaption")}
             </span>
           </div>
         </Reveal>
@@ -274,16 +276,16 @@ export const MentorAISecution: React.FC = () => {
         <Reveal className="max-w-3xl mx-auto text-center space-y-3 mb-12">
           <div className="inline-flex items-center gap-2 px-3.5 py-1 rounded-full text-xs font-bold bg-sky-900/70 text-sky-200 border border-sky-600/50">
             <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-            <span>Agent AI d'Apprentissage • Canada 🇨🇦 & Sénégal 🇸🇳</span>
+            <span>{t("mentor.badge")}</span>
           </div>
 
           <h2 className="text-3xl sm:text-5xl font-black tracking-tight font-display text-white">
             Kocc Barma
           </h2>
-          <p className="text-sm font-semibold text-amber-300 -mt-1">Acafis Mentor</p>
+          <p className="text-sm font-semibold text-amber-300 -mt-1">{t("mentor.subtitle")}</p>
 
           <p className="text-base sm:text-lg text-slate-300 font-light max-w-2xl mx-auto">
-            L'agent IA polyvalent d'ACAFIS Canada, du nom du grand sage sénégalais. Aide scolaire, code, robotique & nTIC, orientation, équivalences de diplômes et bourses d'études — pour propulser nos apprenants de la diaspora.
+            {t("mentor.description")}
           </p>
 
           {/* Trilingual capability badge */}
@@ -298,7 +300,7 @@ export const MentorAISecution: React.FC = () => {
           {/* Online status pill */}
           <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-slate-800 text-xs font-semibold text-emerald-400 border border-slate-700">
             <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping" />
-            <span>Agent AI Actif</span>
+            <span>{t("mentor.statusActive")}</span>
             <span className="text-slate-500">•</span>
             <span className="text-amber-300">Kocc Barma 🎓</span>
           </div>
@@ -351,11 +353,11 @@ export const MentorAISecution: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <h3 className="text-sm font-bold text-white">Kocc Barma</h3>
                   <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-emerald-950 text-emerald-300 border border-emerald-800">
-                    IA Active
+                    {t("mentor.iaActive")}
                   </span>
                 </div>
                 <p className="text-xs text-slate-400">
-                  Thème sélectionné : <span className="text-amber-300 font-medium">{currentTopicObj.label}</span>
+                  {t("mentor.selectedTheme")} <span className="text-amber-300 font-medium">{currentTopicObj.label}</span>
                 </p>
               </div>
             </div>
@@ -364,7 +366,7 @@ export const MentorAISecution: React.FC = () => {
               {ttsSupported && (
                 <button
                   onClick={() => setVoiceEnabled((v) => !v)}
-                  title={voiceEnabled ? "Désactiver la lecture vocale" : "Activer la lecture vocale des réponses"}
+                  title={voiceEnabled ? t("mentor.disableVoice") : t("mentor.enableVoice")}
                   className={`p-2 rounded-lg cursor-pointer transition-colors ${
                     voiceEnabled ? "bg-amber-400 text-slate-950" : "text-slate-400 hover:text-white hover:bg-slate-800"
                   }`}
@@ -375,10 +377,10 @@ export const MentorAISecution: React.FC = () => {
               <button
                 onClick={handleResetChat}
                 className="p-2 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors text-xs flex items-center gap-1 cursor-pointer"
-                title="Réinitialiser la conversation"
+                title={t("mentor.resetConversation")}
               >
                 <RotateCcw className="w-4 h-4" />
-                <span className="hidden sm:inline">Nouveau</span>
+                <span className="hidden sm:inline">{t("mentor.newBtn")}</span>
               </button>
             </div>
           </div>
@@ -432,7 +434,7 @@ export const MentorAISecution: React.FC = () => {
                     <span className="w-2 h-2 rounded-full bg-amber-400 animate-bounce" style={{ animationDelay: "150ms" }} />
                     <span className="w-2 h-2 rounded-full bg-amber-400 animate-bounce" style={{ animationDelay: "300ms" }} />
                   </div>
-                  <span className="text-slate-400 italic">Le Mentor réfléchit...</span>
+                  <span className="text-slate-400 italic">{t("mentor.thinking")}</span>
                 </div>
               </div>
             )}
@@ -442,7 +444,7 @@ export const MentorAISecution: React.FC = () => {
           <div className="px-4 py-2 bg-slate-900/70 border-t border-slate-800/80 flex items-center gap-2 overflow-x-auto text-xs whitespace-nowrap">
             <span className="text-slate-400 font-semibold flex items-center gap-1 shrink-0">
               <Lightbulb className="w-3.5 h-3.5 text-amber-400" />
-              Exemples :
+              {t("mentor.examples")}
             </span>
             {currentTopicObj.quickPrompts.map((prompt, idx) => (
               <button
@@ -467,7 +469,7 @@ export const MentorAISecution: React.FC = () => {
                     type="button"
                     onClick={() => setAttachedFile(null)}
                     className="text-slate-400 hover:text-white cursor-pointer shrink-0"
-                    aria-label="Retirer le fichier"
+                    aria-label={t("mentor.removeFile")}
                   >
                     <X className="w-3.5 h-3.5" />
                   </button>
@@ -495,7 +497,7 @@ export const MentorAISecution: React.FC = () => {
             <button
               type="button"
               onClick={() => fileInputRef.current?.click()}
-              title="Joindre un document ou une image à analyser"
+              title={t("mentor.attachTitle")}
               className="p-3 rounded-xl bg-slate-950 text-slate-300 hover:text-white border border-slate-800 cursor-pointer shrink-0 transition-colors"
             >
               <Paperclip className="w-4 h-4" />
@@ -507,7 +509,7 @@ export const MentorAISecution: React.FC = () => {
                   type="button"
                   onClick={() => setVoiceInputLang((l) => (l === "fr-CA" ? "en-US" : "fr-CA"))}
                   disabled={isListening}
-                  title="Langue de dictée vocale"
+                  title={t("mentor.voiceInputLangTitle")}
                   className="px-2.5 py-3 rounded-xl bg-slate-950 border border-slate-800 text-slate-300 hover:text-white text-[10px] font-bold shrink-0 cursor-pointer disabled:opacity-50 transition-colors"
                 >
                   {voiceInputLang === "fr-CA" ? "FR" : "EN"}
@@ -515,7 +517,7 @@ export const MentorAISecution: React.FC = () => {
                 <button
                   type="button"
                   onClick={toggleListening}
-                  title={isListening ? "Arrêter l'écoute" : "Parler à Kocc Barma"}
+                  title={isListening ? t("mentor.stopListening") : t("mentor.startListening")}
                   className={`p-3 rounded-xl cursor-pointer shrink-0 transition-colors ${
                     isListening
                       ? "bg-red-500 text-white animate-pulse"
@@ -532,7 +534,7 @@ export const MentorAISecution: React.FC = () => {
               type="text"
               value={inputValue}
               onChange={(e) => setInputValue(e.target.value)}
-              placeholder="Pose ta question au Mentor (ex: Explique-moi un concept, un devoir, ou lance un quiz)..."
+              placeholder={t("mentor.placeholder")}
               disabled={isLoading}
               className="flex-1 bg-slate-950 text-white placeholder-slate-500 rounded-xl px-4 py-3 text-sm border border-slate-800 focus:outline-hidden focus:border-amber-400 focus:ring-1 focus:ring-amber-400 transition-all"
             />
@@ -543,7 +545,7 @@ export const MentorAISecution: React.FC = () => {
               disabled={isLoading || (!inputValue.trim() && !attachedFile)}
               className="px-5 py-3 rounded-xl bg-gradient-to-r from-amber-400 to-amber-500 hover:from-amber-300 hover:to-amber-400 disabled:opacity-50 text-slate-950 font-bold text-sm flex items-center gap-1.5 shadow-md cursor-pointer transition-all shrink-0"
             >
-              <span>Envoyer</span>
+              <span>{t("mentor.send")}</span>
               <Send className="w-4 h-4" />
             </button>
           </form>
