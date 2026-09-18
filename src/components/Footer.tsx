@@ -8,6 +8,7 @@ import {
 import { PAYMENT_INTERAC_INFO, EXTERNAL_LINKS } from "../data/acafisData";
 import { AcafisLogo } from "./AcafisLogo";
 import { SenegalRibbon } from "./SenegalFlagBadge";
+import { useTranslation, TranslationKey } from "../i18n/translations";
 
 // lucide-react has no WhatsApp glyph — small inline brand icon instead.
 const WhatsAppIcon: React.FC<{ className?: string }> = ({ className }) => (
@@ -24,11 +25,11 @@ interface FooterProps {
 }
 
 // Just the essentials — the full sitemap already lives in the main menu.
-const QUICK_LINKS: Array<{ id: string; label: string }> = [
-  { id: "accueil", label: "Accueil" },
-  { id: "mission-service", label: "Missions & Services" },
-  { id: "bureau", label: "Bureau Exécutif" },
-  { id: "adhesion", label: "Adhésion" },
+const QUICK_LINKS: Array<{ id: string }> = [
+  { id: "accueil" },
+  { id: "mission-service" },
+  { id: "bureau" },
+  { id: "adhesion" },
 ];
 
 export const Footer: React.FC<FooterProps> = ({
@@ -37,6 +38,7 @@ export const Footer: React.FC<FooterProps> = ({
   onOpenDocumentsModal,
   onOpenCardModal,
 }) => {
+  const { t } = useTranslation();
   return (
     <footer className="bg-gradient-to-b from-sky-950 via-slate-950 to-slate-950 text-slate-300 border-t border-sky-900/60 relative">
       <SenegalRibbon />
@@ -49,7 +51,7 @@ export const Footer: React.FC<FooterProps> = ({
           <div className="lg:col-span-2 space-y-3">
             <AcafisLogo size="md" textColor="light" />
             <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
-              Le cœur battant de la diaspora pour le développement solidaire entre le Canada et le Sénégal.
+              {t("footer.tagline")}
             </p>
             <div className="text-xs text-slate-400 space-y-1.5 pt-1">
               <div className="flex items-start gap-2">
@@ -67,7 +69,7 @@ export const Footer: React.FC<FooterProps> = ({
 
           {/* Quick Links */}
           <div className="space-y-3">
-            <h4 className="text-sm font-bold text-white uppercase tracking-wider">Liens Rapides</h4>
+            <h4 className="text-sm font-bold text-white uppercase tracking-wider">{t("footer.quickLinks")}</h4>
             <ul className="space-y-2 text-xs text-slate-400">
               {QUICK_LINKS.map((link) => (
                 <li key={link.id}>
@@ -75,7 +77,7 @@ export const Footer: React.FC<FooterProps> = ({
                     onClick={() => onNavigate(link.id)}
                     className="hover:text-emerald-400 transition-colors cursor-pointer text-left"
                   >
-                    {link.label}
+                    {t(`nav.${link.id}` as TranslationKey)}
                   </button>
                 </li>
               ))}
@@ -84,7 +86,7 @@ export const Footer: React.FC<FooterProps> = ({
                   onClick={onOpenDocumentsModal}
                   className="hover:text-emerald-400 transition-colors cursor-pointer text-left"
                 >
-                  Statuts & Règlement
+                  {t("footer.statutes")}
                 </button>
               </li>
               <li>
@@ -94,7 +96,7 @@ export const Footer: React.FC<FooterProps> = ({
                   rel="noopener noreferrer"
                   className="hover:text-emerald-400 transition-colors inline-flex items-center gap-1.5 text-emerald-300"
                 >
-                  <span>Coop-ACAFIS</span>
+                  <span>{t("nav.coop-acafis")}</span>
                   <ExternalLink className="w-3 h-3" />
                 </a>
               </li>
@@ -103,12 +105,12 @@ export const Footer: React.FC<FooterProps> = ({
 
           {/* Membership & Social */}
           <div className="space-y-3">
-            <h4 className="text-sm font-bold text-white uppercase tracking-wider">Nous Rejoindre</h4>
+            <h4 className="text-sm font-bold text-white uppercase tracking-wider">{t("footer.joinUs")}</h4>
             <button
               onClick={onOpenCardModal}
               className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white font-bold text-xs shadow-md transition-all cursor-pointer"
             >
-              Carte de Membre ({PAYMENT_INTERAC_INFO.annualFeeCAD}$ CAD)
+              {t("footer.membershipCard")} ({PAYMENT_INTERAC_INFO.annualFeeCAD}$ CAD)
             </button>
             <div className="space-y-2">
               <a
@@ -137,14 +139,14 @@ export const Footer: React.FC<FooterProps> = ({
         {/* Bottom Bar */}
         <div className="pt-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-slate-500">
           <div className="flex flex-wrap items-center justify-center gap-3">
-            <span>© 2026 ACAFIS Canada</span>
+            <span>{t("footer.copyright")}</span>
             <span>•</span>
             <button onClick={onOpenPaymentModal} className="hover:text-slate-300 transition-colors cursor-pointer">
-              Paiement Interac
+              {t("footer.paymentInterac")}
             </button>
             <span>•</span>
             <button onClick={() => onNavigate("adhesion")} className="hover:text-slate-300 transition-colors cursor-pointer">
-              Contact
+              {t("footer.contact")}
             </button>
           </div>
           <a
@@ -153,7 +155,7 @@ export const Footer: React.FC<FooterProps> = ({
             rel="noopener noreferrer"
             className="hover:text-slate-300 transition-colors"
           >
-            Développé par : www.amardia.ca
+            {t("footer.developedBy")}
           </a>
         </div>
 

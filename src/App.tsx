@@ -21,7 +21,9 @@ import { PaymentDocumentsModal } from "./components/PaymentDocumentsModal";
 import { AuthModal } from "./components/AuthModal";
 import { Footer } from "./components/Footer";
 import { KoccBarmaWidget } from "./components/KoccBarmaWidget";
-import { pathForId, idForPath, PAGE_ROUTES } from "./routes";
+import { pathForId, idForPath } from "./routes";
+import { LanguageProvider, useLanguage } from "./i18n/LanguageContext";
+import { translations, TranslationKey } from "./i18n/translations";
 
 // Resets scroll position whenever the route (page) changes.
 const ScrollToTop: React.FC = () => {
@@ -33,28 +35,47 @@ const ScrollToTop: React.FC = () => {
 };
 
 // Gives each page its own browser tab title (better UX, bookmarks and SEO
-// than a single static title shared across every route).
+// than a single static title shared across every route), keeps the
+// <html lang> attribute in sync, and points search engines to the French/
+// English versions of the current page via <link rel="alternate" hreflang>.
 const PageTitle: React.FC = () => {
   const { pathname } = useLocation();
+  const { lang, localizePath } = useLanguage();
   useEffect(() => {
     const id = idForPath(pathname);
-    const route = PAGE_ROUTES.find((r) => r.id === id);
-    document.title =
-      id === "accueil" || !route
-        ? "ACAFIS Canada"
-        : `${route.label} — ACAFIS Canada`;
-  }, [pathname]);
+    const key = `page.title.${id}` as TranslationKey;
+    document.title = translations[lang][key] ?? translations.fr[key] ?? "ACAFIS Canada";
+    document.documentElement.lang = lang;
+
+    const origin = window.location.origin;
+    const altLinks: Array<{ hreflang: string; href: string }> = [
+      { hreflang: "fr", href: `${origin}${localizePath(pathname, "fr")}` },
+      { hreflang: "en", href: `${origin}${localizePath(pathname, "en")}` },
+      { hreflang: "x-default", href: `${origin}${localizePath(pathname, "fr")}` },
+    ];
+    const created: HTMLLinkElement[] = [];
+    altLinks.forEach(({ hreflang, href }) => {
+      const link = document.createElement("link");
+      link.rel = "alternate";
+      link.hreflang = hreflang;
+      link.href = href;
+      document.head.appendChild(link);
+      created.push(link);
+    });
+    return () => created.forEach((link) => link.remove());
+  }, [pathname, lang, localizePath]);
   return null;
 };
 
 const AppShell: React.FC = () => {
   const navigate = useNavigate();
+  const { localizePath } = useLanguage();
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState<boolean>(false);
   const [isDocumentsModalOpen, setIsDocumentsModalOpen] = useState<boolean>(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
 
   const handleNavigate = (sectionId: string) => {
-    navigate(pathForId(sectionId));
+    navigate(localizePath(pathForId(sectionId)));
   };
 
   const handleOpenCardModal = () => {
@@ -88,51 +109,39 @@ const AppShell: React.FC = () => {
 
       <main className="flex-1">
         <Routes>
-          <Route
-            path="/"
-            element={
+          {(() => {
+            // Each page is defined once and rendered at both its French path
+            // and its "/en" mirror — the page's own content picks the right
+            // language via useLanguage()/useTranslation(), so the exact same
+            // element works under either URL.
+            const heroEl = (
               <Hero
                 onNavigate={handleNavigate}
                 onOpenCardModal={handleOpenCardModal}
                 onOpenPaymentModal={handleOpenPaymentModal}
               />
-            }
-          />
-          <Route
-            path="/espace-jeune"
-            element={
+            );
+            const espaceJeuneEl = (
               <CiteJardinProject
                 onOpenCardModal={handleOpenCardModal}
                 onNavigateContact={() => handleNavigate("adhesion")}
               />
-            }
-          />
-          <Route path="/programme" element={<ActivitiesProgram />} />
-          <Route path="/media" element={<MediaBoutiqueSection />} />
-          <Route
-            path="/mission-service"
-            element={
+            );
+            const programmeEl = <ActivitiesProgram />;
+            const mediaEl = <MediaBoutiqueSection />;
+            const servicesEl = (
               <ServicesSection onNavigate={handleNavigate} onOpenCardModal={handleOpenCardModal} />
-            }
-          />
-          <Route
-            path="/projets"
-            element={
+            );
+            const projetsEl = (
               <MajorProjectsSection
                 onNavigate={handleNavigate}
                 onNavigateContact={() => handleNavigate("adhesion")}
               />
-            }
-          />
-          <Route path="/acafis-mentor" element={<MentorAISecution />} />
-          <Route
-            path="/bureau"
-            element={<BureauSection onContactSecretary={() => handleNavigate("adhesion")} />}
-          />
-          <Route path="/temoignages" element={<TestimonialsSection />} />
-          <Route
-            path="/adhesion"
-            element={
+            );
+            const mentorEl = <MentorAISecution />;
+            const bureauEl = <BureauSection onContactSecretary={() => handleNavigate("adhesion")} />;
+            const temoignagesEl = <TestimonialsSection />;
+            const adhesionEl = (
               <>
                 <MembershipCardGenerator onOpenPaymentModal={handleOpenPaymentModal} />
                 <ContactSection
@@ -140,21 +149,38 @@ const AppShell: React.FC = () => {
                   onOpenDocumentsModal={handleOpenDocumentsModal}
                 />
               </>
-            }
-          />
-          {/* Contact is now merged into the Adhésion page — keep old links working */}
-          <Route path="/contact" element={<Navigate to="/adhesion" replace />} />
-          {/* Unknown paths fall back to the home page */}
-          <Route
-            path="*"
-            element={
-              <Hero
-                onNavigate={handleNavigate}
-                onOpenCardModal={handleOpenCardModal}
-                onOpenPaymentModal={handleOpenPaymentModal}
-              />
-            }
-          />
+            );
+
+            const pages: Array<{ path: string; element: React.ReactNode }> = [
+              { path: "/", element: heroEl },
+              { path: "/espace-jeune", element: espaceJeuneEl },
+              { path: "/programme", element: programmeEl },
+              { path: "/media", element: mediaEl },
+              { path: "/mission-service", element: servicesEl },
+              { path: "/projets", element: projetsEl },
+              { path: "/acafis-mentor", element: mentorEl },
+              { path: "/bureau", element: bureauEl },
+              { path: "/temoignages", element: temoignagesEl },
+              { path: "/adhesion", element: adhesionEl },
+            ];
+
+            return (
+              <>
+                {pages.map(({ path, element }) => (
+                  <React.Fragment key={path}>
+                    <Route path={path} element={element} />
+                    <Route path={path === "/" ? "/en" : `/en${path}`} element={element} />
+                  </React.Fragment>
+                ))}
+                {/* Contact is now merged into the Adhésion page — keep old links working */}
+                <Route path="/contact" element={<Navigate to="/adhesion" replace />} />
+                <Route path="/en/contact" element={<Navigate to="/en/adhesion" replace />} />
+                {/* Unknown paths fall back to the home page, in whichever language prefix was used */}
+                <Route path="*" element={heroEl} />
+                <Route path="/en/*" element={heroEl} />
+              </>
+            );
+          })()}
         </Routes>
       </main>
 
@@ -197,7 +223,9 @@ const AppShell: React.FC = () => {
 export default function App() {
   return (
     <BrowserRouter>
-      <AppShell />
+      <LanguageProvider>
+        <AppShell />
+      </LanguageProvider>
     </BrowserRouter>
   );
 }

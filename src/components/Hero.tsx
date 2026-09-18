@@ -17,6 +17,7 @@ import {
 import { SenegalFlagBadge, SenegalRibbon } from "./SenegalFlagBadge";
 import { Reveal } from "./Reveal";
 import { PAYMENT_INTERAC_INFO } from "../data/acafisData";
+import { useTranslation, HERO_IMPACT_EXAMPLES } from "../i18n/translations";
 import heroCommunityPhoto from "../assets/images/hero-communaute-bbq.jpg";
 
 interface HeroProps {
@@ -30,6 +31,7 @@ export const Hero: React.FC<HeroProps> = ({
   onOpenCardModal,
   onOpenPaymentModal,
 }) => {
+  const { t, lang } = useTranslation();
   const [copiedEmail, setCopiedEmail] = useState(false);
   const [activeImpactTab, setActiveImpactTab] = useState<number>(0);
 
@@ -40,29 +42,7 @@ export const Hero: React.FC<HeroProps> = ({
   };
 
   // Dynamic impact metrics of 25$ CAD (~11,250 FCFA)
-  const impactExamples = [
-    {
-      title: "1 Kit Scolaire & Pédagogique",
-      desc: "Fournitures et manuels distribués aux écoliers des zones partenaires à Ndianda.",
-      icon: "📚",
-      category: "Éducation & Jeunesse",
-      highlightColor: "text-amber-300",
-    },
-    {
-      title: "Atelier Code & IA pour un Jeune",
-      desc: "Prise en charge d'un mois de tutorat numérique et accès aux sessions Acafis Mentor.",
-      icon: "💻",
-      category: "Technologies & Avenir",
-      highlightColor: "text-emerald-300",
-    },
-    {
-      title: "3 Arbres Fruitiers • Cité Jardin",
-      desc: "Plantation et irrigation agro-écologique sur le domaine foncier de Ndianda.",
-      icon: "🌱",
-      category: "Environnement & Teranga",
-      highlightColor: "text-sky-300",
-    },
-  ];
+  const impactExamples = HERO_IMPACT_EXAMPLES[lang];
 
   return (
     <section id="accueil" className="relative overflow-hidden text-white">
@@ -77,7 +57,7 @@ export const Hero: React.FC<HeroProps> = ({
 
         {/* Photo caption for authenticity */}
         <span className="absolute bottom-3 right-4 text-[10px] sm:text-[11px] text-white/80 font-medium tracking-wide bg-slate-950/40 backdrop-blur-sm px-2.5 py-1 rounded-full">
-          📸 Grand rassemblement communautaire ACAFIS
+          {t("hero.photoCaption")}
         </span>
       </div>
 
@@ -107,22 +87,22 @@ export const Hero: React.FC<HeroProps> = ({
               </span>
               <span className="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse" />
               <span className="text-amber-300 font-medium hidden sm:inline">
-                Le Cœur Battant de la Diaspora
+                {t("hero.tag")}
               </span>
             </div>
 
             {/* Main Headline */}
             <h1 className="text-3xl sm:text-5xl lg:text-6xl font-extrabold tracking-tight text-white font-display leading-[1.12]">
-              L'alliance de la diaspora pour un{" "}
+              {t("hero.headline1")}{" "}
               <span className="bg-gradient-to-r from-amber-300 via-yellow-300 to-emerald-300 bg-clip-text text-transparent">
-                développement solidaire
+                {t("hero.headlineHighlight")}
               </span>{" "}
-              et durable.
+              {t("hero.headline2")}
             </h1>
 
             {/* Subhead with Senegal colors mention */}
             <p className="text-base sm:text-lg lg:text-xl text-sky-100 max-w-2xl font-light leading-relaxed">
-              Fiers des valeurs de la <strong className="text-amber-300 font-bold">Teranga</strong> et engagés pour l'avenir : de l'habitat durable à la <strong className="text-emerald-300 font-bold">Cité Jardin Ndianda</strong> au soutien scolaire avec notre <strong className="text-yellow-300 font-bold">Mentor IA</strong>.
+              {t("hero.subhead1")} <strong className="text-amber-300 font-bold">{t("hero.subheadTeranga")}</strong> {t("hero.subhead2")} <strong className="text-emerald-300 font-bold">{t("hero.subheadCite")}</strong> {t("hero.subhead3")} <strong className="text-yellow-300 font-bold">{t("hero.subheadMentor")}</strong>{t("hero.subhead4")}
             </p>
 
             {/* Senegal Tricolor Decorative Accent Bar */}
@@ -136,15 +116,15 @@ export const Hero: React.FC<HeroProps> = ({
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-1 text-sm text-sky-100">
               <div className="flex items-center gap-2.5 p-2 rounded-xl bg-white/5 border border-white/10 backdrop-blur-xs">
                 <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-                <span>Habitat sécurisé avec <strong>Coop-ACAFIS</strong></span>
+                <span>{t("hero.highlight1")} <strong>Coop-ACAFIS</strong></span>
               </div>
               <div className="flex items-center gap-2.5 p-2 rounded-xl bg-white/5 border border-white/10 backdrop-blur-xs">
                 <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-                <span>Colonie 2030 à la <strong>Cité Jardin Ndianda</strong></span>
+                <span>{t("hero.highlight2")} <strong>Cité Jardin Ndianda</strong></span>
               </div>
               <div className="flex items-center gap-2.5 p-2 rounded-xl bg-white/5 border border-white/10 backdrop-blur-xs">
                 <CheckCircle2 className="w-5 h-5 text-amber-400 shrink-0" />
-                <span>Soutien scolaire & code avec <strong>Acafis Mentor</strong></span>
+                <span>{t("hero.highlight3")} <strong>Acafis Mentor</strong></span>
               </div>
               <div className="flex items-center gap-2.5 p-2 rounded-xl bg-white/5 border border-white/10 backdrop-blur-xs">
                 <CheckCircle2 className="w-5 h-5 text-amber-400 shrink-0" />
@@ -159,7 +139,7 @@ export const Hero: React.FC<HeroProps> = ({
                 onClick={onOpenCardModal}
                 className="px-6 py-3.5 rounded-xl text-sm font-bold text-slate-950 bg-gradient-to-r from-amber-400 via-amber-300 to-yellow-400 hover:from-amber-300 hover:to-yellow-300 shadow-lg shadow-amber-500/25 hover:shadow-amber-500/40 transition-all transform active:scale-95 flex items-center gap-2 cursor-pointer border border-amber-300"
               >
-                <span>Devenir Membre (25$ CAD)</span>
+                <span>{t("hero.ctaMembership")}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
 
@@ -168,7 +148,7 @@ export const Hero: React.FC<HeroProps> = ({
                 onClick={() => onNavigate("mission-service")}
                 className="px-5 py-3.5 rounded-xl text-sm font-semibold text-white bg-sky-950/70 hover:bg-sky-900/80 border border-sky-600/50 hover:border-sky-400 transition-colors shadow-sm flex items-center gap-2 cursor-pointer"
               >
-                <span>Nos Missions & Services</span>
+                <span>{t("hero.ctaServices")}</span>
               </button>
 
               <button
@@ -177,22 +157,21 @@ export const Hero: React.FC<HeroProps> = ({
                 className="px-4 py-3.5 rounded-xl text-sm font-bold text-amber-300 hover:text-amber-200 bg-amber-950/70 hover:bg-amber-900/60 border border-amber-500/40 transition-colors flex items-center gap-2 cursor-pointer"
               >
                 <GraduationCap className="w-4 h-4 text-amber-400" />
-                <span>Acafis Mentor 🎓</span>
+                <span>{t("hero.ctaMentor")}</span>
               </button>
             </div>
 
             {/* Interac reminder pill with quick copy */}
             <div className="pt-1 flex flex-wrap items-center gap-2.5 text-xs text-sky-200">
-              <span className="font-semibold text-white">Virement Interac (Canada) :</span>
+              <span className="font-semibold text-white">{t("hero.interacLabel")}</span>
               <button
                 onClick={handleCopyEmail}
                 className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-sky-950/90 hover:bg-sky-900 text-emerald-300 font-mono border border-sky-600/60 cursor-pointer transition-colors shadow-xs"
-                title="Cliquer pour copier l'adresse"
               >
                 {copiedEmail ? (
                   <>
                     <Check className="w-3.5 h-3.5 text-emerald-400" />
-                    <span className="text-emerald-300 font-bold">Copié dans le presse-papier !</span>
+                    <span className="text-emerald-300 font-bold">{t("hero.interacCopied")}</span>
                   </>
                 ) : (
                   <>
@@ -205,7 +184,7 @@ export const Hero: React.FC<HeroProps> = ({
                 onClick={onOpenPaymentModal}
                 className="text-amber-300 hover:text-amber-200 underline cursor-pointer font-medium"
               >
-                Modalités 25$ CAD
+                {t("hero.interacModalities")}
               </button>
             </div>
 
@@ -223,16 +202,16 @@ export const Hero: React.FC<HeroProps> = ({
                   </div>
                   <div>
                     <h2 className="text-sm font-bold text-white tracking-wide flex items-center gap-1.5">
-                      <span>Cité Jardin • Ndianda</span>
+                      <span>{t("hero.cardTitle")}</span>
                       <SenegalFlagBadge size="sm" />
                     </h2>
                     <p className="text-xs text-emerald-300 font-medium">
-                      Colonie 2030 « Racines & Avenir »
+                      {t("hero.cardSubtitle")}
                     </p>
                   </div>
                 </div>
                 <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-400/20 text-amber-300 border border-amber-400/40">
-                  10 - 17 Ans
+                  {t("hero.cardAgeRange")}
                 </span>
               </div>
 
@@ -242,10 +221,10 @@ export const Hero: React.FC<HeroProps> = ({
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-[11px] font-bold uppercase tracking-wider text-sky-300 flex items-center gap-1">
                       <TrendingUp className="w-3.5 h-3.5 text-amber-300" />
-                      <span>Impact Concret d'une Adhésion</span>
+                      <span>{t("hero.impactLabel")}</span>
                     </span>
                     <span className="px-2 py-0.5 rounded-full text-[11px] font-extrabold bg-amber-400 text-slate-950">
-                      25$ CAD = 11 250 FCFA
+                      {t("hero.impactConversion")}
                     </span>
                   </div>
 
@@ -286,13 +265,13 @@ export const Hero: React.FC<HeroProps> = ({
                   <div className="flex items-center gap-2">
                     <span className="text-emerald-400 font-bold">🏛️</span>
                     <span className="text-slate-200">
-                      <strong>Tourisme Mémoriel :</strong> Gorée & Musée des Civilisations Noires.
+                      <strong>{t("hero.highlightMemorial")}</strong> {t("hero.highlightMemorialDesc")}
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-amber-400 font-bold">💻</span>
                     <span className="text-slate-200">
-                      <strong>Tech & Agro-Écologie :</strong> Ateliers IA et maraîchage durable.
+                      <strong>{t("hero.highlightTech")}</strong> {t("hero.highlightTechDesc")}
                     </span>
                   </div>
                 </div>
@@ -303,7 +282,7 @@ export const Hero: React.FC<HeroProps> = ({
                     onClick={() => onNavigate("espace-jeune")}
                     className="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-slate-950 bg-gradient-to-r from-emerald-400 via-teal-300 to-amber-300 hover:from-emerald-300 hover:to-amber-200 transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-md"
                   >
-                    <span>Découvrir l'Espace Jeune & Cité Jardin</span>
+                    <span>{t("hero.discoverEspaceJeune")}</span>
                     <ArrowRight className="w-3.5 h-3.5 text-slate-950" />
                   </button>
                 </div>
@@ -313,15 +292,15 @@ export const Hero: React.FC<HeroProps> = ({
               <div className="mt-4 pt-3 border-t border-sky-800/60 grid grid-cols-3 gap-2 text-center text-[11px]">
                 <div className="p-2 rounded-xl bg-sky-900/30 border border-sky-800/40">
                   <span className="block text-emerald-400 font-bold text-sm">11</span>
-                  <span className="text-sky-300">Membres Élus</span>
+                  <span className="text-sky-300">{t("hero.barometerMembers")}</span>
                 </div>
                 <div className="p-2 rounded-xl bg-sky-900/30 border border-sky-800/40">
                   <span className="block text-amber-300 font-bold text-sm">25$ CAD</span>
-                  <span className="text-sky-300">Cotisation / An</span>
+                  <span className="text-sky-300">{t("hero.barometerFee")}</span>
                 </div>
                 <div className="p-2 rounded-xl bg-sky-900/30 border border-sky-800/40">
-                  <span className="block text-sky-400 font-bold text-sm">4 Saisons</span>
-                  <span className="text-sky-300">D'Activités</span>
+                  <span className="block text-sky-400 font-bold text-sm">{t("hero.barometerSeasonsValue")}</span>
+                  <span className="text-sky-300">{t("hero.barometerSeasons")}</span>
                 </div>
               </div>
 

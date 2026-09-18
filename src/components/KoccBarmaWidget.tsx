@@ -65,7 +65,7 @@ export const KoccBarmaWidget: React.FC = () => {
   }, [ttsSupported]);
 
   // Avoid duplicating the experience on the dedicated Acafis Mentor page.
-  if (location.pathname === "/acafis-mentor") return null;
+  if (location.pathname === "/acafis-mentor" || location.pathname === "/en/acafis-mentor") return null;
 
   const speak = async (text: string) => {
     if (!ttsSupported || !voiceEnabled) return;
