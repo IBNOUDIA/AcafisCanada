@@ -15,7 +15,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return;
   }
 
-  const action = Array.isArray(req.query.action) ? req.query.action.join("/") : req.query.action;
+  // Parsed straight from the raw URL rather than req.query's dynamic-segment
+  // population, which proved unreliable for nested catch-all paths here.
+  const path = (req.url || "").split("?")[0];
+  const prefix = "/api/members/children/";
+  const action = path.startsWith(prefix) ? path.slice(prefix.length).replace(/\/+$/, "") : "";
   const body = req.body || {};
   const ip = getClientIp(req);
 
