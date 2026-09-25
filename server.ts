@@ -8,6 +8,9 @@ import {
   handleMemberRegister,
   handleMemberLogin,
   handleMemberDocuments,
+  handleMemberChildrenList,
+  handleMemberChildAdd,
+  handleMemberChildRemove,
 } from "./src/server/handlers";
 
 dotenv.config();
@@ -49,6 +52,22 @@ app.post("/api/auth/login", async (req, res) => {
 // Members-only documents endpoint
 app.post("/api/members/documents", async (req, res) => {
   const result = await handleMemberDocuments(req.body);
+  res.status(result.status).json(result.body);
+});
+
+// Family census (children under 18) endpoints
+app.post("/api/members/children/list", async (req, res) => {
+  const result = await handleMemberChildrenList(req.body);
+  res.status(result.status).json(result.body);
+});
+
+app.post("/api/members/children/add", async (req, res) => {
+  const result = await handleMemberChildAdd(req.body);
+  res.status(result.status).json(result.body);
+});
+
+app.post("/api/members/children/remove", async (req, res) => {
+  const result = await handleMemberChildRemove(req.body);
   res.status(result.status).json(result.body);
 });
 

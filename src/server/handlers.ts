@@ -317,12 +317,13 @@ export interface MemberRegisterBody {
   email?: string;
   phone?: string;
   city?: string;
+  coopInterest?: boolean;
 }
 
 export async function handleMemberRegister(
   data: MemberRegisterBody
 ): Promise<HandlerResult<Record<string, unknown>>> {
-  const { firstName, lastName, email, phone, city } = data;
+  const { firstName, lastName, email, phone, city, coopInterest } = data;
 
   if (!firstName || !lastName || !email) {
     return { status: 400, body: { error: "Prénom, nom et email sont requis" } };
@@ -355,6 +356,7 @@ export async function handleMemberRegister(
       annual_fee: member.annualFee,
       issued_at: member.issuedAt,
       status: member.status,
+      coop_interest: !!coopInterest,
     });
     if (error) {
       // A duplicate email is the one expected failure (a member registering
@@ -424,6 +426,7 @@ function mapMemberRow(row: Record<string, any>): Record<string, unknown> {
     issuedAt: row.issued_at,
     status: row.status,
     paymentStatus: row.payment_status,
+    coopInterest: row.coop_interest,
   };
 }
 
@@ -512,4 +515,132 @@ export async function handleMemberDocuments(
       })),
     },
   };
+}
+
+// ---------------------------------------------------------------------------
+// Family census — children under 18 declared by a member (youth activity
+// planning + accurate beneficiary count)
+// ---------------------------------------------------------------------------
+
+const CHILD_GENDERS = ["feminin", "masculin", "autre"] as const;
+type ChildGender = (typeof CHILD_GENDERS)[number];
+
+function mapChildRow(row: Record<string, any>): Record<string, unknown> {
+  return {
+    id: row.id,
+    firstName: row.first_name,
+    birthYear: row.birth_year,
+    gender: row.gender,
+  };
+}
+
+export interface MemberChildrenListBody {
+  email?: string;
+  memberId?: string;
+}
+
+export async function handleMemberChildrenList(
+  data: MemberChildrenListBody
+): Promise<HandlerResult<{ children?: Record<string, unknown>[]; error?: string }>> {
+  const verification = await verifyMember(data.email, data.memberId);
+  if (verification.status !== 200) {
+    return { status: verification.status, body: { error: verification.body.error } };
+  }
+
+  const memberRecord = verification.body.member!;
+  const supabase = getSupabaseClient()!; // verifyMember already returned 200, so this exists
+  const { data: rows, error } = await supabase
+    .from("member_children")
+    .select("*")
+    .eq("member_id", memberRecord.memberId as string)
+    .order("birth_year", { ascending: false });
+
+  if (error) {
+    console.error("Supabase member_children lookup failed:", error);
+    return { status: 500, body: { error: "Erreur serveur, réessayez dans un instant." } };
+  }
+
+  return { status: 200, body: { children: (rows || []).map(mapChildRow) } };
+}
+
+export interface MemberChildAddBody {
+  email?: string;
+  memberId?: string;
+  firstName?: string;
+  birthYear?: number;
+  gender?: string;
+}
+
+export async function handleMemberChildAdd(
+  data: MemberChildAddBody
+): Promise<HandlerResult<{ child?: Record<string, unknown>; error?: string }>> {
+  const verification = await verifyMember(data.email, data.memberId);
+  if (verification.status !== 200) {
+    return { status: verification.status, body: { error: verification.body.error } };
+  }
+
+  const { firstName, birthYear, gender } = data;
+  const currentYear = new Date().getFullYear();
+
+  if (!birthYear || !Number.isInteger(birthYear) || birthYear < currentYear - 17 || birthYear > currentYear) {
+    return { status: 400, body: { error: "Année de naissance invalide (l'enfant doit avoir moins de 18 ans)." } };
+  }
+  if (!gender || !CHILD_GENDERS.includes(gender as ChildGender)) {
+    return { status: 400, body: { error: "Genre invalide." } };
+  }
+
+  const memberRecord = verification.body.member!;
+  const supabase = getSupabaseClient()!;
+  const { data: row, error } = await supabase
+    .from("member_children")
+    .insert({
+      member_id: memberRecord.memberId as string,
+      first_name: firstName?.trim() || null,
+      birth_year: birthYear,
+      gender,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.error("Supabase member_children insert failed:", error);
+    return { status: 500, body: { error: "Erreur serveur, réessayez dans un instant." } };
+  }
+
+  return { status: 200, body: { child: mapChildRow(row) } };
+}
+
+export interface MemberChildRemoveBody {
+  email?: string;
+  memberId?: string;
+  childId?: string;
+}
+
+export async function handleMemberChildRemove(
+  data: MemberChildRemoveBody
+): Promise<HandlerResult<{ success?: boolean; error?: string }>> {
+  const verification = await verifyMember(data.email, data.memberId);
+  if (verification.status !== 200) {
+    return { status: verification.status, body: { error: verification.body.error } };
+  }
+
+  if (!data.childId) {
+    return { status: 400, body: { error: "Identifiant d'enfant requis" } };
+  }
+
+  const memberRecord = verification.body.member!;
+  const supabase = getSupabaseClient()!;
+  // Scoped to member_id so a member can only ever delete their own children.
+  const { error } = await supabase
+    .from("member_children")
+    .delete()
+    .eq("id", data.childId)
+    .eq("member_id", memberRecord.memberId as string);
+
+  if (error) {
+    console.error("Supabase member_children delete failed:", error);
+    return { status: 500, body: { error: "Erreur serveur, réessayez dans un instant." } };
+  }
+
+  return { status: 200, body: { success: true } };
 }

@@ -23,6 +23,12 @@ alter table members add column if not exists payment_status text not null defaul
 alter table members drop constraint if exists members_payment_status_check;
 alter table members add constraint members_payment_status_check check (payment_status in ('pending', 'paid'));
 
+-- Whether the member ticked "interested in Coop-ACAFIS / Cité-Jardin Ndianda"
+-- on the membership form. Purely informational on this side — Coop-ACAFIS
+-- acquéreurs are required to be ACAFIS Canada members, but the reverse isn't;
+-- this just flags members worth following up with about the coop.
+alter table members add column if not exists coop_interest boolean not null default false;
+
 create index if not exists members_email_idx on members (lower(email));
 
 -- Row Level Security stays enabled with no public policies: the server only
@@ -54,3 +60,20 @@ alter table member_documents enable row level security;
 --   'https://drive.google.com/...',
 --   '2026-01-15'
 -- );
+
+-- Family census: children under 18 declared by a member, for youth activity
+-- planning (workshops, summer camp...) and an accurate beneficiary count.
+-- first_name is optional (families may prefer not to share it); birth_year
+-- is what's actually asked for so age stays correct without upkeep.
+create table if not exists member_children (
+  id uuid primary key default gen_random_uuid(),
+  member_id text not null references members (member_id) on delete cascade,
+  first_name text,
+  birth_year integer not null,
+  gender text not null check (gender in ('feminin', 'masculin', 'autre')),
+  created_at timestamptz not null default now()
+);
+
+create index if not exists member_children_member_id_idx on member_children (member_id);
+
+alter table member_children enable row level security;

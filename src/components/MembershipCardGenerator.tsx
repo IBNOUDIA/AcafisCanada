@@ -34,6 +34,7 @@ export const MembershipCardGenerator: React.FC<MembershipCardGeneratorProps> = (
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [city, setCity] = useState("Montréal");
+  const [coopInterest, setCoopInterest] = useState(false);
 
   const [generatedMember, setGeneratedMember] = useState<MemberRecord | null>(null);
   const [copiedInterac, setCopiedInterac] = useState(false);
@@ -54,6 +55,7 @@ export const MembershipCardGenerator: React.FC<MembershipCardGeneratorProps> = (
           email,
           phone,
           city,
+          coopInterest,
         }),
       });
 
@@ -227,6 +229,20 @@ export const MembershipCardGenerator: React.FC<MembershipCardGeneratorProps> = (
                   </div>
                 </div>
               </div>
+
+              <label className="flex items-start gap-2.5 p-3.5 rounded-xl bg-sky-50 border border-sky-200 cursor-pointer">
+                <input
+                  id="member-input-coop-interest"
+                  type="checkbox"
+                  checked={coopInterest}
+                  onChange={(e) => setCoopInterest(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 accent-emerald-700 shrink-0"
+                />
+                <span className="text-xs text-slate-700">
+                  <span className="font-bold text-slate-900 block">{t("adhesion.coopInterestLabel")}</span>
+                  {t("adhesion.coopInterestDesc")}
+                </span>
+              </label>
 
               <div className="pt-3">
                 <button

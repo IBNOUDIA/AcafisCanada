@@ -114,6 +114,16 @@ export interface MemberRecord {
   issuedAt: string;
   status: string;
   paymentStatus?: "pending" | "paid";
+  coopInterest?: boolean;
+}
+
+// A child under 18 declared by a member for the family census (youth
+// activity planning + beneficiary count). Name is optional by design.
+export interface MemberChild {
+  id: string;
+  firstName: string | null;
+  birthYear: number;
+  gender: "feminin" | "masculin" | "autre";
 }
 
 // A members-only document (AG minutes, annual financial report...) — the

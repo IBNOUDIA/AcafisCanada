@@ -13,12 +13,21 @@ import {
   Clock,
   FileText,
   ExternalLink,
+  Users,
+  Trash2,
+  Plus,
 } from "lucide-react";
 import { useTranslation } from "../i18n/translations";
 import { useLanguage } from "../i18n/LanguageContext";
-import { MemberRecord, MemberDocument } from "../types";
+import { MemberRecord, MemberDocument, MemberChild } from "../types";
 import { MEMBER_STORAGE_KEY } from "../lib/memberSession";
 import { PAYMENT_INTERAC_INFO } from "../data/acafisData";
+
+const CHILD_GENDERS: Array<{ value: MemberChild["gender"]; labelKey: "memberDashboard.genderFeminin" | "memberDashboard.genderMasculin" | "memberDashboard.genderAutre" }> = [
+  { value: "feminin", labelKey: "memberDashboard.genderFeminin" },
+  { value: "masculin", labelKey: "memberDashboard.genderMasculin" },
+  { value: "autre", labelKey: "memberDashboard.genderAutre" },
+];
 
 export const MemberDashboard: React.FC = () => {
   const { t } = useTranslation();
@@ -26,6 +35,12 @@ export const MemberDashboard: React.FC = () => {
   const navigate = useNavigate();
   const [member, setMember] = useState<MemberRecord | null | undefined>(undefined);
   const [documents, setDocuments] = useState<MemberDocument[]>([]);
+  const [children, setChildren] = useState<MemberChild[]>([]);
+  const [childFirstName, setChildFirstName] = useState("");
+  const [childBirthYear, setChildBirthYear] = useState("");
+  const [childGender, setChildGender] = useState<MemberChild["gender"]>("feminin");
+  const [childError, setChildError] = useState("");
+  const [isAddingChild, setIsAddingChild] = useState(false);
 
   useEffect(() => {
     document.title = `${t("memberDashboard.title")} — ACAFIS Canada`;
@@ -66,8 +81,64 @@ export const MemberDashboard: React.FC = () => {
       .then((res) => (res.ok ? res.json() : Promise.reject()))
       .then((data) => setDocuments(data.documents || []))
       .catch(() => setDocuments([]));
+
+    fetch("/api/members/children/list", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(credentials),
+    })
+      .then((res) => (res.ok ? res.json() : Promise.reject()))
+      .then((data) => setChildren(data.children || []))
+      .catch(() => setChildren([]));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  const handleAddChild = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!member) return;
+    setChildError("");
+    setIsAddingChild(true);
+    try {
+      const response = await fetch("/api/members/children/add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          email: member.email,
+          memberId: member.memberId,
+          firstName: childFirstName.trim() || undefined,
+          birthYear: Number(childBirthYear),
+          gender: childGender,
+        }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setChildren((prev) => [data.child, ...prev]);
+        setChildFirstName("");
+        setChildBirthYear("");
+        setChildGender("feminin");
+      } else {
+        setChildError(data.error || t("memberDashboard.childAddError"));
+      }
+    } catch {
+      setChildError(t("memberDashboard.childAddError"));
+    } finally {
+      setIsAddingChild(false);
+    }
+  };
+
+  const handleRemoveChild = async (childId: string) => {
+    if (!member) return;
+    setChildren((prev) => prev.filter((c) => c.id !== childId));
+    try {
+      await fetch("/api/members/children/remove", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: member.email, memberId: member.memberId, childId }),
+      });
+    } catch {
+      // Best-effort — worst case the child reappears on the next visit's refetch.
+    }
+  };
 
   useEffect(() => {
     if (member === null) {
@@ -215,6 +286,96 @@ export const MemberDashboard: React.FC = () => {
               ))}
             </ul>
           )}
+        </div>
+
+        {/* Family census */}
+        <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 sm:p-8 space-y-4">
+          <h2 className="text-sm font-bold text-slate-900 font-display flex items-center gap-2">
+            <Users className="w-4 h-4 text-emerald-700" />
+            {t("memberDashboard.familyTitle")}
+          </h2>
+          <p className="text-xs text-slate-500">{t("memberDashboard.familyDesc")}</p>
+
+          {children.length === 0 ? (
+            <p className="text-xs text-slate-500">{t("memberDashboard.familyEmpty")}</p>
+          ) : (
+            <ul className="space-y-2">
+              {children.map((child) => {
+                const age = new Date().getFullYear() - child.birthYear;
+                const genderLabel = t(CHILD_GENDERS.find((g) => g.value === child.gender)?.labelKey || "memberDashboard.genderAutre");
+                return (
+                  <li
+                    key={child.id}
+                    className="flex items-center justify-between gap-3 p-3.5 rounded-xl bg-slate-50 border border-slate-200"
+                  >
+                    <div>
+                      <p className="text-sm font-semibold text-slate-900">
+                        {child.firstName || t("memberDashboard.childUnnamed")}
+                      </p>
+                      <p className="text-xs text-slate-500">
+                        {age} {t("memberDashboard.childAgeSuffix")} · {genderLabel}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => handleRemoveChild(child.id)}
+                      aria-label={t("memberDashboard.removeChildBtn")}
+                      className="shrink-0 p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </li>
+                );
+              })}
+            </ul>
+          )}
+
+          <form onSubmit={handleAddChild} className="pt-2 border-t border-slate-100 space-y-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <input
+                type="text"
+                value={childFirstName}
+                onChange={(e) => setChildFirstName(e.target.value)}
+                placeholder={t("memberDashboard.childFirstNamePlaceholder")}
+                className="px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-hidden focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
+              />
+              <input
+                type="number"
+                required
+                min={new Date().getFullYear() - 17}
+                max={new Date().getFullYear()}
+                value={childBirthYear}
+                onChange={(e) => setChildBirthYear(e.target.value)}
+                placeholder={t("memberDashboard.childBirthYearLabel")}
+                className="px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-hidden focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
+              />
+              <select
+                value={childGender}
+                onChange={(e) => setChildGender(e.target.value as MemberChild["gender"])}
+                className="px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-hidden focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600"
+              >
+                {CHILD_GENDERS.map((g) => (
+                  <option key={g.value} value={g.value}>
+                    {t(g.labelKey)}
+                  </option>
+                ))}
+              </select>
+            </div>
+
+            {childError && (
+              <p className="text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded-xl px-3.5 py-2.5">
+                {childError}
+              </p>
+            )}
+
+            <button
+              type="submit"
+              disabled={isAddingChild}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 transition-colors cursor-pointer disabled:opacity-60"
+            >
+              <Plus className="w-4 h-4" />
+              <span>{t("memberDashboard.addChildBtn")}</span>
+            </button>
+          </form>
         </div>
       </div>
     </section>
