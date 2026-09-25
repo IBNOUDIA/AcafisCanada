@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { Link } from "react-router-dom";
 import {
   UserCheck,
   CreditCard,
@@ -18,6 +19,7 @@ import { SenegalFlagBadge } from "./SenegalFlagBadge";
 import { MemberRecord } from "../types";
 import { Reveal } from "./Reveal";
 import { useTranslation } from "../i18n/translations";
+import { useLanguage } from "../i18n/LanguageContext";
 import acafisLogoOfficial from "../assets/images/acafis-logo-official.jpg";
 import adhesionHeroPhoto from "../assets/images/adhesion-hero.jpg";
 
@@ -29,12 +31,14 @@ export const MembershipCardGenerator: React.FC<MembershipCardGeneratorProps> = (
   onOpenPaymentModal,
 }) => {
   const { t, lang } = useTranslation();
+  const { localizePath } = useLanguage();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
   const [city, setCity] = useState("Montréal");
   const [coopInterest, setCoopInterest] = useState(false);
+  const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
 
   const [generatedMember, setGeneratedMember] = useState<MemberRecord | null>(null);
   const [copiedInterac, setCopiedInterac] = useState(false);
@@ -42,7 +46,7 @@ export const MembershipCardGenerator: React.FC<MembershipCardGeneratorProps> = (
 
   const handleGenerateCard = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!firstName.trim() || !lastName.trim() || !email.trim()) return;
+    if (!firstName.trim() || !lastName.trim() || !email.trim() || !acceptedPrivacy) return;
 
     setIsSubmitting(true);
     try {
@@ -244,11 +248,29 @@ export const MembershipCardGenerator: React.FC<MembershipCardGeneratorProps> = (
                 </span>
               </label>
 
+              <label className="flex items-start gap-2.5 px-1 cursor-pointer">
+                <input
+                  id="member-input-accept-privacy"
+                  type="checkbox"
+                  required
+                  checked={acceptedPrivacy}
+                  onChange={(e) => setAcceptedPrivacy(e.target.checked)}
+                  className="mt-0.5 w-4 h-4 accent-emerald-700 shrink-0"
+                />
+                <span className="text-xs text-slate-600">
+                  {t("privacyPolicy.consentPrefix")}{" "}
+                  <Link to={localizePath("/politique-confidentialite")} target="_blank" className="text-emerald-700 hover:underline font-semibold">
+                    {t("privacyPolicy.consentLinkLabel")}
+                  </Link>
+                  .
+                </span>
+              </label>
+
               <div className="pt-3">
                 <button
                   id="member-btn-generate"
                   type="submit"
-                  disabled={isSubmitting}
+                  disabled={isSubmitting || !acceptedPrivacy}
                   className="w-full py-3.5 px-6 rounded-xl font-bold text-white bg-emerald-700 hover:bg-emerald-800 shadow-md transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
                   <Sparkles className="w-4 h-4 text-amber-300" />

@@ -20,6 +20,7 @@ import { ContactSection } from "./components/ContactSection";
 import { PaymentDocumentsModal } from "./components/PaymentDocumentsModal";
 import { AuthModal } from "./components/AuthModal";
 import { MemberDashboard } from "./components/MemberDashboard";
+import { PrivacyPolicyPage } from "./components/PrivacyPolicyPage";
 import { Footer } from "./components/Footer";
 import { KoccBarmaWidget } from "./components/KoccBarmaWidget";
 import { pathForId, idForPath } from "./routes";
@@ -179,6 +180,9 @@ const AppShell: React.FC = () => {
                 {/* Member dashboard — reached only via the login modal, not listed in the navbar */}
                 <Route path="/espace-membre" element={<MemberDashboard />} />
                 <Route path="/en/espace-membre" element={<MemberDashboard />} />
+                {/* Privacy policy — linked from the footer and the membership form, not in the navbar */}
+                <Route path="/politique-confidentialite" element={<PrivacyPolicyPage />} />
+                <Route path="/en/politique-confidentialite" element={<PrivacyPolicyPage />} />
                 {/* Unknown paths fall back to the home page, in whichever language prefix was used */}
                 <Route path="*" element={heroEl} />
                 <Route path="/en/*" element={heroEl} />

@@ -35,6 +35,7 @@ const fr = {
 
   "footer.tagline": "Le cœur battant de la diaspora pour le développement solidaire entre le Canada et le Sénégal.",
   "footer.neqLabel": "NEQ",
+  "footer.privacyPolicy": "Politique de Confidentialité",
   "footer.quickLinks": "Liens Rapides",
   "footer.statutes": "Statuts & Règlement",
   "footer.joinUs": "Nous Rejoindre",
@@ -43,6 +44,13 @@ const fr = {
   "footer.paymentInterac": "Paiement Interac",
   "footer.contact": "Contact",
   "footer.developedBy": "Développé par : www.amardia.ca",
+
+  "privacyPolicy.title": "Politique de Confidentialité",
+  "privacyPolicy.lastUpdated": "Dernière mise à jour :",
+  "privacyPolicy.officerTitle": "Responsable de la protection des renseignements personnels",
+  "privacyPolicy.consentPrefix": "J'ai lu et j'accepte la",
+  "privacyPolicy.consentLinkLabel": "politique de confidentialité",
+  "privacyPolicy.familyNote": "Ces renseignements sont couverts par notre",
 
   "hero.tag": "Le Cœur Battant de la Diaspora",
   "hero.headline1": "L'alliance de la diaspora pour un",
@@ -510,6 +518,7 @@ const en: typeof fr = {
 
   "footer.tagline": "The beating heart of the diaspora for solidarity-driven development between Canada and Senegal.",
   "footer.neqLabel": "Quebec Enterprise Number (NEQ)",
+  "footer.privacyPolicy": "Privacy Policy",
   "footer.quickLinks": "Quick Links",
   "footer.statutes": "Bylaws & Regulations",
   "footer.joinUs": "Join Us",
@@ -518,6 +527,13 @@ const en: typeof fr = {
   "footer.paymentInterac": "Interac Payment",
   "footer.contact": "Contact",
   "footer.developedBy": "Built by: www.amardia.ca",
+
+  "privacyPolicy.title": "Privacy Policy",
+  "privacyPolicy.lastUpdated": "Last updated:",
+  "privacyPolicy.officerTitle": "Privacy Officer",
+  "privacyPolicy.consentPrefix": "I have read and agree to the",
+  "privacyPolicy.consentLinkLabel": "privacy policy",
+  "privacyPolicy.familyNote": "This information is covered by our",
 
   "hero.tag": "The Beating Heart of the Diaspora",
   "hero.headline1": "The diaspora's alliance for",

@@ -1,4 +1,5 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import {
   Facebook,
   Mail,
@@ -9,6 +10,7 @@ import { PAYMENT_INTERAC_INFO, EXTERNAL_LINKS, ORGANIZATION_NEQ } from "../data/
 import { AcafisLogo } from "./AcafisLogo";
 import { SenegalRibbon } from "./SenegalFlagBadge";
 import { useTranslation, TranslationKey } from "../i18n/translations";
+import { useLanguage } from "../i18n/LanguageContext";
 
 // lucide-react has no WhatsApp glyph — small inline brand icon instead.
 const WhatsAppIcon: React.FC<{ className?: string }> = ({ className }) => (
@@ -39,6 +41,7 @@ export const Footer: React.FC<FooterProps> = ({
   onOpenCardModal,
 }) => {
   const { t } = useTranslation();
+  const { localizePath } = useLanguage();
   return (
     <footer className="bg-gradient-to-b from-sky-950 via-slate-950 to-slate-950 text-slate-300 border-t border-sky-900/60 relative">
       <SenegalRibbon />
@@ -151,6 +154,10 @@ export const Footer: React.FC<FooterProps> = ({
             <button onClick={() => onNavigate("adhesion")} className="hover:text-slate-300 transition-colors cursor-pointer">
               {t("footer.contact")}
             </button>
+            <span>•</span>
+            <Link to={localizePath("/politique-confidentialite")} className="hover:text-slate-300 transition-colors">
+              {t("footer.privacyPolicy")}
+            </Link>
           </div>
           <a
             href="https://www.amardia.ca"

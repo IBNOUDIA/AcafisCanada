@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import {
   UserCircle2,
   LogOut,
@@ -295,6 +295,13 @@ export const MemberDashboard: React.FC = () => {
             {t("memberDashboard.familyTitle")}
           </h2>
           <p className="text-xs text-slate-500">{t("memberDashboard.familyDesc")}</p>
+          <p className="text-[11px] text-slate-400">
+            {t("privacyPolicy.familyNote")}{" "}
+            <Link to={localizePath("/politique-confidentialite")} target="_blank" className="text-emerald-700 hover:underline font-semibold">
+              {t("privacyPolicy.consentLinkLabel")}
+            </Link>
+            .
+          </p>
 
           {children.length === 0 ? (
             <p className="text-xs text-slate-500">{t("memberDashboard.familyEmpty")}</p>
