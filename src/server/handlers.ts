@@ -7,6 +7,7 @@ import { GoogleGenAI } from "@google/genai";
 import { Resend } from "resend";
 import { getSupabaseClient } from "./supabaseClient.js";
 import { checkRateLimit, RATE_LIMIT_ERROR } from "./rateLimit.js";
+import { isValidEmail } from "./validation.js";
 
 // Lazy Gemini client initialization
 let genAI: GoogleGenAI | null = null;
@@ -282,6 +283,10 @@ export async function handleContactRequest(
     return { status: 400, body: { error: "Champs obligatoires manquants" } };
   }
 
+  if (!isValidEmail(email)) {
+    return { status: 400, body: { error: "Adresse courriel invalide" } };
+  }
+
   if (!(await checkRateLimit(ip, { bucket: "contact", limit: 5, windowMinutes: 60 }))) {
     return { status: 429, body: { error: RATE_LIMIT_ERROR } };
   }
@@ -342,6 +347,10 @@ export async function handleMemberRegister(
 
   if (!firstName || !lastName || !email) {
     return { status: 400, body: { error: "Prénom, nom et email sont requis" } };
+  }
+
+  if (!isValidEmail(email)) {
+    return { status: 400, body: { error: "Adresse courriel invalide" } };
   }
 
   if (!(await checkRateLimit(ip, { bucket: "member-register", limit: 5, windowMinutes: 60 }))) {
@@ -459,6 +468,10 @@ async function verifyMember(
 ): Promise<HandlerResult<{ member?: Record<string, unknown>; error?: string }>> {
   if (!email || typeof email !== "string") {
     return { status: 400, body: { error: "Courriel requis" } };
+  }
+
+  if (!isValidEmail(email)) {
+    return { status: 400, body: { error: "Adresse courriel invalide" } };
   }
 
   // Shared by login, documents, and every family-census endpoint — this is
