@@ -14,8 +14,11 @@ import { getClientIp } from "../../src/server/requestIp.js";
 // A single catch-all function for every /api/admin/* route — the Vercel
 // Hobby plan caps a deployment at 12 serverless functions, and this project
 // already has several other endpoints, so admin actions are dispatched here
-// by path instead of getting one file each. Frontend URLs are unaffected
-// (e.g. /api/admin/members/list still works exactly as before).
+// by path instead of getting one file each. Action names are flat single
+// segments (e.g. "members-list", not "members/list") because multi-segment
+// catch-all paths were observed to never reach this function on this
+// project's Vercel routing — only a single path segment after /api/admin/
+// actually gets routed here.
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") {
     res.status(405).json({ error: "Method Not Allowed" });
@@ -45,27 +48,27 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       res.status(result.status).json(result.body);
       return;
     }
-    case "members/list": {
+    case "members-list": {
       const result = await handleAdminMembersList(body);
       res.status(result.status).json(result.body);
       return;
     }
-    case "members/set-payment-status": {
+    case "members-set-payment-status": {
       const result = await handleAdminSetPaymentStatus(body);
       res.status(result.status).json(result.body);
       return;
     }
-    case "documents/list": {
+    case "documents-list": {
       const result = await handleAdminDocumentsList(body);
       res.status(result.status).json(result.body);
       return;
     }
-    case "documents/add": {
+    case "documents-add": {
       const result = await handleAdminDocumentAdd(body);
       res.status(result.status).json(result.body);
       return;
     }
-    case "documents/remove": {
+    case "documents-remove": {
       const result = await handleAdminDocumentRemove(body);
       res.status(result.status).json(result.body);
       return;

@@ -93,12 +93,12 @@ app.post("/api/admin/change-password", async (req, res) => {
   res.status(result.status).json(result.body);
 });
 
-app.post("/api/admin/members/list", async (req, res) => {
+app.post("/api/admin/members-list", async (req, res) => {
   const result = await handleAdminMembersList(req.body);
   res.status(result.status).json(result.body);
 });
 
-app.post("/api/admin/members/set-payment-status", async (req, res) => {
+app.post("/api/admin/members-set-payment-status", async (req, res) => {
   const result = await handleAdminSetPaymentStatus(req.body);
   res.status(result.status).json(result.body);
 });
@@ -108,17 +108,17 @@ app.post("/api/admin/family-stats", async (req, res) => {
   res.status(result.status).json(result.body);
 });
 
-app.post("/api/admin/documents/list", async (req, res) => {
+app.post("/api/admin/documents-list", async (req, res) => {
   const result = await handleAdminDocumentsList(req.body);
   res.status(result.status).json(result.body);
 });
 
-app.post("/api/admin/documents/add", async (req, res) => {
+app.post("/api/admin/documents-add", async (req, res) => {
   const result = await handleAdminDocumentAdd(req.body);
   res.status(result.status).json(result.body);
 });
 
-app.post("/api/admin/documents/remove", async (req, res) => {
+app.post("/api/admin/documents-remove", async (req, res) => {
   const result = await handleAdminDocumentRemove(req.body);
   res.status(result.status).json(result.body);
 });

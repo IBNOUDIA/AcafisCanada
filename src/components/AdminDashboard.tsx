@@ -86,7 +86,7 @@ export const AdminDashboard: React.FC = () => {
     if (!session) return;
     const token = session.token;
 
-    fetch("/api/admin/members/list", {
+    fetch("/api/admin/members-list", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ token }),
@@ -104,7 +104,7 @@ export const AdminDashboard: React.FC = () => {
       .then((data) => setFamilyStats(data.stats || null))
       .catch(() => {});
 
-    fetch("/api/admin/documents/list", {
+    fetch("/api/admin/documents-list", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ token }),
@@ -125,7 +125,7 @@ export const AdminDashboard: React.FC = () => {
     setMembers((prev) =>
       prev.map((m) => (m.memberId === member.memberId ? { ...m, paymentStatus: newStatus } : m))
     );
-    await fetch("/api/admin/members/set-payment-status", {
+    await fetch("/api/admin/members-set-payment-status", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ token: session.token, memberId: member.memberId, paymentStatus: newStatus }),
@@ -137,7 +137,7 @@ export const AdminDashboard: React.FC = () => {
     if (!session) return;
     setDocError("");
     try {
-      const response = await fetch("/api/admin/documents/add", {
+      const response = await fetch("/api/admin/documents-add", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -166,7 +166,7 @@ export const AdminDashboard: React.FC = () => {
   const handleRemoveDocument = async (id: string) => {
     if (!session) return;
     setDocuments((prev) => prev.filter((d) => d.id !== id));
-    await fetch("/api/admin/documents/remove", {
+    await fetch("/api/admin/documents-remove", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ token: session.token, id }),
