@@ -74,6 +74,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       return;
     }
     default:
-      res.status(404).json({ error: "Not Found" });
+      res.status(404).json({ error: "Not Found", debugUrl: req.url, debugQuery: req.query, debugAction: action });
   }
 }
