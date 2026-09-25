@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import {
   X,
   LogIn,
@@ -11,6 +12,8 @@ import {
 } from "lucide-react";
 import { PAYMENT_INTERAC_INFO } from "../data/acafisData";
 import { useTranslation } from "../i18n/translations";
+import { useLanguage } from "../i18n/LanguageContext";
+import { MEMBER_STORAGE_KEY } from "../lib/memberSession";
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -24,16 +27,46 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   onOpenCardModal,
 }) => {
   const { t } = useTranslation();
+  const { localizePath } = useLanguage();
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [memberId, setMemberId] = useState("");
   const [isLogged, setIsLogged] = useState(false);
+  const [firstName, setFirstName] = useState("");
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
   if (!isOpen) return null;
 
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!email) return;
-    setIsLogged(true);
+    setError("");
+    setIsSubmitting(true);
+    try {
+      const response = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, memberId }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setFirstName(data.member?.firstName || "");
+        localStorage.setItem(MEMBER_STORAGE_KEY, JSON.stringify(data.member));
+        setIsLogged(true);
+      } else {
+        setError(data.error || t("authModal.errorGeneric"));
+      }
+    } catch {
+      setError(t("authModal.errorGeneric"));
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleGoToDashboard = () => {
+    onClose();
+    navigate(localizePath("/espace-membre"));
   };
 
   return (
@@ -57,11 +90,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               {t("authModal.welcomeTitle")}
             </h3>
             <p className="text-xs text-slate-600">
-              {t("authModal.welcomeDesc1")} <strong>{email}</strong>{t("authModal.welcomeDesc2")}
+              {t("authModal.welcomeDesc1")} <strong>{firstName || email}</strong>{t("authModal.welcomeDesc2")}
             </p>
             <div className="pt-2">
               <button
-                onClick={onClose}
+                onClick={handleGoToDashboard}
                 className="w-full py-3 px-4 rounded-xl text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 transition-colors cursor-pointer"
               >
                 {t("authModal.dashboardBtn")}
@@ -116,11 +149,18 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 </div>
               </div>
 
+              {error && (
+                <p className="text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded-xl px-3.5 py-2.5">
+                  {error}
+                </p>
+              )}
+
               <button
                 type="submit"
-                className="w-full py-3 px-4 rounded-xl text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 shadow-md transition-colors flex items-center justify-center gap-2 cursor-pointer"
+                disabled={isSubmitting}
+                className="w-full py-3 px-4 rounded-xl text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 shadow-md transition-colors flex items-center justify-center gap-2 cursor-pointer disabled:opacity-60 disabled:cursor-not-allowed"
               >
-                <span>{t("authModal.loginBtn")}</span>
+                <span>{isSubmitting ? t("authModal.loggingIn") : t("authModal.loginBtn")}</span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </form>

@@ -113,4 +113,16 @@ export interface MemberRecord {
   annualFee: string;
   issuedAt: string;
   status: string;
+  paymentStatus?: "pending" | "paid";
+}
+
+// A members-only document (AG minutes, annual financial report...) — the
+// actual file lives wherever the secretariat already hosts it (Drive,
+// Dropbox...); this just points to it.
+export interface MemberDocument {
+  id: string;
+  title: string;
+  description: string | null;
+  fileUrl: string;
+  publishedAt: string;
 }

@@ -6,6 +6,8 @@ import {
   handleMentorRequest,
   handleContactRequest,
   handleMemberRegister,
+  handleMemberLogin,
+  handleMemberDocuments,
 } from "./src/server/handlers";
 
 dotenv.config();
@@ -35,6 +37,18 @@ app.post("/api/contact", async (req, res) => {
 // Membership registration endpoint
 app.post("/api/members/register", async (req, res) => {
   const result = await handleMemberRegister(req.body);
+  res.status(result.status).json(result.body);
+});
+
+// Member login endpoint
+app.post("/api/auth/login", async (req, res) => {
+  const result = await handleMemberLogin(req.body);
+  res.status(result.status).json(result.body);
+});
+
+// Members-only documents endpoint
+app.post("/api/members/documents", async (req, res) => {
+  const result = await handleMemberDocuments(req.body);
   res.status(result.status).json(result.body);
 });
 

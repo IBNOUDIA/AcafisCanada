@@ -19,6 +19,7 @@ import { MembershipCardGenerator } from "./components/MembershipCardGenerator";
 import { ContactSection } from "./components/ContactSection";
 import { PaymentDocumentsModal } from "./components/PaymentDocumentsModal";
 import { AuthModal } from "./components/AuthModal";
+import { MemberDashboard } from "./components/MemberDashboard";
 import { Footer } from "./components/Footer";
 import { KoccBarmaWidget } from "./components/KoccBarmaWidget";
 import { pathForId, idForPath } from "./routes";
@@ -175,6 +176,9 @@ const AppShell: React.FC = () => {
                 {/* Contact is now merged into the Adhésion page — keep old links working */}
                 <Route path="/contact" element={<Navigate to="/adhesion" replace />} />
                 <Route path="/en/contact" element={<Navigate to="/en/adhesion" replace />} />
+                {/* Member dashboard — reached only via the login modal, not listed in the navbar */}
+                <Route path="/espace-membre" element={<MemberDashboard />} />
+                <Route path="/en/espace-membre" element={<MemberDashboard />} />
                 {/* Unknown paths fall back to the home page, in whichever language prefix was used */}
                 <Route path="*" element={heroEl} />
                 <Route path="/en/*" element={heroEl} />

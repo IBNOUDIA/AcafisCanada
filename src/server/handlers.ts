@@ -5,6 +5,7 @@
 
 import { GoogleGenAI } from "@google/genai";
 import { Resend } from "resend";
+import { getSupabaseClient } from "./supabaseClient";
 
 // Lazy Gemini client initialization
 let genAI: GoogleGenAI | null = null;
@@ -341,6 +342,34 @@ export async function handleMemberRegister(
     status: "Validé (Attente cotisation)",
   };
 
+  const supabase = getSupabaseClient();
+  if (supabase) {
+    const { error } = await supabase.from("members").insert({
+      member_id: member.memberId,
+      first_name: member.firstName,
+      last_name: member.lastName,
+      email: member.email.toLowerCase(),
+      phone: member.phone,
+      city: member.city,
+      membership_year: member.membershipYear,
+      annual_fee: member.annualFee,
+      issued_at: member.issuedAt,
+      status: member.status,
+    });
+    if (error) {
+      // A duplicate email is the one expected failure (a member registering
+      // twice) — everything else is logged but shouldn't block the card from
+      // being issued/emailed, since Supabase persistence is additive on top
+      // of the existing email-notification flow.
+      if (error.code === "23505") {
+        return { status: 409, body: { error: "Un membre existe déjà avec ce courriel." } };
+      }
+      console.error("Supabase member insert failed:", error);
+    }
+  } else {
+    console.log("[Membership Registration - SUPABASE_URL/SUPABASE_SERVICE_ROLE_KEY absent, membre non persisté]", member);
+  }
+
   const resend = getResendClient();
   if (resend) {
     try {
@@ -368,4 +397,119 @@ export async function handleMemberRegister(
   }
 
   return { status: 200, body: { success: true, member } };
+}
+
+// ---------------------------------------------------------------------------
+// Member login (email + optional member number, checked against Supabase)
+// ---------------------------------------------------------------------------
+
+export interface MemberLoginBody {
+  email?: string;
+  memberId?: string;
+}
+
+const NOT_CONFIGURED_ERROR =
+  "L'espace membre n'est pas encore configuré. Merci de contacter le secrétariat (secretariat@acafis.ca).";
+
+function mapMemberRow(row: Record<string, any>): Record<string, unknown> {
+  return {
+    memberId: row.member_id,
+    firstName: row.first_name,
+    lastName: row.last_name,
+    email: row.email,
+    phone: row.phone,
+    city: row.city,
+    membershipYear: row.membership_year,
+    annualFee: row.annual_fee,
+    issuedAt: row.issued_at,
+    status: row.status,
+    paymentStatus: row.payment_status,
+  };
+}
+
+// Shared by login and every members-only endpoint (documents, etc.): there is
+// no real session/token system here, so each request re-proves identity with
+// the same email (+ optional member number) pair the member logged in with.
+async function verifyMember(
+  email: string | undefined,
+  memberId: string | undefined
+): Promise<HandlerResult<{ member?: Record<string, unknown>; error?: string }>> {
+  if (!email || typeof email !== "string") {
+    return { status: 400, body: { error: "Courriel requis" } };
+  }
+
+  const supabase = getSupabaseClient();
+  if (!supabase) {
+    return { status: 503, body: { error: NOT_CONFIGURED_ERROR } };
+  }
+
+  const { data: row, error } = await supabase
+    .from("members")
+    .select("*")
+    .eq("email", email.toLowerCase().trim())
+    .maybeSingle();
+
+  if (error) {
+    console.error("Supabase member lookup failed:", error);
+    return { status: 500, body: { error: "Erreur serveur, réessayez dans un instant." } };
+  }
+
+  if (!row) {
+    return { status: 401, body: { error: "Aucun membre trouvé avec ce courriel." } };
+  }
+
+  if (memberId && memberId.trim() && memberId.trim().toUpperCase() !== row.member_id.toUpperCase()) {
+    return { status: 401, body: { error: "Numéro de membre ou mot de passe incorrect." } };
+  }
+
+  return { status: 200, body: { member: mapMemberRow(row) } };
+}
+
+export async function handleMemberLogin(
+  data: MemberLoginBody
+): Promise<HandlerResult<{ member?: Record<string, unknown>; error?: string }>> {
+  return verifyMember(data.email, data.memberId);
+}
+
+// ---------------------------------------------------------------------------
+// Members-only documents (AG minutes, annual financial reports...)
+// ---------------------------------------------------------------------------
+
+export interface MemberDocumentsBody {
+  email?: string;
+  memberId?: string;
+}
+
+export async function handleMemberDocuments(
+  data: MemberDocumentsBody
+): Promise<HandlerResult<{ documents?: Record<string, unknown>[]; error?: string }>> {
+  const verification = await verifyMember(data.email, data.memberId);
+  if (verification.status !== 200) {
+    return { status: verification.status, body: { error: verification.body.error } };
+  }
+
+  const supabase = getSupabaseClient()!; // verifyMember already returned 200, so this exists
+  const { data: rows, error } = await supabase
+    .from("member_documents")
+    .select("*")
+    .order("sort_order", { ascending: true })
+    .order("published_at", { ascending: false });
+
+  if (error) {
+    console.error("Supabase member_documents lookup failed:", error);
+    return { status: 500, body: { error: "Erreur serveur, réessayez dans un instant." } };
+  }
+
+  return {
+    status: 200,
+    body: {
+      documents: (rows || []).map((row: Record<string, any>) => ({
+        id: row.id,
+        title: row.title,
+        description: row.description,
+        fileUrl: row.file_url,
+        publishedAt: row.published_at,
+      })),
+    },
+  };
 }
