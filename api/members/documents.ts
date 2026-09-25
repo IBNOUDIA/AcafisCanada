@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { handleMemberDocuments } from "../../src/server/handlers.js";
+import { getClientIp } from "../../src/server/requestIp.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") {
@@ -7,6 +8,6 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     return;
   }
 
-  const result = await handleMemberDocuments(req.body || {});
+  const result = await handleMemberDocuments(req.body || {}, getClientIp(req));
   res.status(result.status).json(result.body);
 }

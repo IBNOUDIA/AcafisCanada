@@ -12,6 +12,7 @@ import {
   handleMemberChildAdd,
   handleMemberChildRemove,
 } from "./src/server/handlers";
+import { getClientIp } from "./src/server/requestIp";
 
 dotenv.config();
 
@@ -27,47 +28,47 @@ app.get("/api/health", (_req, res) => {
 
 // Mentor ACAFIS API endpoint
 app.post("/api/mentor", async (req, res) => {
-  const result = await handleMentorRequest(req.body);
+  const result = await handleMentorRequest(req.body, getClientIp(req));
   res.status(result.status).json(result.body);
 });
 
 // Contact message endpoint
 app.post("/api/contact", async (req, res) => {
-  const result = await handleContactRequest(req.body);
+  const result = await handleContactRequest(req.body, getClientIp(req));
   res.status(result.status).json(result.body);
 });
 
 // Membership registration endpoint
 app.post("/api/members/register", async (req, res) => {
-  const result = await handleMemberRegister(req.body);
+  const result = await handleMemberRegister(req.body, getClientIp(req));
   res.status(result.status).json(result.body);
 });
 
 // Member login endpoint
 app.post("/api/auth/login", async (req, res) => {
-  const result = await handleMemberLogin(req.body);
+  const result = await handleMemberLogin(req.body, getClientIp(req));
   res.status(result.status).json(result.body);
 });
 
 // Members-only documents endpoint
 app.post("/api/members/documents", async (req, res) => {
-  const result = await handleMemberDocuments(req.body);
+  const result = await handleMemberDocuments(req.body, getClientIp(req));
   res.status(result.status).json(result.body);
 });
 
 // Family census (children under 18) endpoints
 app.post("/api/members/children/list", async (req, res) => {
-  const result = await handleMemberChildrenList(req.body);
+  const result = await handleMemberChildrenList(req.body, getClientIp(req));
   res.status(result.status).json(result.body);
 });
 
 app.post("/api/members/children/add", async (req, res) => {
-  const result = await handleMemberChildAdd(req.body);
+  const result = await handleMemberChildAdd(req.body, getClientIp(req));
   res.status(result.status).json(result.body);
 });
 
 app.post("/api/members/children/remove", async (req, res) => {
-  const result = await handleMemberChildRemove(req.body);
+  const result = await handleMemberChildRemove(req.body, getClientIp(req));
   res.status(result.status).json(result.body);
 });
 

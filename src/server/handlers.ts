@@ -6,6 +6,7 @@
 import { GoogleGenAI } from "@google/genai";
 import { Resend } from "resend";
 import { getSupabaseClient } from "./supabaseClient.js";
+import { checkRateLimit, RATE_LIMIT_ERROR } from "./rateLimit.js";
 
 // Lazy Gemini client initialization
 let genAI: GoogleGenAI | null = null;
@@ -67,12 +68,20 @@ const TEXT_LIKE_MIME_PREFIXES = ["text/"];
 const MAX_INLINE_TEXT_CHARS = 20000;
 
 export async function handleMentorRequest(
-  body: MentorRequestBody
+  body: MentorRequestBody,
+  ip: string
 ): Promise<HandlerResult<{ reply?: string; error?: string }>> {
   const { message, topic = "general", fileData, fileMimeType, fileName } = body;
 
   if (!message || typeof message !== "string") {
     return { status: 400, body: { error: "Message requis" } };
+  }
+
+  // This is the one endpoint that calls a paid, metered API (Gemini) — the
+  // tightest limit of all, since an unthrottled script here directly costs
+  // ACAFIS money, unlike the other endpoints which only cost database rows.
+  if (!(await checkRateLimit(ip, { bucket: "mentor", limit: 30, windowMinutes: 60 }))) {
+    return { status: 429, body: { error: RATE_LIMIT_ERROR } };
   }
 
   const hasAttachment = !!fileData && !!fileMimeType;
@@ -264,12 +273,17 @@ export interface ContactRequestBody {
 }
 
 export async function handleContactRequest(
-  data: ContactRequestBody
+  data: ContactRequestBody,
+  ip: string
 ): Promise<HandlerResult<Record<string, unknown>>> {
   const { name, email, phone, subject, message } = data;
 
   if (!name || !email || !message) {
     return { status: 400, body: { error: "Champs obligatoires manquants" } };
+  }
+
+  if (!(await checkRateLimit(ip, { bucket: "contact", limit: 5, windowMinutes: 60 }))) {
+    return { status: 429, body: { error: RATE_LIMIT_ERROR } };
   }
 
   const resend = getResendClient();
@@ -321,12 +335,17 @@ export interface MemberRegisterBody {
 }
 
 export async function handleMemberRegister(
-  data: MemberRegisterBody
+  data: MemberRegisterBody,
+  ip: string
 ): Promise<HandlerResult<Record<string, unknown>>> {
   const { firstName, lastName, email, phone, city, coopInterest } = data;
 
   if (!firstName || !lastName || !email) {
     return { status: 400, body: { error: "Prénom, nom et email sont requis" } };
+  }
+
+  if (!(await checkRateLimit(ip, { bucket: "member-register", limit: 5, windowMinutes: 60 }))) {
+    return { status: 429, body: { error: RATE_LIMIT_ERROR } };
   }
 
   const memberId = `ACAFIS-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -435,10 +454,18 @@ function mapMemberRow(row: Record<string, any>): Record<string, unknown> {
 // the same email (+ optional member number) pair the member logged in with.
 async function verifyMember(
   email: string | undefined,
-  memberId: string | undefined
+  memberId: string | undefined,
+  ip: string
 ): Promise<HandlerResult<{ member?: Record<string, unknown>; error?: string }>> {
   if (!email || typeof email !== "string") {
     return { status: 400, body: { error: "Courriel requis" } };
+  }
+
+  // Shared by login, documents, and every family-census endpoint — this is
+  // the one check that gates access to a member's data, so it's the right
+  // place to block a script trying many emails/member numbers.
+  if (!(await checkRateLimit(ip, { bucket: "member-auth", limit: 30, windowMinutes: 60 }))) {
+    return { status: 429, body: { error: RATE_LIMIT_ERROR } };
   }
 
   const supabase = getSupabaseClient();
@@ -469,9 +496,10 @@ async function verifyMember(
 }
 
 export async function handleMemberLogin(
-  data: MemberLoginBody
+  data: MemberLoginBody,
+  ip: string
 ): Promise<HandlerResult<{ member?: Record<string, unknown>; error?: string }>> {
-  return verifyMember(data.email, data.memberId);
+  return verifyMember(data.email, data.memberId, ip);
 }
 
 // ---------------------------------------------------------------------------
@@ -484,9 +512,10 @@ export interface MemberDocumentsBody {
 }
 
 export async function handleMemberDocuments(
-  data: MemberDocumentsBody
+  data: MemberDocumentsBody,
+  ip: string
 ): Promise<HandlerResult<{ documents?: Record<string, unknown>[]; error?: string }>> {
-  const verification = await verifyMember(data.email, data.memberId);
+  const verification = await verifyMember(data.email, data.memberId, ip);
   if (verification.status !== 200) {
     return { status: verification.status, body: { error: verification.body.error } };
   }
@@ -540,9 +569,10 @@ export interface MemberChildrenListBody {
 }
 
 export async function handleMemberChildrenList(
-  data: MemberChildrenListBody
+  data: MemberChildrenListBody,
+  ip: string
 ): Promise<HandlerResult<{ children?: Record<string, unknown>[]; error?: string }>> {
-  const verification = await verifyMember(data.email, data.memberId);
+  const verification = await verifyMember(data.email, data.memberId, ip);
   if (verification.status !== 200) {
     return { status: verification.status, body: { error: verification.body.error } };
   }
@@ -572,9 +602,10 @@ export interface MemberChildAddBody {
 }
 
 export async function handleMemberChildAdd(
-  data: MemberChildAddBody
+  data: MemberChildAddBody,
+  ip: string
 ): Promise<HandlerResult<{ child?: Record<string, unknown>; error?: string }>> {
-  const verification = await verifyMember(data.email, data.memberId);
+  const verification = await verifyMember(data.email, data.memberId, ip);
   if (verification.status !== 200) {
     return { status: verification.status, body: { error: verification.body.error } };
   }
@@ -617,9 +648,10 @@ export interface MemberChildRemoveBody {
 }
 
 export async function handleMemberChildRemove(
-  data: MemberChildRemoveBody
+  data: MemberChildRemoveBody,
+  ip: string
 ): Promise<HandlerResult<{ success?: boolean; error?: string }>> {
-  const verification = await verifyMember(data.email, data.memberId);
+  const verification = await verifyMember(data.email, data.memberId, ip);
   if (verification.status !== 200) {
     return { status: verification.status, body: { error: verification.body.error } };
   }

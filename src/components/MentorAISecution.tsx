@@ -205,6 +205,19 @@ export const MentorAISecution: React.FC = () => {
         }),
       });
 
+      if (response.status === 429) {
+        const data = await response.json().catch(() => ({}));
+        const mentorMsg: ChatMessage = {
+          id: `mentor-${Date.now()}`,
+          sender: "mentor",
+          text: data.error || t("mentor.rateLimited"),
+          timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          topic: selectedTopic,
+        };
+        setMessages((prev) => [...prev, mentorMsg]);
+        return;
+      }
+
       if (!response.ok) {
         throw new Error("Erreur de connexion au serveur du Mentor");
       }

@@ -126,6 +126,19 @@ export const KoccBarmaWidget: React.FC = () => {
             : {}),
         }),
       });
+      if (res.status === 429) {
+        const data = await res.json().catch(() => ({}));
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: `mentor-${Date.now()}`,
+            sender: "mentor",
+            text: data.error || t("mentor.rateLimited"),
+            timestamp: new Date().toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+          },
+        ]);
+        return;
+      }
       if (!res.ok) throw new Error("network");
       const data = await res.json();
       const reply: string = data.reply || t("widget.defaultReply");

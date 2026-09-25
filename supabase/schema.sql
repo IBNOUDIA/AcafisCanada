@@ -77,3 +77,18 @@ create table if not exists member_children (
 create index if not exists member_children_member_id_idx on member_children (member_id);
 
 alter table member_children enable row level security;
+
+-- Per-IP rate limiting for public API endpoints (contact, registration,
+-- login, the AI mentor, etc.) — one row per request that counted against a
+-- limit. Old rows are cleaned up opportunistically by the app itself, so
+-- this table should stay small.
+create table if not exists rate_limit_hits (
+  id bigint generated always as identity primary key,
+  ip text not null,
+  bucket text not null,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists rate_limit_hits_lookup_idx on rate_limit_hits (bucket, ip, created_at);
+
+alter table rate_limit_hits enable row level security;
