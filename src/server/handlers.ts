@@ -5,7 +5,7 @@
 
 import { GoogleGenAI } from "@google/genai";
 import { Resend } from "resend";
-import { getSupabaseClient } from "./supabaseClient";
+import { getSupabaseClient } from "./supabaseClient.js";
 
 // Lazy Gemini client initialization
 let genAI: GoogleGenAI | null = null;
