@@ -92,3 +92,27 @@ create table if not exists rate_limit_hits (
 create index if not exists rate_limit_hits_lookup_idx on rate_limit_hits (bucket, ip, created_at);
 
 alter table rate_limit_hits enable row level security;
+
+-- Admin accounts (Bureau Exécutif members with dashboard access) and their
+-- login sessions. Passwords are bcrypt hashes, never plain text. There is no
+-- self-serve signup — an account is created by inserting a row here (the
+-- initial password is set programmatically, then the admin can change it
+-- from the dashboard).
+create table if not exists admins (
+  email text primary key,
+  name text not null,
+  password_hash text not null,
+  created_at timestamptz not null default now()
+);
+
+create table if not exists admin_sessions (
+  token text primary key,
+  admin_email text not null references admins (email) on delete cascade,
+  created_at timestamptz not null default now(),
+  expires_at timestamptz not null
+);
+
+create index if not exists admin_sessions_email_idx on admin_sessions (admin_email);
+
+alter table admins enable row level security;
+alter table admin_sessions enable row level security;

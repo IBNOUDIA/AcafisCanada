@@ -21,6 +21,8 @@ import { PaymentDocumentsModal } from "./components/PaymentDocumentsModal";
 import { AuthModal } from "./components/AuthModal";
 import { MemberDashboard } from "./components/MemberDashboard";
 import { PrivacyPolicyPage } from "./components/PrivacyPolicyPage";
+import { AdminLoginPage } from "./components/AdminLoginPage";
+import { AdminDashboard } from "./components/AdminDashboard";
 import { Footer } from "./components/Footer";
 import { KoccBarmaWidget } from "./components/KoccBarmaWidget";
 import { pathForId, idForPath } from "./routes";
@@ -183,6 +185,11 @@ const AppShell: React.FC = () => {
                 {/* Privacy policy — linked from the footer and the membership form, not in the navbar */}
                 <Route path="/politique-confidentialite" element={<PrivacyPolicyPage />} />
                 <Route path="/en/politique-confidentialite" element={<PrivacyPolicyPage />} />
+                {/* Admin dashboard — Bureau Exécutif only, reached by direct URL, not in the navbar */}
+                <Route path="/admin/connexion" element={<AdminLoginPage />} />
+                <Route path="/en/admin/connexion" element={<AdminLoginPage />} />
+                <Route path="/admin" element={<AdminDashboard />} />
+                <Route path="/en/admin" element={<AdminDashboard />} />
                 {/* Unknown paths fall back to the home page, in whichever language prefix was used */}
                 <Route path="*" element={heroEl} />
                 <Route path="/en/*" element={heroEl} />
