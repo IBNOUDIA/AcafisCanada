@@ -34,6 +34,7 @@ const fr = {
   "nav.ariaOpenMenu": "Ouvrir le menu",
 
   "footer.tagline": "Le cœur battant de la diaspora pour le développement solidaire entre le Canada et le Sénégal.",
+  "footer.neqLabel": "NEQ",
   "footer.quickLinks": "Liens Rapides",
   "footer.statutes": "Statuts & Règlement",
   "footer.joinUs": "Nous Rejoindre",
@@ -492,6 +493,7 @@ const en: typeof fr = {
   "nav.ariaOpenMenu": "Open menu",
 
   "footer.tagline": "The beating heart of the diaspora for solidarity-driven development between Canada and Senegal.",
+  "footer.neqLabel": "Quebec Enterprise Number (NEQ)",
   "footer.quickLinks": "Quick Links",
   "footer.statutes": "Bylaws & Regulations",
   "footer.joinUs": "Join Us",

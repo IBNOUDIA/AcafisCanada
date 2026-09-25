@@ -707,6 +707,11 @@ export const BOUTIQUE_ITEMS: BoutiqueItem[] = [
   },
 ];
 
+// Registraire des entreprises du Québec (REQ) business number — ACAFIS is
+// registered as a non-profit under the Loi sur la publicité légale des
+// entreprises. From the official REZ-630 annual update notice.
+export const ORGANIZATION_NEQ = "1167888842";
+
 export const PAYMENT_INTERAC_INFO = {
   email: "acafisfinance2@gmail.com",
   secretQuestion: L("Pays ?", "Country?"),

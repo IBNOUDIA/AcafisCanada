@@ -5,7 +5,7 @@ import {
   MapPin,
   ExternalLink,
 } from "lucide-react";
-import { PAYMENT_INTERAC_INFO, EXTERNAL_LINKS } from "../data/acafisData";
+import { PAYMENT_INTERAC_INFO, EXTERNAL_LINKS, ORGANIZATION_NEQ } from "../data/acafisData";
 import { AcafisLogo } from "./AcafisLogo";
 import { SenegalRibbon } from "./SenegalFlagBadge";
 import { useTranslation, TranslationKey } from "../i18n/translations";
@@ -64,6 +64,9 @@ export const Footer: React.FC<FooterProps> = ({
                   secretariat@acafis.ca
                 </a>
               </div>
+              <p className="text-[11px] text-slate-500 pt-0.5">
+                {t("footer.neqLabel")} : {ORGANIZATION_NEQ}
+              </p>
             </div>
           </div>
 

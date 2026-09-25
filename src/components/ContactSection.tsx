@@ -12,7 +12,7 @@ import {
   Building,
   HelpCircle,
 } from "lucide-react";
-import { PAYMENT_INTERAC_INFO } from "../data/acafisData";
+import { PAYMENT_INTERAC_INFO, ORGANIZATION_NEQ } from "../data/acafisData";
 import { useTranslation } from "../i18n/translations";
 
 interface ContactSectionProps {
@@ -147,6 +147,9 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                   <div>
                     <span className="font-semibold block text-slate-900">{t("contact.hqLabel")}</span>
                     <span>4845, avenue de Courtrai, suite 101, Montréal, QC H3W 0A2, Canada</span>
+                    <span className="block text-[11px] text-slate-400 mt-0.5">
+                      {t("footer.neqLabel")} : {ORGANIZATION_NEQ}
+                    </span>
                   </div>
                 </div>
               </div>
