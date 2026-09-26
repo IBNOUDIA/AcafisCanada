@@ -689,3 +689,157 @@ export async function handleMemberChildRemove(
 
   return { status: 200, body: { success: true } };
 }
+
+// ---------------------------------------------------------------------------
+// nTIC workshops — members sign up themselves and/or their declared children.
+// Workshops themselves are created by the Bureau Exécutif (adminHandlers.ts).
+// ---------------------------------------------------------------------------
+
+export interface MemberWorkshopsListBody {
+  email?: string;
+  memberId?: string;
+}
+
+export async function handleMemberWorkshopsList(
+  data: MemberWorkshopsListBody,
+  ip: string
+): Promise<HandlerResult<{ workshops?: Record<string, unknown>[]; error?: string }>> {
+  const verification = await verifyMember(data.email, data.memberId, ip);
+  if (verification.status !== 200) {
+    return { status: verification.status, body: { error: verification.body.error } };
+  }
+
+  const memberRecord = verification.body.member!;
+  const supabase = getSupabaseClient()!;
+  const { data: rows, error } = await supabase
+    .from("workshops")
+    .select("*, workshop_registrations (id, member_id, child_id)")
+    .gte("starts_at", new Date().toISOString())
+    .order("starts_at", { ascending: true });
+
+  if (error) {
+    console.error("Supabase workshops lookup failed:", error);
+    return { status: 500, body: { error: "Erreur serveur, réessayez dans un instant." } };
+  }
+
+  return {
+    status: 200,
+    body: {
+      workshops: (rows || []).map((row: Record<string, any>) => {
+        const registrations: Array<Record<string, any>> = row.workshop_registrations || [];
+        return {
+          id: row.id,
+          title: row.title,
+          description: row.description,
+          startsAt: row.starts_at,
+          location: row.location,
+          capacity: row.capacity,
+          spotsLeft: Math.max(0, row.capacity - registrations.length),
+          // Only this member's own seats — other families' sign-ups stay private.
+          myRegistrations: registrations
+            .filter((r) => r.member_id === memberRecord.memberId)
+            .map((r) => ({ id: r.id, childId: r.child_id })),
+        };
+      }),
+    },
+  };
+}
+
+export interface MemberWorkshopRegisterBody {
+  email?: string;
+  memberId?: string;
+  workshopId?: string;
+  childId?: string | null;
+}
+
+const WORKSHOP_RPC_ERRORS: Record<string, { status: number; error: string }> = {
+  workshop_not_found: { status: 404, error: "Atelier introuvable." },
+  workshop_past: { status: 400, error: "Cet atelier est déjà passé." },
+  workshop_full: { status: 409, error: "Cet atelier est complet." },
+  already_registered: { status: 409, error: "Cette personne est déjà inscrite à cet atelier." },
+};
+
+export async function handleMemberWorkshopRegister(
+  data: MemberWorkshopRegisterBody,
+  ip: string
+): Promise<HandlerResult<{ registration?: Record<string, unknown>; error?: string }>> {
+  const verification = await verifyMember(data.email, data.memberId, ip);
+  if (verification.status !== 200) {
+    return { status: verification.status, body: { error: verification.body.error } };
+  }
+
+  if (!data.workshopId) {
+    return { status: 400, body: { error: "Identifiant d'atelier requis" } };
+  }
+
+  const memberRecord = verification.body.member!;
+  const supabase = getSupabaseClient()!;
+  const childId = data.childId || null;
+
+  // A member can only register children they declared themselves.
+  if (childId) {
+    const { data: child, error: childError } = await supabase
+      .from("member_children")
+      .select("id")
+      .eq("id", childId)
+      .eq("member_id", memberRecord.memberId as string)
+      .maybeSingle();
+
+    if (childError || !child) {
+      return { status: 400, body: { error: "Enfant introuvable dans votre recensement familial." } };
+    }
+  }
+
+  const { data: row, error } = await supabase.rpc("register_for_workshop", {
+    p_workshop_id: data.workshopId,
+    p_member_id: memberRecord.memberId as string,
+    p_child_id: childId,
+  });
+
+  if (error) {
+    const known = Object.keys(WORKSHOP_RPC_ERRORS).find((code) => error.message?.includes(code));
+    if (known) {
+      return { status: WORKSHOP_RPC_ERRORS[known].status, body: { error: WORKSHOP_RPC_ERRORS[known].error } };
+    }
+    console.error("Supabase register_for_workshop failed:", error);
+    return { status: 500, body: { error: "Erreur serveur, réessayez dans un instant." } };
+  }
+
+  return { status: 200, body: { registration: { id: row.id, childId: row.child_id } } };
+}
+
+export interface MemberWorkshopUnregisterBody {
+  email?: string;
+  memberId?: string;
+  registrationId?: string;
+}
+
+export async function handleMemberWorkshopUnregister(
+  data: MemberWorkshopUnregisterBody,
+  ip: string
+): Promise<HandlerResult<{ success?: boolean; error?: string }>> {
+  const verification = await verifyMember(data.email, data.memberId, ip);
+  if (verification.status !== 200) {
+    return { status: verification.status, body: { error: verification.body.error } };
+  }
+
+  if (!data.registrationId) {
+    return { status: 400, body: { error: "Identifiant d'inscription requis" } };
+  }
+
+  const memberRecord = verification.body.member!;
+  const supabase = getSupabaseClient()!;
+  // Scoped to member_id so a member can only ever cancel their own seats.
+  const { error } = await supabase
+    .from("workshop_registrations")
+    .delete()
+    .eq("id", data.registrationId)
+    .eq("member_id", memberRecord.memberId as string);
+
+  if (error) {
+    console.error("Supabase workshop_registrations delete failed:", error);
+    return { status: 500, body: { error: "Erreur serveur, réessayez dans un instant." } };
+  }
+
+  return { status: 200, body: { success: true } };
+}

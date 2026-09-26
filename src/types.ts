@@ -136,3 +136,16 @@ export interface MemberDocument {
   fileUrl: string;
   publishedAt: string;
 }
+
+// An upcoming nTIC workshop as seen by a logged-in member. myRegistrations
+// holds this member's own seats only (childId null = the member themself).
+export interface MemberWorkshop {
+  id: string;
+  title: string;
+  description: string | null;
+  startsAt: string;
+  location: string;
+  capacity: number;
+  spotsLeft: number;
+  myRegistrations: Array<{ id: string; childId: string | null }>;
+}

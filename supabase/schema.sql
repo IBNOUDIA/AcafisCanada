@@ -116,3 +116,77 @@ create index if not exists admin_sessions_email_idx on admin_sessions (admin_ema
 
 alter table admins enable row level security;
 alter table admin_sessions enable row level security;
+
+-- nTIC workshops, created by the Bureau Exécutif from the admin dashboard.
+-- capacity is the max number of registrations (a member and each of their
+-- children count as one seat each).
+create table if not exists workshops (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  description text,
+  starts_at timestamptz not null,
+  location text not null,
+  capacity integer not null check (capacity > 0),
+  created_at timestamptz not null default now()
+);
+
+create index if not exists workshops_starts_at_idx on workshops (starts_at);
+
+alter table workshops enable row level security;
+
+-- One row per seat: child_id null means the member registered themself,
+-- otherwise it's one of their declared children (member_children).
+create table if not exists workshop_registrations (
+  id uuid primary key default gen_random_uuid(),
+  workshop_id uuid not null references workshops (id) on delete cascade,
+  member_id text not null references members (member_id) on delete cascade,
+  child_id uuid references member_children (id) on delete cascade,
+  created_at timestamptz not null default now()
+);
+
+-- The same person can't take two seats in the same workshop. coalesce()
+-- because a plain unique constraint treats every null child_id as distinct.
+create unique index if not exists workshop_registrations_unique_idx
+  on workshop_registrations (workshop_id, member_id, coalesce(child_id, '00000000-0000-0000-0000-000000000000'::uuid));
+
+create index if not exists workshop_registrations_workshop_idx on workshop_registrations (workshop_id);
+create index if not exists workshop_registrations_member_idx on workshop_registrations (member_id);
+
+alter table workshop_registrations enable row level security;
+
+-- Seat-limited registration in one transaction: locking the workshop row
+-- serializes concurrent sign-ups, so the last seat can't be taken twice.
+-- Called by the server via supabase.rpc() with the service_role key only.
+create or replace function register_for_workshop(p_workshop_id uuid, p_member_id text, p_child_id uuid)
+returns workshop_registrations
+language plpgsql
+as $$
+declare
+  w workshops;
+  taken integer;
+  reg workshop_registrations;
+begin
+  select * into w from workshops where id = p_workshop_id for update;
+  if not found then
+    raise exception 'workshop_not_found';
+  end if;
+  if w.starts_at < now() then
+    raise exception 'workshop_past';
+  end if;
+
+  select count(*) into taken from workshop_registrations where workshop_id = p_workshop_id;
+  if taken >= w.capacity then
+    raise exception 'workshop_full';
+  end if;
+
+  insert into workshop_registrations (workshop_id, member_id, child_id)
+  values (p_workshop_id, p_member_id, p_child_id)
+  returning * into reg;
+  return reg;
+exception
+  when unique_violation then
+    raise exception 'already_registered';
+end;
+$$;
+
+revoke execute on function register_for_workshop(uuid, text, uuid) from public, anon, authenticated;

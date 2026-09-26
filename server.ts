@@ -11,6 +11,9 @@ import {
   handleMemberChildrenList,
   handleMemberChildAdd,
   handleMemberChildRemove,
+  handleMemberWorkshopsList,
+  handleMemberWorkshopRegister,
+  handleMemberWorkshopUnregister,
 } from "./src/server/handlers";
 import { getClientIp } from "./src/server/requestIp";
 import {
@@ -22,6 +25,9 @@ import {
   handleAdminDocumentsList,
   handleAdminDocumentAdd,
   handleAdminDocumentRemove,
+  handleAdminWorkshopsList,
+  handleAdminWorkshopAdd,
+  handleAdminWorkshopRemove,
 } from "./src/server/adminHandlers";
 
 dotenv.config();
@@ -82,6 +88,22 @@ app.post("/api/members/children/remove", async (req, res) => {
   res.status(result.status).json(result.body);
 });
 
+// nTIC workshop sign-up endpoints
+app.post("/api/members/workshops/list", async (req, res) => {
+  const result = await handleMemberWorkshopsList(req.body, getClientIp(req));
+  res.status(result.status).json(result.body);
+});
+
+app.post("/api/members/workshops/register", async (req, res) => {
+  const result = await handleMemberWorkshopRegister(req.body, getClientIp(req));
+  res.status(result.status).json(result.body);
+});
+
+app.post("/api/members/workshops/unregister", async (req, res) => {
+  const result = await handleMemberWorkshopUnregister(req.body, getClientIp(req));
+  res.status(result.status).json(result.body);
+});
+
 // Admin dashboard endpoints (Bureau Exécutif access)
 app.post("/api/admin/login", async (req, res) => {
   const result = await handleAdminLogin(req.body, getClientIp(req));
@@ -120,6 +142,21 @@ app.post("/api/admin/documents-add", async (req, res) => {
 
 app.post("/api/admin/documents-remove", async (req, res) => {
   const result = await handleAdminDocumentRemove(req.body);
+  res.status(result.status).json(result.body);
+});
+
+app.post("/api/admin/workshops-list", async (req, res) => {
+  const result = await handleAdminWorkshopsList(req.body);
+  res.status(result.status).json(result.body);
+});
+
+app.post("/api/admin/workshops-add", async (req, res) => {
+  const result = await handleAdminWorkshopAdd(req.body);
+  res.status(result.status).json(result.body);
+});
+
+app.post("/api/admin/workshops-remove", async (req, res) => {
+  const result = await handleAdminWorkshopRemove(req.body);
   res.status(result.status).json(result.body);
 });
 

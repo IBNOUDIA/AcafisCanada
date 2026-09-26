@@ -11,6 +11,9 @@ import {
   Trash2,
   CheckCircle2,
   Clock,
+  Laptop,
+  CalendarDays,
+  MapPin,
 } from "lucide-react";
 import { useTranslation } from "../i18n/translations";
 import { useLanguage } from "../i18n/LanguageContext";
@@ -41,10 +44,25 @@ interface AdminDocument {
   publishedAt: string;
 }
 
-type Tab = "members" | "family" | "documents" | "settings";
+interface AdminWorkshop {
+  id: string;
+  title: string;
+  description: string | null;
+  startsAt: string;
+  location: string;
+  capacity: number;
+  registrations: Array<{
+    id: string;
+    memberName: string;
+    memberEmail: string;
+    child: { firstName: string | null; age: number } | null;
+  }>;
+}
+
+type Tab = "members" | "family" | "workshops" | "documents" | "settings";
 
 export const AdminDashboard: React.FC = () => {
-  const { t } = useTranslation();
+  const { t, lang } = useTranslation();
   const { localizePath } = useLanguage();
   const navigate = useNavigate();
   const [session, setSession] = useState<AdminSession | null | undefined>(undefined);
@@ -59,6 +77,14 @@ export const AdminDashboard: React.FC = () => {
   const [docUrl, setDocUrl] = useState("");
   const [docDate, setDocDate] = useState("");
   const [docError, setDocError] = useState("");
+
+  const [workshops, setWorkshops] = useState<AdminWorkshop[]>([]);
+  const [wsTitle, setWsTitle] = useState("");
+  const [wsDesc, setWsDesc] = useState("");
+  const [wsStartsAt, setWsStartsAt] = useState("");
+  const [wsLocation, setWsLocation] = useState("");
+  const [wsCapacity, setWsCapacity] = useState("");
+  const [wsError, setWsError] = useState("");
 
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -111,6 +137,15 @@ export const AdminDashboard: React.FC = () => {
     })
       .then((res) => (res.ok ? res.json() : Promise.reject()))
       .then((data) => setDocuments(data.documents || []))
+      .catch(() => {});
+
+    fetch("/api/admin/workshops-list", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token }),
+    })
+      .then((res) => (res.ok ? res.json() : Promise.reject()))
+      .then((data) => setWorkshops(data.workshops || []))
       .catch(() => {});
   }, [session]);
 
@@ -173,6 +208,53 @@ export const AdminDashboard: React.FC = () => {
     }).catch(() => {});
   };
 
+  const handleAddWorkshop = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!session) return;
+    setWsError("");
+    try {
+      const response = await fetch("/api/admin/workshops-add", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token: session.token,
+          title: wsTitle,
+          description: wsDesc,
+          // datetime-local has no timezone — convert here so it's read as
+          // the admin's local time, not the server's (UTC on Vercel).
+          startsAt: new Date(wsStartsAt).toISOString(),
+          location: wsLocation,
+          capacity: Number(wsCapacity),
+        }),
+      });
+      const data = await response.json();
+      if (response.ok) {
+        setWorkshops((prev) =>
+          [data.workshop, ...prev].sort((a, b) => b.startsAt.localeCompare(a.startsAt))
+        );
+        setWsTitle("");
+        setWsDesc("");
+        setWsStartsAt("");
+        setWsLocation("");
+        setWsCapacity("");
+      } else {
+        setWsError(data.error || t("admin.errorGeneric"));
+      }
+    } catch {
+      setWsError(t("admin.errorGeneric"));
+    }
+  };
+
+  const handleRemoveWorkshop = async (id: string) => {
+    if (!session || !window.confirm(t("admin.workshopRemoveConfirm"))) return;
+    setWorkshops((prev) => prev.filter((w) => w.id !== id));
+    await fetch("/api/admin/workshops-remove", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: session.token, id }),
+    }).catch(() => {});
+  };
+
   const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!session) return;
@@ -209,6 +291,7 @@ export const AdminDashboard: React.FC = () => {
   const TABS: Array<{ id: Tab; label: string; icon: React.ReactNode }> = [
     { id: "members", label: t("admin.tabMembers"), icon: <Users className="w-4 h-4" /> },
     { id: "family", label: t("admin.tabFamily"), icon: <Baby className="w-4 h-4" /> },
+    { id: "workshops", label: t("admin.tabWorkshops"), icon: <Laptop className="w-4 h-4" /> },
     { id: "documents", label: t("admin.tabDocuments"), icon: <FileText className="w-4 h-4" /> },
     { id: "settings", label: t("admin.tabSettings"), icon: <Settings className="w-4 h-4" /> },
   ];
@@ -349,6 +432,143 @@ export const AdminDashboard: React.FC = () => {
                 </div>
               </>
             )}
+          </div>
+        )}
+
+        {tab === "workshops" && (
+          <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 space-y-4">
+            <h2 className="text-sm font-bold text-slate-900 font-display">{t("admin.workshopsTitle")}</h2>
+
+            {workshops.length === 0 ? (
+              <p className="text-xs text-slate-500">{t("admin.workshopsEmpty")}</p>
+            ) : (
+              <ul className="space-y-3">
+                {workshops.map((w) => {
+                  const isPast = new Date(w.startsAt).getTime() < Date.now();
+                  return (
+                    <li key={w.id} className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="text-sm font-semibold text-slate-900 flex items-center gap-2">
+                            {w.title}
+                            {isPast && (
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-600">
+                                {t("admin.workshopPast")}
+                              </span>
+                            )}
+                          </p>
+                          <p className="text-xs text-slate-600 flex items-center gap-1.5 mt-0.5">
+                            <CalendarDays className="w-3.5 h-3.5 shrink-0" />
+                            {new Date(w.startsAt).toLocaleString(lang === "en" ? "en-CA" : "fr-CA", {
+                              dateStyle: "full",
+                              timeStyle: "short",
+                            })}
+                          </p>
+                          <p className="text-xs text-slate-600 flex items-center gap-1.5 break-all">
+                            <MapPin className="w-3.5 h-3.5 shrink-0" />
+                            {w.location}
+                          </p>
+                          {w.description && <p className="text-xs text-slate-500 mt-1">{w.description}</p>}
+                        </div>
+                        <div className="flex items-center gap-2 shrink-0">
+                          <span
+                            className={`px-2.5 py-1 rounded-full text-[11px] font-bold ${
+                              w.registrations.length >= w.capacity
+                                ? "bg-red-100 text-red-700"
+                                : "bg-emerald-100 text-emerald-800"
+                            }`}
+                          >
+                            {w.registrations.length}/{w.capacity} {t("admin.workshopSeats")}
+                          </span>
+                          <button
+                            onClick={() => handleRemoveWorkshop(w.id)}
+                            className="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+
+                      {w.registrations.length === 0 ? (
+                        <p className="text-[11px] text-slate-400">{t("admin.workshopNoRegistrations")}</p>
+                      ) : (
+                        <ul className="divide-y divide-slate-200 border-t border-slate-200 text-xs">
+                          {w.registrations.map((r) => (
+                            <li key={r.id} className="py-1.5 flex flex-wrap justify-between gap-2">
+                              <span className="font-semibold text-slate-800">
+                                {r.child
+                                  ? `${r.child.firstName || t("memberDashboard.childUnnamed")} (${r.child.age} ${t("memberDashboard.childAgeSuffix")})`
+                                  : r.memberName}
+                              </span>
+                              <span className="text-slate-500">
+                                {r.child ? `${r.memberName} · ` : `${t("admin.workshopSelf")} · `}
+                                {r.memberEmail}
+                              </span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
+
+            <form onSubmit={handleAddWorkshop} className="pt-3 border-t border-slate-100 space-y-3">
+              <input
+                type="text"
+                required
+                value={wsTitle}
+                onChange={(e) => setWsTitle(e.target.value)}
+                placeholder={t("admin.workshopTitleLabel")}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-hidden focus:border-slate-600 focus:ring-1 focus:ring-slate-600"
+              />
+              <input
+                type="text"
+                value={wsDesc}
+                onChange={(e) => setWsDesc(e.target.value)}
+                placeholder={t("admin.workshopDescLabel")}
+                className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-hidden focus:border-slate-600 focus:ring-1 focus:ring-slate-600"
+              />
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <input
+                  type="datetime-local"
+                  required
+                  value={wsStartsAt}
+                  onChange={(e) => setWsStartsAt(e.target.value)}
+                  className="px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-hidden focus:border-slate-600 focus:ring-1 focus:ring-slate-600"
+                />
+                <input
+                  type="text"
+                  required
+                  value={wsLocation}
+                  onChange={(e) => setWsLocation(e.target.value)}
+                  placeholder={t("admin.workshopLocationLabel")}
+                  className="px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-hidden focus:border-slate-600 focus:ring-1 focus:ring-slate-600"
+                />
+                <input
+                  type="number"
+                  required
+                  min={1}
+                  value={wsCapacity}
+                  onChange={(e) => setWsCapacity(e.target.value)}
+                  placeholder={t("admin.workshopCapacityLabel")}
+                  className="px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-hidden focus:border-slate-600 focus:ring-1 focus:ring-slate-600"
+                />
+              </div>
+              {wsError && (
+                <p className="text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded-xl px-3.5 py-2.5">
+                  {wsError}
+                </p>
+              )}
+              <button
+                type="submit"
+                className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-slate-900 hover:bg-slate-800 transition-colors cursor-pointer"
+              >
+                <Plus className="w-4 h-4" />
+                <span>{t("admin.addWorkshopBtn")}</span>
+              </button>
+            </form>
           </div>
         )}
 

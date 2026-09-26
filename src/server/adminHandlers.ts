@@ -414,3 +414,145 @@ export async function handleAdminDocumentRemove(
 
   return { status: 200, body: { success: true } };
 }
+
+// ---------------------------------------------------------------------------
+// nTIC workshops management — creation plus the list of who signed up
+// ---------------------------------------------------------------------------
+
+export interface AdminWorkshopsListBody {
+  token?: string;
+}
+
+export async function handleAdminWorkshopsList(
+  data: AdminWorkshopsListBody
+): Promise<HandlerResult<{ workshops?: Record<string, unknown>[]; error?: string }>> {
+  const verification = await verifyAdminSession(data.token);
+  if (verification.status !== 200) {
+    return { status: verification.status, body: { error: verification.error } };
+  }
+
+  const supabase = getSupabaseClient()!;
+  const { data: rows, error } = await supabase
+    .from("workshops")
+    .select(
+      "*, workshop_registrations (id, created_at, members (first_name, last_name, email), member_children (first_name, birth_year))"
+    )
+    .order("starts_at", { ascending: false });
+
+  if (error) {
+    console.error("Admin workshops list failed:", error);
+    return { status: 500, body: { error: "Erreur serveur, réessayez dans un instant." } };
+  }
+
+  const currentYear = new Date().getFullYear();
+  return {
+    status: 200,
+    body: {
+      workshops: (rows || []).map((row: Record<string, any>) => ({
+        id: row.id,
+        title: row.title,
+        description: row.description,
+        startsAt: row.starts_at,
+        location: row.location,
+        capacity: row.capacity,
+        registrations: (row.workshop_registrations || []).map((r: Record<string, any>) => ({
+          id: r.id,
+          memberName: `${r.members?.first_name ?? ""} ${r.members?.last_name ?? ""}`.trim(),
+          memberEmail: r.members?.email ?? "",
+          // null when the member registered themself rather than a child
+          child: r.member_children
+            ? { firstName: r.member_children.first_name, age: currentYear - r.member_children.birth_year }
+            : null,
+        })),
+      })),
+    },
+  };
+}
+
+export interface AdminWorkshopAddBody {
+  token?: string;
+  title?: string;
+  description?: string;
+  startsAt?: string;
+  location?: string;
+  capacity?: number;
+}
+
+export async function handleAdminWorkshopAdd(
+  data: AdminWorkshopAddBody
+): Promise<HandlerResult<{ workshop?: Record<string, unknown>; error?: string }>> {
+  const verification = await verifyAdminSession(data.token);
+  if (verification.status !== 200) {
+    return { status: verification.status, body: { error: verification.error } };
+  }
+
+  const { title, description, startsAt, location, capacity } = data;
+  if (!title?.trim() || !location?.trim() || !startsAt || Number.isNaN(Date.parse(startsAt))) {
+    return { status: 400, body: { error: "Titre, date et lieu de l'atelier requis." } };
+  }
+  if (!capacity || !Number.isInteger(capacity) || capacity < 1) {
+    return { status: 400, body: { error: "Le nombre de places doit être au moins 1." } };
+  }
+
+  const supabase = getSupabaseClient()!;
+  const { data: row, error } = await supabase
+    .from("workshops")
+    .insert({
+      title: title.trim(),
+      description: description?.trim() || null,
+      starts_at: new Date(startsAt).toISOString(),
+      location: location.trim(),
+      capacity,
+    })
+    .select()
+    .single();
+
+  if (error) {
+    console.error("Admin workshop add failed:", error);
+    return { status: 500, body: { error: "Erreur serveur, réessayez dans un instant." } };
+  }
+
+  return {
+    status: 200,
+    body: {
+      workshop: {
+        id: row.id,
+        title: row.title,
+        description: row.description,
+        startsAt: row.starts_at,
+        location: row.location,
+        capacity: row.capacity,
+        registrations: [],
+      },
+    },
+  };
+}
+
+export interface AdminWorkshopRemoveBody {
+  token?: string;
+  id?: string;
+}
+
+export async function handleAdminWorkshopRemove(
+  data: AdminWorkshopRemoveBody
+): Promise<HandlerResult<{ success?: boolean; error?: string }>> {
+  const verification = await verifyAdminSession(data.token);
+  if (verification.status !== 200) {
+    return { status: verification.status, body: { error: verification.error } };
+  }
+
+  if (!data.id) {
+    return { status: 400, body: { error: "Identifiant requis" } };
+  }
+
+  const supabase = getSupabaseClient()!;
+  // Registrations go with it (on delete cascade).
+  const { error } = await supabase.from("workshops").delete().eq("id", data.id);
+
+  if (error) {
+    console.error("Admin workshop remove failed:", error);
+    return { status: 500, body: { error: "Erreur serveur, réessayez dans un instant." } };
+  }
+
+  return { status: 200, body: { success: true } };
+}
