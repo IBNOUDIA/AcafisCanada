@@ -164,6 +164,7 @@ as $$
 declare
   w workshops;
   taken integer;
+  already integer;
   reg workshop_registrations;
 begin
   select * into w from workshops where id = p_workshop_id for update;
@@ -172,6 +173,19 @@ begin
   end if;
   if w.starts_at < now() then
     raise exception 'workshop_past';
+  end if;
+
+  -- Checked before capacity: the workshop row is already locked above, so
+  -- this is race-free for this workshop, and a member re-clicking "register"
+  -- on a now-full workshop gets a clear "already registered" instead of a
+  -- misleading "full" (technically true, but not the useful answer for them).
+  select count(*) into already from workshop_registrations
+    where workshop_id = p_workshop_id
+      and member_id = p_member_id
+      and coalesce(child_id, '00000000-0000-0000-0000-000000000000'::uuid)
+        = coalesce(p_child_id, '00000000-0000-0000-0000-000000000000'::uuid);
+  if already > 0 then
+    raise exception 'already_registered';
   end if;
 
   select count(*) into taken from workshop_registrations where workshop_id = p_workshop_id;
