@@ -1,5 +1,5 @@
 {
-  "buildCommand": "vite build",
+  "buildCommand": "npx tsx scripts/generate-sitemap.ts && vite build",
   "outputDirectory": "dist",
   "framework": "vite",
   "rewrites": [

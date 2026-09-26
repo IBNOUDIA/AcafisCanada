@@ -1,0 +1,7 @@
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin
+Disallow: /mon-espace-membre
+
+Sitemap: https://acafis-canada.vercel.app/sitemap.xml
