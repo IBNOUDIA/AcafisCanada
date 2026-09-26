@@ -28,6 +28,7 @@ const ContactSection = lazy(() => import("./components/ContactSection").then((m)
 const MemberDashboard = lazy(() => import("./components/MemberDashboard").then((m) => ({ default: m.MemberDashboard })));
 const EspaceMembreInfo = lazy(() => import("./components/EspaceMembreInfo").then((m) => ({ default: m.EspaceMembreInfo })));
 const PrivacyPolicyPage = lazy(() => import("./components/PrivacyPolicyPage").then((m) => ({ default: m.PrivacyPolicyPage })));
+const LegalNoticePage = lazy(() => import("./components/LegalNoticePage").then((m) => ({ default: m.LegalNoticePage })));
 const AdminLoginPage = lazy(() => import("./components/AdminLoginPage").then((m) => ({ default: m.AdminLoginPage })));
 const AdminDashboard = lazy(() => import("./components/AdminDashboard").then((m) => ({ default: m.AdminDashboard })));
 const PaymentDocumentsModal = lazy(() => import("./components/PaymentDocumentsModal").then((m) => ({ default: m.PaymentDocumentsModal })));
@@ -207,6 +208,9 @@ const AppShell: React.FC = () => {
                 {/* Privacy policy — linked from the footer and the membership form, not in the navbar */}
                 <Route path="/politique-confidentialite" element={<PrivacyPolicyPage />} />
                 <Route path="/en/politique-confidentialite" element={<PrivacyPolicyPage />} />
+                {/* Legal notice — linked from the footer, not in the navbar */}
+                <Route path="/mentions-legales" element={<LegalNoticePage />} />
+                <Route path="/en/mentions-legales" element={<LegalNoticePage />} />
                 {/* Admin dashboard — Bureau Exécutif only, reached by direct URL, not in the navbar */}
                 <Route path="/admin/connexion" element={<AdminLoginPage />} />
                 <Route path="/en/admin/connexion" element={<AdminLoginPage />} />

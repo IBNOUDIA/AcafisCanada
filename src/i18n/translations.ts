@@ -36,6 +36,7 @@ const fr = {
   "footer.tagline": "Le cœur battant de la diaspora pour le développement solidaire entre le Canada et le Sénégal.",
   "footer.neqLabel": "NEQ",
   "footer.privacyPolicy": "Politique de Confidentialité",
+  "footer.legalNotice": "Mentions Légales",
   "footer.admin": "Admin",
   "footer.quickLinks": "Liens Rapides",
   "footer.statutes": "Statuts & Règlement",
@@ -45,6 +46,9 @@ const fr = {
   "footer.paymentInterac": "Paiement Interac",
   "footer.contact": "Contact",
   "footer.developedBy": "Développé par : www.amardia.ca",
+
+  "legalNotice.title": "Mentions Légales",
+  "legalNotice.lastUpdated": "Dernière mise à jour :",
 
   "privacyPolicy.title": "Politique de Confidentialité",
   "privacyPolicy.lastUpdated": "Dernière mise à jour :",
@@ -608,6 +612,7 @@ const en: typeof fr = {
   "footer.tagline": "The beating heart of the diaspora for solidarity-driven development between Canada and Senegal.",
   "footer.neqLabel": "Quebec Enterprise Number (NEQ)",
   "footer.privacyPolicy": "Privacy Policy",
+  "footer.legalNotice": "Legal Notice",
   "footer.admin": "Admin",
   "footer.quickLinks": "Quick Links",
   "footer.statutes": "Bylaws & Regulations",
@@ -617,6 +622,9 @@ const en: typeof fr = {
   "footer.paymentInterac": "Interac Payment",
   "footer.contact": "Contact",
   "footer.developedBy": "Built by: www.amardia.ca",
+
+  "legalNotice.title": "Legal Notice",
+  "legalNotice.lastUpdated": "Last updated:",
 
   "privacyPolicy.title": "Privacy Policy",
   "privacyPolicy.lastUpdated": "Last updated:",

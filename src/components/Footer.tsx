@@ -158,6 +158,10 @@ export const Footer: React.FC<FooterProps> = ({
             <Link to={localizePath("/politique-confidentialite")} className="hover:text-slate-300 transition-colors">
               {t("footer.privacyPolicy")}
             </Link>
+            <span>•</span>
+            <Link to={localizePath("/mentions-legales")} className="hover:text-slate-300 transition-colors">
+              {t("footer.legalNotice")}
+            </Link>
           </div>
           <div className="flex items-center gap-3">
             <a
