@@ -8,8 +8,11 @@ import {
   Sparkles,
   ArrowRight,
   LogIn,
+  Lock,
 } from "lucide-react";
+import { Link } from "react-router-dom";
 import { useTranslation } from "../i18n/translations";
+import { useLanguage } from "../i18n/LanguageContext";
 import { Reveal } from "./Reveal";
 import adhesionHeroPhoto from "../assets/images/adhesion-hero.jpg";
 
@@ -23,6 +26,7 @@ export const EspaceMembreInfo: React.FC<EspaceMembreInfoProps> = ({
   onOpenCardModal,
 }) => {
   const { t } = useTranslation();
+  const { localizePath } = useLanguage();
 
   useEffect(() => {
     document.title = `${t("espaceMembreInfo.heroTitle")} — ACAFIS Canada`;
@@ -117,6 +121,17 @@ export const EspaceMembreInfo: React.FC<EspaceMembreInfoProps> = ({
               <span>{t("espaceMembreInfo.joinBtn")}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
+          </div>
+
+          {/* Discreet admin entry point for the Bureau Exécutif */}
+          <div className="mt-10 pt-6 border-t border-slate-200 text-center">
+            <Link
+              to={localizePath("/admin/connexion")}
+              className="inline-flex items-center gap-1.5 text-xs text-slate-500 hover:text-emerald-800 transition-colors"
+            >
+              <Lock className="w-3.5 h-3.5" />
+              <span>{t("espaceMembreInfo.adminLogin")}</span>
+            </Link>
           </div>
         </div>
       </section>
