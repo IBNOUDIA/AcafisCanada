@@ -159,14 +159,20 @@ export const Footer: React.FC<FooterProps> = ({
               {t("footer.privacyPolicy")}
             </Link>
           </div>
-          <a
-            href="https://www.amardia.ca"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="hover:text-slate-300 transition-colors"
-          >
-            {t("footer.developedBy")}
-          </a>
+          <div className="flex items-center gap-3">
+            <a
+              href="https://www.amardia.ca"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="hover:text-slate-300 transition-colors"
+            >
+              {t("footer.developedBy")}
+            </a>
+            <span className="text-slate-800">•</span>
+            <Link to={localizePath("/admin/connexion")} className="text-slate-700 hover:text-slate-400 transition-colors">
+              {t("footer.admin")}
+            </Link>
+          </div>
         </div>
 
       </div>
