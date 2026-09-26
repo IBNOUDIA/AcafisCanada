@@ -40,7 +40,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email) return;
+    if (!email || !memberId) return;
     setError("");
     setIsSubmitting(true);
     try {
@@ -141,6 +141,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
                   <input
                     type="password"
+                    required
                     value={memberId}
                     onChange={(e) => setMemberId(e.target.value)}
                     placeholder="Ex: ACAFIS-2026-XXXX"

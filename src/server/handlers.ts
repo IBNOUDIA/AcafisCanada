@@ -372,6 +372,7 @@ export async function handleMemberRegister(
   };
 
   const supabase = getSupabaseClient();
+  let isDuplicate = false;
   if (supabase) {
     const { error } = await supabase.from("members").insert({
       member_id: member.memberId,
@@ -387,43 +388,50 @@ export async function handleMemberRegister(
       coop_interest: !!coopInterest,
     });
     if (error) {
-      // A duplicate email is the one expected failure (a member registering
-      // twice) — everything else is logged but shouldn't block the card from
-      // being issued/emailed, since Supabase persistence is additive on top
-      // of the existing email-notification flow.
       if (error.code === "23505") {
-        return { status: 409, body: { error: "Un membre existe déjà avec ce courriel." } };
+        // A duplicate email — someone (re)submitting an already-registered
+        // address. Deliberately NOT reported back as a distinct status/body:
+        // doing so would let this public, unauthenticated endpoint be used to
+        // test whether any given email belongs to a member (an enumeration
+        // oracle). The response below is identical in shape and status to a
+        // fresh registration's, just built from the submitted form data
+        // instead of a newly persisted row, and nothing is inserted or
+        // emailed for this path.
+        isDuplicate = true;
+      } else {
+        console.error("Supabase member insert failed:", error);
       }
-      console.error("Supabase member insert failed:", error);
     }
   } else {
     console.log("[Membership Registration - SUPABASE_URL/SUPABASE_SERVICE_ROLE_KEY absent, membre non persisté]", member);
   }
 
-  const resend = getResendClient();
-  if (resend) {
-    try {
-      await resend.emails.send({
-        from: EMAIL_FROM,
-        to: MEMBERSHIP_TO_EMAIL,
-        replyTo: email,
-        subject: `[ACAFIS Adhésion] Nouvelle inscription — ${firstName} ${lastName}`,
-        text: [
-          "Nouvelle demande d'adhésion ACAFIS Canada :",
-          "",
-          `ID Membre : ${member.memberId}`,
-          `Nom : ${firstName} ${lastName}`,
-          `Email : ${email}`,
-          `Téléphone : ${member.phone}`,
-          `Ville : ${member.city}`,
-          `Cotisation attendue : ${member.annualFee}`,
-        ].join("\n"),
-      });
-    } catch (error) {
-      console.error("Resend membership email failed:", error);
+  if (!isDuplicate) {
+    const resend = getResendClient();
+    if (resend) {
+      try {
+        await resend.emails.send({
+          from: EMAIL_FROM,
+          to: MEMBERSHIP_TO_EMAIL,
+          replyTo: email,
+          subject: `[ACAFIS Adhésion] Nouvelle inscription — ${firstName} ${lastName}`,
+          text: [
+            "Nouvelle demande d'adhésion ACAFIS Canada :",
+            "",
+            `ID Membre : ${member.memberId}`,
+            `Nom : ${firstName} ${lastName}`,
+            `Email : ${email}`,
+            `Téléphone : ${member.phone}`,
+            `Ville : ${member.city}`,
+            `Cotisation attendue : ${member.annualFee}`,
+          ].join("\n"),
+        });
+      } catch (error) {
+        console.error("Resend membership email failed:", error);
+      }
+    } else {
+      console.log("[Membership Registration - RESEND_API_KEY absent, aucun email envoyé]", member);
     }
-  } else {
-    console.log("[Membership Registration - RESEND_API_KEY absent, aucun email envoyé]", member);
   }
 
   return { status: 200, body: { success: true, member } };
@@ -460,7 +468,9 @@ function mapMemberRow(row: Record<string, any>): Record<string, unknown> {
 
 // Shared by login and every members-only endpoint (documents, etc.): there is
 // no real session/token system here, so each request re-proves identity with
-// the same email (+ optional member number) pair the member logged in with.
+// the same email + member number pair the member logged in with. Both are
+// required: the member number is the only thing that makes this a real
+// credential rather than "anyone who knows your email can act as you".
 async function verifyMember(
   email: string | undefined,
   memberId: string | undefined,
@@ -497,12 +507,18 @@ async function verifyMember(
     return { status: 500, body: { error: "Erreur serveur, réessayez dans un instant." } };
   }
 
+  // Same error for "no such email" and "wrong member number" — a distinct
+  // message for each would let this endpoint be used to test which emails
+  // belong to a member (an enumeration oracle), the same issue avoided in
+  // handleMemberRegister above.
+  const invalidCredentials = { status: 401, body: { error: "Courriel ou numéro de membre incorrect." } } as const;
+
   if (!row) {
-    return { status: 401, body: { error: "Aucun membre trouvé avec ce courriel." } };
+    return invalidCredentials;
   }
 
-  if (memberId && memberId.trim() && memberId.trim().toUpperCase() !== row.member_id.toUpperCase()) {
-    return { status: 401, body: { error: "Numéro de membre ou mot de passe incorrect." } };
+  if (!memberId || !memberId.trim() || memberId.trim().toUpperCase() !== row.member_id.toUpperCase()) {
+    return invalidCredentials;
   }
 
   return { status: 200, body: { member: mapMemberRow(row) } };
