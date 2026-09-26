@@ -21,6 +21,8 @@ import {
   handleAdminChangePassword,
   handleAdminMembersList,
   handleAdminSetPaymentStatus,
+  handleAdminUpdateMember,
+  handleAdminDeleteMember,
   handleAdminFamilyStats,
   handleAdminDocumentsList,
   handleAdminDocumentAdd,
@@ -122,6 +124,16 @@ app.post("/api/admin/members-list", async (req, res) => {
 
 app.post("/api/admin/members-set-payment-status", async (req, res) => {
   const result = await handleAdminSetPaymentStatus(req.body);
+  res.status(result.status).json(result.body);
+});
+
+app.post("/api/admin/members-update", async (req, res) => {
+  const result = await handleAdminUpdateMember(req.body);
+  res.status(result.status).json(result.body);
+});
+
+app.post("/api/admin/members-delete", async (req, res) => {
+  const result = await handleAdminDeleteMember(req.body);
   res.status(result.status).json(result.body);
 });
 

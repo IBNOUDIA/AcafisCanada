@@ -4,6 +4,8 @@ import {
   handleAdminChangePassword,
   handleAdminMembersList,
   handleAdminSetPaymentStatus,
+  handleAdminUpdateMember,
+  handleAdminDeleteMember,
   handleAdminFamilyStats,
   handleAdminDocumentsList,
   handleAdminDocumentAdd,
@@ -58,6 +60,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
     case "members-set-payment-status": {
       const result = await handleAdminSetPaymentStatus(body);
+      res.status(result.status).json(result.body);
+      return;
+    }
+    case "members-update": {
+      const result = await handleAdminUpdateMember(body);
+      res.status(result.status).json(result.body);
+      return;
+    }
+    case "members-delete": {
+      const result = await handleAdminDeleteMember(body);
       res.status(result.status).json(result.body);
       return;
     }

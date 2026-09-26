@@ -9,6 +9,7 @@ import {
   Baby,
   Plus,
   Trash2,
+  Pencil,
   CheckCircle2,
   Clock,
   Laptop,
@@ -24,6 +25,7 @@ interface AdminMember {
   firstName: string;
   lastName: string;
   email: string;
+  phone: string | null;
   city: string;
   membershipYear: number;
   paymentStatus: "pending" | "paid";
@@ -69,6 +71,11 @@ export const AdminDashboard: React.FC = () => {
   const [tab, setTab] = useState<Tab>("members");
 
   const [members, setMembers] = useState<AdminMember[]>([]);
+  const [editingMemberId, setEditingMemberId] = useState<string | null>(null);
+  const [editEmail, setEditEmail] = useState("");
+  const [editPhone, setEditPhone] = useState("");
+  const [editCity, setEditCity] = useState("");
+  const [memberActionError, setMemberActionError] = useState("");
   const [familyStats, setFamilyStats] = useState<FamilyStats | null>(null);
   const [documents, setDocuments] = useState<AdminDocument[]>([]);
 
@@ -164,6 +171,62 @@ export const AdminDashboard: React.FC = () => {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ token: session.token, memberId: member.memberId, paymentStatus: newStatus }),
+    }).catch(() => {});
+  };
+
+  const startEditMember = (member: AdminMember) => {
+    setEditingMemberId(member.memberId);
+    setEditEmail(member.email);
+    setEditPhone(member.phone || "");
+    setEditCity(member.city || "");
+    setMemberActionError("");
+  };
+
+  const cancelEditMember = () => {
+    setEditingMemberId(null);
+    setMemberActionError("");
+  };
+
+  const saveEditMember = async () => {
+    if (!session || !editingMemberId) return;
+    setMemberActionError("");
+    try {
+      const response = await fetch("/api/admin/members-update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          token: session.token,
+          memberId: editingMemberId,
+          email: editEmail,
+          phone: editPhone,
+          city: editCity,
+        }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        setMemberActionError(data.error || t("admin.errorGeneric"));
+        return;
+      }
+      setMembers((prev) =>
+        prev.map((m) =>
+          m.memberId === editingMemberId
+            ? { ...m, email: editEmail.toLowerCase().trim(), phone: editPhone || null, city: editCity }
+            : m
+        )
+      );
+      setEditingMemberId(null);
+    } catch {
+      setMemberActionError(t("admin.errorGeneric"));
+    }
+  };
+
+  const deleteMember = async (memberId: string) => {
+    if (!session || !window.confirm(t("admin.memberDeleteConfirm"))) return;
+    setMembers((prev) => prev.filter((m) => m.memberId !== memberId));
+    await fetch("/api/admin/members-delete", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: session.token, memberId }),
     }).catch(() => {});
   };
 
@@ -340,47 +403,134 @@ export const AdminDashboard: React.FC = () => {
         {tab === "members" && (
           <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 overflow-x-auto">
             <h2 className="text-sm font-bold text-slate-900 font-display mb-4">{t("admin.membersTitle")}</h2>
-            <table className="w-full text-xs min-w-[640px]">
+            {memberActionError && (
+              <p className="text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2 mb-3">
+                {memberActionError}
+              </p>
+            )}
+            <table className="w-full text-xs min-w-[820px]">
               <thead>
                 <tr className="text-left text-slate-500 uppercase tracking-wider border-b border-slate-100">
                   <th className="py-2 pr-3 font-bold">{t("admin.colName")}</th>
                   <th className="py-2 pr-3 font-bold">{t("admin.colEmail")}</th>
+                  <th className="py-2 pr-3 font-bold">{t("admin.colPhone")}</th>
                   <th className="py-2 pr-3 font-bold">{t("admin.colCity")}</th>
                   <th className="py-2 pr-3 font-bold">{t("admin.colYear")}</th>
                   <th className="py-2 pr-3 font-bold">{t("admin.colCoop")}</th>
                   <th className="py-2 pr-3 font-bold">{t("admin.colStatus")}</th>
+                  <th className="py-2 pr-3 font-bold">{t("admin.colActions")}</th>
                 </tr>
               </thead>
               <tbody>
-                {members.map((m) => (
-                  <tr key={m.memberId} className="border-b border-slate-50">
-                    <td className="py-2.5 pr-3 font-semibold text-slate-900">
-                      {m.firstName} {m.lastName}
-                    </td>
-                    <td className="py-2.5 pr-3 text-slate-600">{m.email}</td>
-                    <td className="py-2.5 pr-3 text-slate-600">{m.city}</td>
-                    <td className="py-2.5 pr-3 text-slate-600">{m.membershipYear}</td>
-                    <td className="py-2.5 pr-3 text-slate-600">{m.coopInterest ? "✓" : "—"}</td>
-                    <td className="py-2.5 pr-3">
-                      <button
-                        onClick={() => togglePaymentStatus(m)}
-                        className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full font-bold cursor-pointer ${
-                          m.paymentStatus === "paid"
-                            ? "bg-emerald-100 text-emerald-800"
-                            : "bg-amber-100 text-amber-900"
-                        }`}
-                        title={m.paymentStatus === "paid" ? t("admin.markPending") : t("admin.markPaid")}
-                      >
-                        {m.paymentStatus === "paid" ? (
-                          <CheckCircle2 className="w-3.5 h-3.5" />
+                {members.map((m) => {
+                  const isEditing = editingMemberId === m.memberId;
+                  const isPlaceholderEmail = m.email.endsWith("@acafis.invalid");
+                  return (
+                    <tr key={m.memberId} className="border-b border-slate-50 align-top">
+                      <td className="py-2.5 pr-3 font-semibold text-slate-900 whitespace-nowrap">
+                        {m.firstName} {m.lastName}
+                      </td>
+                      <td className="py-2.5 pr-3 text-slate-600">
+                        {isEditing ? (
+                          <input
+                            type="email"
+                            value={editEmail}
+                            onChange={(e) => setEditEmail(e.target.value)}
+                            className="w-full min-w-[160px] px-2 py-1 rounded-lg border border-slate-300 text-xs"
+                          />
                         ) : (
-                          <Clock className="w-3.5 h-3.5" />
+                          <span title={isPlaceholderEmail ? t("admin.memberPlaceholderEmailHint") : undefined}>
+                            {m.email}
+                            {isPlaceholderEmail && (
+                              <span className="ml-1.5 inline-block px-1.5 py-0.5 rounded-full bg-amber-100 text-amber-800 text-[10px] font-bold align-middle">
+                                !
+                              </span>
+                            )}
+                          </span>
                         )}
-                        <span>{m.paymentStatus === "paid" ? t("admin.statusPaid") : t("admin.statusPending")}</span>
-                      </button>
-                    </td>
-                  </tr>
-                ))}
+                      </td>
+                      <td className="py-2.5 pr-3 text-slate-600">
+                        {isEditing ? (
+                          <input
+                            type="text"
+                            value={editPhone}
+                            onChange={(e) => setEditPhone(e.target.value)}
+                            className="w-full min-w-[110px] px-2 py-1 rounded-lg border border-slate-300 text-xs"
+                          />
+                        ) : (
+                          m.phone || "—"
+                        )}
+                      </td>
+                      <td className="py-2.5 pr-3 text-slate-600">
+                        {isEditing ? (
+                          <input
+                            type="text"
+                            value={editCity}
+                            onChange={(e) => setEditCity(e.target.value)}
+                            className="w-full min-w-[110px] px-2 py-1 rounded-lg border border-slate-300 text-xs"
+                          />
+                        ) : (
+                          m.city || "—"
+                        )}
+                      </td>
+                      <td className="py-2.5 pr-3 text-slate-600">{m.membershipYear}</td>
+                      <td className="py-2.5 pr-3 text-slate-600">{m.coopInterest ? "✓" : "—"}</td>
+                      <td className="py-2.5 pr-3">
+                        <button
+                          onClick={() => togglePaymentStatus(m)}
+                          className={`flex items-center gap-1.5 px-2.5 py-1 rounded-full font-bold cursor-pointer whitespace-nowrap ${
+                            m.paymentStatus === "paid"
+                              ? "bg-emerald-100 text-emerald-800"
+                              : "bg-amber-100 text-amber-900"
+                          }`}
+                          title={m.paymentStatus === "paid" ? t("admin.markPending") : t("admin.markPaid")}
+                        >
+                          {m.paymentStatus === "paid" ? (
+                            <CheckCircle2 className="w-3.5 h-3.5" />
+                          ) : (
+                            <Clock className="w-3.5 h-3.5" />
+                          )}
+                          <span>{m.paymentStatus === "paid" ? t("admin.statusPaid") : t("admin.statusPending")}</span>
+                        </button>
+                      </td>
+                      <td className="py-2.5 pr-3">
+                        {isEditing ? (
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={saveEditMember}
+                              className="px-2.5 py-1 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-bold cursor-pointer"
+                            >
+                              {t("admin.save")}
+                            </button>
+                            <button
+                              onClick={cancelEditMember}
+                              className="px-2.5 py-1 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold cursor-pointer"
+                            >
+                              {t("admin.cancel")}
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <button
+                              onClick={() => startEditMember(m)}
+                              title={t("admin.edit")}
+                              className="p-1.5 rounded-lg text-slate-500 hover:text-emerald-700 hover:bg-emerald-50 cursor-pointer"
+                            >
+                              <Pencil className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => deleteMember(m.memberId)}
+                              title={t("admin.delete")}
+                              className="p-1.5 rounded-lg text-slate-500 hover:text-red-700 hover:bg-red-50 cursor-pointer"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

@@ -207,7 +207,7 @@ export async function handleAdminMembersList(
         firstName: row.first_name,
         lastName: row.last_name,
         email: row.email,
-        phone: row.phone,
+        phone: row.phone ?? null,
         city: row.city,
         membershipYear: row.membership_year,
         paymentStatus: row.payment_status,
@@ -245,6 +245,88 @@ export async function handleAdminSetPaymentStatus(
 
   if (error) {
     console.error("Admin set payment status failed:", error);
+    return { status: 500, body: { error: "Erreur serveur, réessayez dans un instant." } };
+  }
+
+  return { status: 200, body: { success: true } };
+}
+
+export interface AdminUpdateMemberBody {
+  token?: string;
+  memberId?: string;
+  email?: string;
+  phone?: string;
+  city?: string;
+}
+
+// Lets the secretariat correct a member's contact info — most importantly the
+// email, since it's the only login credential. Used e.g. to replace the
+// @acafis.invalid placeholder assigned to members bulk-imported from the
+// historical dues spreadsheet once their real email is collected.
+export async function handleAdminUpdateMember(
+  data: AdminUpdateMemberBody
+): Promise<HandlerResult<{ success?: boolean; error?: string }>> {
+  const verification = await verifyAdminSession(data.token);
+  if (verification.status !== 200) {
+    return { status: verification.status, body: { error: verification.error } };
+  }
+
+  const { memberId, email, phone, city } = data;
+  if (!memberId) {
+    return { status: 400, body: { error: "Requête invalide" } };
+  }
+  if (email !== undefined && !isValidEmail(email)) {
+    return { status: 400, body: { error: "Adresse courriel invalide" } };
+  }
+
+  const updates: Record<string, unknown> = {};
+  if (email !== undefined) updates.email = email.toLowerCase().trim();
+  if (phone !== undefined) updates.phone = phone.trim() || null;
+  if (city !== undefined) updates.city = city.trim() || null;
+
+  if (Object.keys(updates).length === 0) {
+    return { status: 400, body: { error: "Aucune modification fournie" } };
+  }
+
+  const supabase = getSupabaseClient()!;
+  const { error } = await supabase.from("members").update(updates).eq("member_id", memberId);
+
+  if (error) {
+    if (error.code === "23505") {
+      return { status: 409, body: { error: "Un autre membre existe déjà avec ce courriel." } };
+    }
+    console.error("Admin update member failed:", error);
+    return { status: 500, body: { error: "Erreur serveur, réessayez dans un instant." } };
+  }
+
+  return { status: 200, body: { success: true } };
+}
+
+export interface AdminDeleteMemberBody {
+  token?: string;
+  memberId?: string;
+}
+
+// Deletes a member entirely (e.g. a Law 25 deletion request). member_children
+// and workshop_registrations cascade automatically (see supabase/schema.sql).
+export async function handleAdminDeleteMember(
+  data: AdminDeleteMemberBody
+): Promise<HandlerResult<{ success?: boolean; error?: string }>> {
+  const verification = await verifyAdminSession(data.token);
+  if (verification.status !== 200) {
+    return { status: verification.status, body: { error: verification.error } };
+  }
+
+  const { memberId } = data;
+  if (!memberId) {
+    return { status: 400, body: { error: "Requête invalide" } };
+  }
+
+  const supabase = getSupabaseClient()!;
+  const { error } = await supabase.from("members").delete().eq("member_id", memberId);
+
+  if (error) {
+    console.error("Admin delete member failed:", error);
     return { status: 500, body: { error: "Erreur serveur, réessayez dans un instant." } };
   }
 
