@@ -66,7 +66,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
 
   const handleGoToDashboard = () => {
     onClose();
-    navigate(localizePath("/espace-membre"));
+    navigate(localizePath("/mon-espace-membre"));
   };
 
   return (

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { AnimatePresence, motion } from "motion/react";
 import {
   Menu,
@@ -25,7 +25,6 @@ interface NavbarProps {
   onNavigate: (sectionId: string) => void;
   onOpenCardModal: () => void;
   onOpenPaymentModal: () => void;
-  onOpenAuthModal: () => void;
 }
 
 interface ExternalNavItem {
@@ -43,9 +42,9 @@ export const Navbar: React.FC<NavbarProps> = ({
   onNavigate,
   onOpenCardModal,
   onOpenPaymentModal,
-  onOpenAuthModal,
 }) => {
   const location = useLocation();
+  const navigate = useNavigate();
   const { localizePath, toggleLang } = useLanguage();
   const { t, lang } = useTranslation();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -198,7 +197,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
             <button
               id="nav-btn-login"
-              onClick={onOpenAuthModal}
+              onClick={() => navigate(localizePath("/espace-membre"))}
               className="inline-flex items-center gap-1 px-3 py-2 rounded-xl text-xs font-semibold text-slate-700 hover:text-slate-900 hover:bg-white/80 border border-sky-200 transition-colors cursor-pointer"
             >
               <LogIn className="w-3.5 h-3.5 text-sky-700" />
@@ -342,7 +341,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             <div className="pt-4 mt-3 border-t border-sky-200 flex justify-between items-center text-xs text-slate-600">
               <button
                 onClick={() => {
-                  onOpenAuthModal();
+                  navigate(localizePath("/espace-membre"));
                   setMobileMenuOpen(false);
                 }}
                 className="inline-flex items-center gap-1.5 font-semibold text-slate-800 hover:text-emerald-700 cursor-pointer"

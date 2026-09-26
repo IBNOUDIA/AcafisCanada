@@ -20,6 +20,7 @@ import { ContactSection } from "./components/ContactSection";
 import { PaymentDocumentsModal } from "./components/PaymentDocumentsModal";
 import { AuthModal } from "./components/AuthModal";
 import { MemberDashboard } from "./components/MemberDashboard";
+import { EspaceMembreInfo } from "./components/EspaceMembreInfo";
 import { PrivacyPolicyPage } from "./components/PrivacyPolicyPage";
 import { AdminLoginPage } from "./components/AdminLoginPage";
 import { AdminDashboard } from "./components/AdminDashboard";
@@ -108,7 +109,6 @@ const AppShell: React.FC = () => {
         onNavigate={handleNavigate}
         onOpenCardModal={handleOpenCardModal}
         onOpenPaymentModal={handleOpenPaymentModal}
-        onOpenAuthModal={handleOpenAuthModal}
       />
 
       <main className="flex-1">
@@ -179,9 +179,18 @@ const AppShell: React.FC = () => {
                 {/* Contact is now merged into the Adhésion page — keep old links working */}
                 <Route path="/contact" element={<Navigate to="/adhesion" replace />} />
                 <Route path="/en/contact" element={<Navigate to="/en/adhesion" replace />} />
-                {/* Member dashboard — reached only via the login modal, not listed in the navbar */}
-                <Route path="/espace-membre" element={<MemberDashboard />} />
-                <Route path="/en/espace-membre" element={<MemberDashboard />} />
+                {/* Public "Espace Membre" showcase page — what the navbar button links to */}
+                <Route
+                  path="/espace-membre"
+                  element={<EspaceMembreInfo onOpenAuthModal={handleOpenAuthModal} onOpenCardModal={handleOpenCardModal} />}
+                />
+                <Route
+                  path="/en/espace-membre"
+                  element={<EspaceMembreInfo onOpenAuthModal={handleOpenAuthModal} onOpenCardModal={handleOpenCardModal} />}
+                />
+                {/* Authenticated member dashboard — reached only after logging in via the modal */}
+                <Route path="/mon-espace-membre" element={<MemberDashboard />} />
+                <Route path="/en/mon-espace-membre" element={<MemberDashboard />} />
                 {/* Privacy policy — linked from the footer and the membership form, not in the navbar */}
                 <Route path="/politique-confidentialite" element={<PrivacyPolicyPage />} />
                 <Route path="/en/politique-confidentialite" element={<PrivacyPolicyPage />} />
