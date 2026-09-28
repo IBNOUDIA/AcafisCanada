@@ -39,7 +39,7 @@ function getResendClient(): Resend | null {
 // president Moustapha Sane le temps de la transition, avant de revenir aux
 // adresses officielles ci-dessous une fois un domaine ACAFIS verifie sur
 // resend.com/domains.
-const CONTACT_TO_EMAIL = process.env.CONTACT_TO_EMAIL || "taphasane1910@gmail.com"; // officiel : secretariat@acafis.ca
+const CONTACT_TO_EMAIL = process.env.CONTACT_TO_EMAIL || "taphasane1910@gmail.com"; // officiel : infos@acafis.ca
 const MEMBERSHIP_TO_EMAIL = process.env.MEMBERSHIP_TO_EMAIL || "taphasane1910@gmail.com"; // officiel : acafisfinance2@gmail.com
 const EMAIL_FROM = process.env.RESEND_FROM_EMAIL || "ACAFIS Canada <onboarding@resend.dev>";
 
@@ -119,7 +119,7 @@ BASE DE CONNAISSANCES OFFICIELLE ACAFIS CANADA (faits réels — utilise-les pou
 • Identité : Association Communautaire d'Aide aux Familles Immigrantes Sénégalaises (ACAFIS Canada), organisme à but non lucratif au service de la diaspora sénégalaise, basé au Québec.
 • Adresse : 4845, avenue de Courtrai, suite 101, Montréal, QC H3W 0A2, Canada. Numéro d'entreprise du Québec (NEQ) : 1167888842.
 • Adhésion : cotisation annuelle de 25$ CAD, paiement par virement Interac à acafisfinance2@gmail.com (question secrète "Pays ?", réponse "Senegal"). Inscription via la page "Adhésion & Contact" du site.
-• Contacts : secretariat@acafis.ca (secrétariat général) ; le Président Moustapha Sane est joignable à taphasane1910@gmail.com ou au +1 (514) 250-7209 ; le Secrétaire Général Ablaye Diatta est joignable à abdou.diatta9@gmail.com. IMPORTANT : chaque fois qu'on te demande comment contacter ACAFIS, le secrétariat, ou une personne précise du Bureau, cite TOUJOURS ses coordonnées directes complètes (nom + courriel/téléphone) en plus de l'adresse générique si pertinent — ne réponds jamais de façon vague ou incomplète à ce sujet.
+• Contacts : infos@acafis.ca (secrétariat général) ; le Président Moustapha Sane est joignable à taphasane1910@gmail.com ou au +1 (514) 250-7209 ; le Secrétaire Général Ablaye Diatta est joignable à abdou.diatta9@gmail.com. IMPORTANT : chaque fois qu'on te demande comment contacter ACAFIS, le secrétariat, ou une personne précise du Bureau, cite TOUJOURS ses coordonnées directes complètes (nom + courriel/téléphone) en plus de l'adresse générique si pertinent — ne réponds jamais de façon vague ou incomplète à ce sujet.
 • Bureau Exécutif (11 membres) : Moustapha Sane (Président), Omar Cisse (Adjoint/VP), Ablaye Diatta (Secrétaire Général), Adama Sow (Secrétaire Général Adjoint), Landiata Dieme (Trésorier Général), Pa Sonko (Trésorier Adjoint), Ibrahima Diop (Controller), Ibnou Amar Dia (Assistant Contrôle & Support), Mounirou Dieme (Président Commission Organisation), Ngoma Dhiediou (Présidente Commission Féminine), Sire Aw (Responsable Communication).
 • Hommage aux anciens Présidents d'ACAFIS : Landiata Dieme, Ibrahima Diop, Omar Cisse, Ibnou Amar Dia, puis Moustapha Sane (actuel).
 • Coop-ACAFIS (coopérative sœur, DISTINCTE d'ACAFIS Canada, site coop-acafis.com) : coopérative d'habitat de la diaspora sénégalaise au Canada, fondée en janvier 2014 à Montréal, agréée par l'État du Sénégal en 2018 (agrément interministériel N° 018485). Porte le projet "Cité-Jardin ACAFIS" à Ndianda (Commune de Nguéniène, Mbour, Sénégal — à ~1h30 de Dakar) : 320 logements modernes prévus sur environ 14 hectares (site principal Ndianda 10,5 ha + site secondaire Mbodiène 3,5 ha). Déjà 48 acquéreurs membres ; livraison des premières villas prévue en 2028, projet complet visé pour 2030. 6 types de villas (F3 à F6, terrain de 300 m² inclus) conçues par Studio SAAMS et construites par Ridwan Engineering, avec financement bancaire (BHS) sur 20 ans, de 87M FCFA (villa F3 rez-de-chaussée) à 225M FCFA (triplex prestige F6) + 5,5M FCFA de droit d'accès foncier. Cotisation 2026 : 100 000 FCFA ; parts sociales : 250 000 FCFA — CES MONTANTS EN FCFA SONT DISTINCTS de la cotisation annuelle de 25$ CAD d'ACAFIS Canada, ne jamais les confondre. Contact Coop-ACAFIS : WhatsApp +1 418 265 0499. Présidents : Omar Sarr, Souleymane Diallo, puis Omar Sarr de nouveau (actuel, depuis 2024). (Note : à ce jour, coop-acafis.com n'a pas d'agent IA — toi, Kocc Barma, es le seul assistant IA officiel des deux organisations.)
@@ -147,7 +147,7 @@ REPÈRES CULTURELS & HISTORIQUES SUR LE SÉNÉGAL (faits fiables à réutiliser 
 • Le Musée des Civilisations Noires a ouvert ses portes à Dakar en décembre 2018.
 • Kocc Barma Fall, dont tu portes le nom, était un philosophe et sage wolof du XVIIe siècle à la cour du royaume du Cayor, célèbre pour ses maximes de sagesse populaire encore citées aujourd'hui.
 
-CONSIGNES D'ORIENTATION : question sur l'adhésion/le paiement → oriente vers la page "Adhésion & Contact" ou acafisfinance2@gmail.com. Question sur la boutique → mentionne boutique-acafis.vercel.app. Question sur la coopérative/l'investissement à Ndianda → mentionne coop-acafis.com. Question administrative précise que tu ne peux pas trancher → oriente vers secretariat@acafis.ca.
+CONSIGNES D'ORIENTATION : question sur l'adhésion/le paiement → oriente vers la page "Adhésion & Contact" ou acafisfinance2@gmail.com. Question sur la boutique → mentionne boutique-acafis.vercel.app. Question sur la coopérative/l'investissement à Ndianda → mentionne coop-acafis.com. Question administrative précise que tu ne peux pas trancher → oriente vers infos@acafis.ca.
 
 ${topicPrompts[topic] || topicPrompts.general}
 
@@ -233,7 +233,7 @@ Consignes de style : reste concis (150-250 mots max), structure avec des puces c
     } else if (topic === "maths" || lowerMessage.includes("math")) {
       fallbackReply += "Mastering math comes down to regular practice and understanding the basics. Share the exact question from your homework and we'll work through it together, step by step!";
     } else if (lowerMessage.includes("equivalence") || lowerMessage.includes("diploma") || lowerMessage.includes("scholarship")) {
-      fallbackReply += "To have a foreign diploma recognized, you generally need to contact your province's Ministry of Education or the institution directly. For scholarships, several organizations support immigrant students — ask the ACAFIS secretariat (secretariat@acafis.ca) to be pointed to the right resources!";
+      fallbackReply += "To have a foreign diploma recognized, you generally need to contact your province's Ministry of Education or the institution directly. For scholarships, several organizations support immigrant students — ask the ACAFIS secretariat (infos@acafis.ca) to be pointed to the right resources!";
     } else if (topic === "orientation" || lowerMessage.includes("orientation") || lowerMessage.includes("cegep") || lowerMessage.includes("university")) {
       fallbackReply += "Choosing a path starts with your interests, strengths, and the needs of the job market. Explore CEGEP and university programs, and tell me about your passions so we can find the careers of the future that truly fit you!";
     } else {
@@ -447,7 +447,7 @@ export interface MemberLoginBody {
 }
 
 const NOT_CONFIGURED_ERROR =
-  "L'espace membre n'est pas encore configuré. Merci de contacter le secrétariat (secretariat@acafis.ca).";
+  "L'espace membre n'est pas encore configuré. Merci de contacter le secrétariat (infos@acafis.ca).";
 
 function mapMemberRow(row: Record<string, any>): Record<string, unknown> {
   return {

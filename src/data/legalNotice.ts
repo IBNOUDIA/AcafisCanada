@@ -9,7 +9,7 @@ const LP = (fr: string[], en: string[]): Localized<string[]> => ({ fr, en });
 export const LEGAL_NOTICE_LAST_UPDATED = "2026-09-26";
 
 export const ORGANIZATION_ADDRESS = "4845, avenue de Courtrai, suite 101, Montréal, QC H3W 0A2, Canada";
-export const ORGANIZATION_CONTACT_EMAIL = "secretariat@acafis.ca";
+export const ORGANIZATION_CONTACT_EMAIL = "infos@acafis.ca";
 
 export const PUBLICATION_DIRECTOR = {
   name: "Moustapha Sane",

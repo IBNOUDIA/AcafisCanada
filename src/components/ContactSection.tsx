@@ -126,8 +126,8 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                   <Mail className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
                   <div>
                     <span className="font-semibold block text-slate-900">{t("contact.secretariatLabel")}</span>
-                    <a href="mailto:secretariat@acafis.ca" className="text-emerald-700 hover:underline">
-                      secretariat@acafis.ca
+                    <a href="mailto:infos@acafis.ca" className="text-emerald-700 hover:underline">
+                      infos@acafis.ca
                     </a>
                   </div>
                 </div>
