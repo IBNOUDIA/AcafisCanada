@@ -7,3 +7,7 @@ coverage/
 .env*
 !.env.example
 package-lock.json
+
+# Scratch files for artifacts (memos, previews) — not application code,
+# sometimes containing sensitive draft content, never meant to be committed.
+SCRATCH/

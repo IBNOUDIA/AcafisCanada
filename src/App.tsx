@@ -29,6 +29,7 @@ const MemberDashboard = lazy(() => import("./components/MemberDashboard").then((
 const EspaceMembreInfo = lazy(() => import("./components/EspaceMembreInfo").then((m) => ({ default: m.EspaceMembreInfo })));
 const PrivacyPolicyPage = lazy(() => import("./components/PrivacyPolicyPage").then((m) => ({ default: m.PrivacyPolicyPage })));
 const LegalNoticePage = lazy(() => import("./components/LegalNoticePage").then((m) => ({ default: m.LegalNoticePage })));
+const ClaimProfilePage = lazy(() => import("./components/ClaimProfilePage").then((m) => ({ default: m.ClaimProfilePage })));
 const AdminLoginPage = lazy(() => import("./components/AdminLoginPage").then((m) => ({ default: m.AdminLoginPage })));
 const AdminDashboard = lazy(() => import("./components/AdminDashboard").then((m) => ({ default: m.AdminDashboard })));
 const PaymentDocumentsModal = lazy(() => import("./components/PaymentDocumentsModal").then((m) => ({ default: m.PaymentDocumentsModal })));
@@ -211,6 +212,10 @@ const AppShell: React.FC = () => {
                 {/* Legal notice — linked from the footer, not in the navbar */}
                 <Route path="/mentions-legales" element={<LegalNoticePage />} />
                 <Route path="/en/mentions-legales" element={<LegalNoticePage />} />
+                {/* Profile claim — personal, unguessable link sent to a historically
+                    imported member so they can attach their real email themselves */}
+                <Route path="/reclamer/:token" element={<ClaimProfilePage />} />
+                <Route path="/en/reclamer/:token" element={<ClaimProfilePage />} />
                 {/* Admin dashboard — Bureau Exécutif only, reached by direct URL, not in the navbar */}
                 <Route path="/admin/connexion" element={<AdminLoginPage />} />
                 <Route path="/en/admin/connexion" element={<AdminLoginPage />} />

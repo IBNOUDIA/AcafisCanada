@@ -7,6 +7,8 @@ import {
   handleContactRequest,
   handleMemberRegister,
   handleMemberLogin,
+  handleMemberClaimInfo,
+  handleMemberClaim,
   handleMemberDocuments,
   handleMemberChildrenList,
   handleMemberChildAdd,
@@ -65,6 +67,16 @@ app.post("/api/members/register", async (req, res) => {
 // Member login endpoint
 app.post("/api/auth/login", async (req, res) => {
   const result = await handleMemberLogin(req.body, getClientIp(req));
+  res.status(result.status).json(result.body);
+});
+
+app.post("/api/members/claim/info", async (req, res) => {
+  const result = await handleMemberClaimInfo(req.body);
+  res.status(result.status).json(result.body);
+});
+
+app.post("/api/members/claim/confirm", async (req, res) => {
+  const result = await handleMemberClaim(req.body);
   res.status(result.status).json(result.body);
 });
 

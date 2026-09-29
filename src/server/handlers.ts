@@ -5,6 +5,7 @@
 
 import { GoogleGenAI } from "@google/genai";
 import { Resend } from "resend";
+import { createHmac, timingSafeEqual } from "crypto";
 import { getSupabaseClient } from "./supabaseClient.js";
 import { checkRateLimit, RATE_LIMIT_ERROR } from "./rateLimit.js";
 import { isValidEmail } from "./validation.js";
@@ -571,6 +572,126 @@ export async function handleMemberLogin(
   ip: string
 ): Promise<HandlerResult<{ member?: Record<string, unknown>; error?: string }>> {
   return verifyMember(data.email, data.memberId, ip);
+}
+
+// ---------------------------------------------------------------------------
+// Profile claiming — lets a member bulk-imported from the historical dues
+// spreadsheet (placeholder @acafis.invalid email) attach their real email to
+// their EXISTING record via a personal, unguessable link, instead of using
+// the public registration form and accidentally creating a second, disjoint
+// record with no dues history. The link encodes memberId + an HMAC computed
+// with a server-only secret, so nobody can enumerate or forge another
+// member's link — no database column or migration needed for this.
+// ---------------------------------------------------------------------------
+
+// Read lazily (not as a module-level const) — same reason as
+// getSupabaseClient(): local dev's dotenv.config() runs after this module's
+// imports are evaluated, so a top-level `process.env.X` read here would
+// permanently cache `undefined` and silently fall back for the rest of the
+// process's life.
+function getClaimTokenSecret(): string {
+  return process.env.CLAIM_TOKEN_SECRET || "dev-only-insecure-claim-secret";
+}
+const PLACEHOLDER_EMAIL_DOMAIN = "@acafis.invalid";
+
+function base64url(input: Buffer): string {
+  return input.toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=+$/, "");
+}
+
+export function generateClaimToken(memberId: string): string {
+  const sig = createHmac("sha256", getClaimTokenSecret()).update(memberId).digest();
+  return `${base64url(Buffer.from(memberId, "utf-8"))}.${base64url(sig)}`;
+}
+
+function verifyClaimToken(token: string | undefined): string | null {
+  if (!token || typeof token !== "string" || !token.includes(".")) return null;
+  const [memberIdPart, sigPart] = token.split(".");
+  try {
+    const memberId = Buffer.from(memberIdPart.replace(/-/g, "+").replace(/_/g, "/"), "base64").toString("utf-8");
+    const expected = createHmac("sha256", getClaimTokenSecret()).update(memberId).digest();
+    const provided = Buffer.from(sigPart.replace(/-/g, "+").replace(/_/g, "/"), "base64");
+    if (provided.length !== expected.length || !timingSafeEqual(provided, expected)) return null;
+    return memberId;
+  } catch {
+    return null;
+  }
+}
+
+export interface MemberClaimInfoBody {
+  token?: string;
+}
+
+export async function handleMemberClaimInfo(
+  data: MemberClaimInfoBody
+): Promise<HandlerResult<{ firstName?: string; lastName?: string; membershipYear?: number; error?: string }>> {
+  const memberId = verifyClaimToken(data.token);
+  if (!memberId) return { status: 400, body: { error: "Lien invalide ou expiré." } };
+
+  const supabase = getSupabaseClient();
+  if (!supabase) return { status: 503, body: { error: NOT_CONFIGURED_ERROR } };
+
+  const { data: row } = await supabase
+    .from("members")
+    .select("first_name, last_name, membership_year, email")
+    .eq("member_id", memberId)
+    .maybeSingle();
+
+  if (!row) return { status: 404, body: { error: "Membre introuvable." } };
+  if (!(row.email as string).endsWith(PLACEHOLDER_EMAIL_DOMAIN)) {
+    return { status: 409, body: { error: "Ce profil a déjà été confirmé avec un vrai courriel." } };
+  }
+
+  return {
+    status: 200,
+    body: { firstName: row.first_name, lastName: row.last_name, membershipYear: row.membership_year },
+  };
+}
+
+export interface MemberClaimBody {
+  token?: string;
+  email?: string;
+  phone?: string;
+  city?: string;
+}
+
+export async function handleMemberClaim(
+  data: MemberClaimBody
+): Promise<HandlerResult<{ success?: boolean; memberId?: string; error?: string }>> {
+  const memberId = verifyClaimToken(data.token);
+  if (!memberId) return { status: 400, body: { error: "Lien invalide ou expiré." } };
+
+  const { email, phone, city } = data;
+  if (!email || !isValidEmail(email)) {
+    return { status: 400, body: { error: "Adresse courriel invalide" } };
+  }
+
+  const supabase = getSupabaseClient();
+  if (!supabase) return { status: 503, body: { error: NOT_CONFIGURED_ERROR } };
+
+  const { data: row } = await supabase
+    .from("members")
+    .select("email")
+    .eq("member_id", memberId)
+    .maybeSingle();
+  if (!row) return { status: 404, body: { error: "Membre introuvable." } };
+  if (!(row.email as string).endsWith(PLACEHOLDER_EMAIL_DOMAIN)) {
+    return { status: 409, body: { error: "Ce profil a déjà été confirmé avec un vrai courriel." } };
+  }
+
+  const updates: Record<string, unknown> = { email: email.toLowerCase().trim() };
+  if (phone) updates.phone = phone.trim();
+  if (city) updates.city = city.trim();
+
+  const { error } = await supabase.from("members").update(updates).eq("member_id", memberId);
+  if (error) {
+    if (error.code === "23505") {
+      return { status: 409, body: { error: "Ce courriel est déjà utilisé par un autre membre." } };
+    }
+    console.error("Member claim update failed:", error);
+    return { status: 500, body: { error: "Erreur serveur, réessayez dans un instant." } };
+  }
+
+  return { status: 200, body: { success: true, memberId } };
 }
 
 // ---------------------------------------------------------------------------
