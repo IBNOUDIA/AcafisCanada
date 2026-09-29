@@ -339,6 +339,26 @@ export interface MemberRegisterBody {
   coopInterest?: boolean;
 }
 
+// Sequential card numbers (ACAFIS-0001, 0002, ...) — matches the format the
+// Bureau chose when renumbering the historical membership base, so every
+// member's login/card number stays consistent whether they joined in 2023
+// or today. Reads the current highest number and adds one; a collision
+// (two people registering in the same instant) is handled by retrying with
+// the next number rather than surfacing an error, since it's not the
+// member's fault and a plain retry is enough at this association's scale.
+async function generateNextMemberId(supabase: NonNullable<ReturnType<typeof getSupabaseClient>>): Promise<string> {
+  const { data: rows } = await supabase
+    .from("members")
+    .select("member_id")
+    .like("member_id", "ACAFIS-%");
+  let max = 0;
+  for (const row of rows || []) {
+    const match = /^ACAFIS-(\d{4,})$/.exec(row.member_id as string);
+    if (match) max = Math.max(max, parseInt(match[1], 10));
+  }
+  return `ACAFIS-${String(max + 1).padStart(4, "0")}`;
+}
+
 export async function handleMemberRegister(
   data: MemberRegisterBody,
   ip: string
@@ -357,7 +377,10 @@ export async function handleMemberRegister(
     return { status: 429, body: { error: RATE_LIMIT_ERROR } };
   }
 
-  const memberId = `ACAFIS-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
+  const supabase = getSupabaseClient();
+  const memberId = supabase
+    ? await generateNextMemberId(supabase)
+    : `ACAFIS-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
   const member = {
     memberId,
     firstName,
@@ -371,10 +394,9 @@ export async function handleMemberRegister(
     status: "Validé (Attente cotisation)",
   };
 
-  const supabase = getSupabaseClient();
   let isDuplicate = false;
   if (supabase) {
-    const { error } = await supabase.from("members").insert({
+    let { error } = await supabase.from("members").insert({
       member_id: member.memberId,
       first_name: member.firstName,
       last_name: member.lastName,
@@ -387,6 +409,26 @@ export async function handleMemberRegister(
       status: member.status,
       coop_interest: !!coopInterest,
     });
+    // Two people registering at the exact same instant could both compute
+    // the same "next" number — retry once with a fresh one rather than
+    // failing the registration (this is a member_id clash, not an email
+    // clash, so it must not fall into the isDuplicate branch below).
+    if (error && error.code === "23505" && error.message?.includes("members_pkey")) {
+      member.memberId = await generateNextMemberId(supabase);
+      ({ error } = await supabase.from("members").insert({
+        member_id: member.memberId,
+        first_name: member.firstName,
+        last_name: member.lastName,
+        email: member.email.toLowerCase(),
+        phone: member.phone,
+        city: member.city,
+        membership_year: member.membershipYear,
+        annual_fee: member.annualFee,
+        issued_at: member.issuedAt,
+        status: member.status,
+        coop_interest: !!coopInterest,
+      }));
+    }
     if (error) {
       if (error.code === "23505") {
         // A duplicate email — someone (re)submitting an already-registered
