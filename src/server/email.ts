@@ -9,4 +9,6 @@ export function getResendClient(): Resend | null {
   return resendClient;
 }
 
-export const EMAIL_FROM = process.env.RESEND_FROM_EMAIL || "ACAFIS Canada <onboarding@resend.dev>";
+// acafis.ca is verified in Resend, so any address @acafis.ca can send (no
+// mailbox needed). RESEND_FROM_EMAIL still overrides it if set in Vercel.
+export const EMAIL_FROM = process.env.RESEND_FROM_EMAIL || "ACAFIS Canada <notifications@acafis.ca>";

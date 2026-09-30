@@ -27,13 +27,10 @@ function getGeminiClient(): GoogleGenAI | null {
   return genAI;
 }
 
-// TEMPORAIRE (en attendant l'achat et la verification du domaine acafis.ca) :
-// sur decision du bureau, les deux formulaires sont routes vers le courriel du
-// president Moustapha Sane le temps de la transition, avant de revenir aux
-// adresses officielles ci-dessous une fois un domaine ACAFIS verifie sur
-// resend.com/domains.
-const CONTACT_TO_EMAIL = process.env.CONTACT_TO_EMAIL || "taphasane1910@gmail.com"; // officiel : infos@acafis.ca
-const MEMBERSHIP_TO_EMAIL = process.env.MEMBERSHIP_TO_EMAIL || "taphasane1910@gmail.com"; // officiel : acafisfinance2@gmail.com
+// Adresses officielles (le domaine acafis.ca est vérifié sur resend.com/domains).
+// CONTACT_TO_EMAIL / MEMBERSHIP_TO_EMAIL dans Vercel les remplacent si besoin.
+const CONTACT_TO_EMAIL = process.env.CONTACT_TO_EMAIL || "infos@acafis.ca";
+const MEMBERSHIP_TO_EMAIL = process.env.MEMBERSHIP_TO_EMAIL || "acafisfinance2@gmail.com";
 
 interface HandlerResult<T> {
   status: number;
