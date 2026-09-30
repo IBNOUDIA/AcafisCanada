@@ -135,6 +135,24 @@ create table if not exists workshops (
 -- hence a separate statement.
 alter table workshops add column if not exists registrations_open boolean not null default true;
 
+-- Activity type, so the same sign-up system serves nTIC workshops, the soccer
+-- team, etc. Extend the check constraint (and WORKSHOP_CATEGORIES in
+-- src/server/adminHandlers.ts) to add a category.
+alter table workshops add column if not exists category text not null default 'ntic';
+alter table workshops drop constraint if exists workshops_category_check;
+alter table workshops add constraint workshops_category_check check (category in ('ntic', 'sport'));
+
+-- Optional age range (e.g. 13-17 for the teen soccer team), enforced in
+-- register_for_workshop below. null = no limit on that side.
+alter table workshops add column if not exists min_age integer;
+alter table workshops add column if not exists max_age integer;
+alter table workshops drop constraint if exists workshops_age_range_check;
+alter table workshops add constraint workshops_age_range_check check (
+  (min_age is null or min_age >= 0)
+  and (max_age is null or max_age >= 0)
+  and (min_age is null or max_age is null or min_age <= max_age)
+);
+
 create index if not exists workshops_starts_at_idx on workshops (starts_at);
 
 alter table workshops enable row level security;
@@ -170,6 +188,7 @@ declare
   w workshops;
   taken integer;
   already integer;
+  child_age integer;
   reg workshop_registrations;
 begin
   select * into w from workshops where id = p_workshop_id for update;
@@ -181,6 +200,21 @@ begin
   end if;
   if not w.registrations_open then
     raise exception 'workshop_closed';
+  end if;
+
+  -- Only birth_year is stored, so a child's age is counted in the activity's
+  -- year. The member themself is an adult: excluded when max_age is under 18.
+  if p_child_id is null then
+    if w.max_age is not null and w.max_age < 18 then
+      raise exception 'age_not_eligible';
+    end if;
+  elsif w.min_age is not null or w.max_age is not null then
+    select extract(year from w.starts_at at time zone 'America/Toronto')::integer - birth_year
+      into child_age from member_children where id = p_child_id;
+    if (w.min_age is not null and child_age < w.min_age)
+      or (w.max_age is not null and child_age > w.max_age) then
+      raise exception 'age_not_eligible';
+    end if;
   end if;
 
   -- Checked before capacity: the workshop row is already locked above, so

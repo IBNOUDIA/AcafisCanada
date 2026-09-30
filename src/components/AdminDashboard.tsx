@@ -23,6 +23,8 @@ import {
 import { useTranslation } from "../i18n/translations";
 import { useLanguage } from "../i18n/LanguageContext";
 import { ADMIN_SESSION_KEY, AdminSession } from "../lib/adminSession";
+import { ACTIVITY_CATEGORIES, ACTIVITY_CATEGORY_LABEL_KEYS, formatAgeRange } from "../lib/activity";
+import type { WorkshopCategory } from "../types";
 
 interface AdminMember {
   memberId: string;
@@ -58,6 +60,9 @@ interface AdminWorkshop {
   location: string;
   capacity: number;
   registrationsOpen: boolean;
+  category: WorkshopCategory;
+  minAge: number | null;
+  maxAge: number | null;
   registrations: Array<{
     id: string;
     memberName: string;
@@ -74,6 +79,11 @@ function toDateTimeLocal(iso: string): string {
   const d = new Date(iso);
   const pad = (n: number) => String(n).padStart(2, "0");
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+// Empty age field = no limit.
+function ageLimit(value: string): number | null {
+  return value === "" ? null : Number(value);
 }
 
 function csvCell(value: string): string {
@@ -108,9 +118,21 @@ export const AdminDashboard: React.FC = () => {
   const [wsStartsAt, setWsStartsAt] = useState("");
   const [wsLocation, setWsLocation] = useState("");
   const [wsCapacity, setWsCapacity] = useState("");
+  const [wsCategory, setWsCategory] = useState<WorkshopCategory>("ntic");
+  const [wsMinAge, setWsMinAge] = useState("");
+  const [wsMaxAge, setWsMaxAge] = useState("");
   const [wsError, setWsError] = useState("");
   const [editingWorkshopId, setEditingWorkshopId] = useState<string | null>(null);
-  const [editWs, setEditWs] = useState({ title: "", description: "", startsAt: "", location: "", capacity: "" });
+  const [editWs, setEditWs] = useState({
+    title: "",
+    description: "",
+    startsAt: "",
+    location: "",
+    capacity: "",
+    category: "ntic" as WorkshopCategory,
+    minAge: "",
+    maxAge: "",
+  });
   const [wsActionError, setWsActionError] = useState<Record<string, string>>({});
 
   const [oldPassword, setOldPassword] = useState("");
@@ -308,6 +330,9 @@ export const AdminDashboard: React.FC = () => {
           startsAt: new Date(wsStartsAt).toISOString(),
           location: wsLocation,
           capacity: Number(wsCapacity),
+          category: wsCategory,
+          minAge: ageLimit(wsMinAge),
+          maxAge: ageLimit(wsMaxAge),
         }),
       });
       const data = await response.json();
@@ -320,6 +345,8 @@ export const AdminDashboard: React.FC = () => {
         setWsStartsAt("");
         setWsLocation("");
         setWsCapacity("");
+        setWsMinAge("");
+        setWsMaxAge("");
       } else {
         setWsError(data.error || t("admin.errorGeneric"));
       }
@@ -367,6 +394,9 @@ export const AdminDashboard: React.FC = () => {
       startsAt: toDateTimeLocal(w.startsAt),
       location: w.location,
       capacity: String(w.capacity),
+      category: w.category,
+      minAge: w.minAge === null ? "" : String(w.minAge),
+      maxAge: w.maxAge === null ? "" : String(w.maxAge),
     });
     setWsActionError((prev) => ({ ...prev, [w.id]: "" }));
   };
@@ -378,12 +408,17 @@ export const AdminDashboard: React.FC = () => {
     // Same local-time conversion as handleAddWorkshop.
     const startsAt = new Date(editWs.startsAt).toISOString();
     const capacity = Number(editWs.capacity);
+    const minAge = ageLimit(editWs.minAge);
+    const maxAge = ageLimit(editWs.maxAge);
     const ok = await updateWorkshop(id, {
       title: editWs.title,
       description: editWs.description,
       startsAt,
       location: editWs.location,
       capacity,
+      category: editWs.category,
+      minAge,
+      maxAge,
     });
     if (!ok) return;
     setWorkshops((prev) =>
@@ -397,6 +432,9 @@ export const AdminDashboard: React.FC = () => {
                 startsAt,
                 location: editWs.location.trim(),
                 capacity,
+                category: editWs.category,
+                minAge,
+                maxAge,
               }
             : w
         )
@@ -446,7 +484,7 @@ export const AdminDashboard: React.FC = () => {
       .toLowerCase()
       .replace(/[^a-z0-9]+/g, "-")
       .replace(/^-|-$/g, "");
-    a.download = `atelier-${w.startsAt.slice(0, 10)}-${slug}.csv`;
+    a.download = `activite-${w.startsAt.slice(0, 10)}-${slug}.csv`;
     a.click();
     URL.revokeObjectURL(url);
   };
@@ -774,6 +812,36 @@ export const AdminDashboard: React.FC = () => {
                               className="px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white"
                             />
                           </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <select
+                              value={editWs.category}
+                              onChange={(e) => setEditWs((prev) => ({ ...prev, category: e.target.value as WorkshopCategory }))}
+                              aria-label={t("admin.workshopCategoryLabel")}
+                              className="px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white"
+                            >
+                              {ACTIVITY_CATEGORIES.map((c) => (
+                                <option key={c} value={c}>
+                                  {t(ACTIVITY_CATEGORY_LABEL_KEYS[c])}
+                                </option>
+                              ))}
+                            </select>
+                            <input
+                              type="number"
+                              min={0}
+                              value={editWs.minAge}
+                              onChange={(e) => setEditWs((prev) => ({ ...prev, minAge: e.target.value }))}
+                              placeholder={t("admin.workshopMinAgeLabel")}
+                              className="px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white"
+                            />
+                            <input
+                              type="number"
+                              min={0}
+                              value={editWs.maxAge}
+                              onChange={(e) => setEditWs((prev) => ({ ...prev, maxAge: e.target.value }))}
+                              placeholder={t("admin.workshopMaxAgeLabel")}
+                              className="px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white"
+                            />
+                          </div>
                           <div className="flex items-center gap-2">
                             <button
                               type="submit"
@@ -793,7 +861,14 @@ export const AdminDashboard: React.FC = () => {
                       ) : (
                       <div className="flex items-start justify-between gap-3">
                         <div>
-                          <p className="text-sm font-semibold text-slate-900 flex items-center gap-2">
+                          <p className="text-sm font-semibold text-slate-900 flex flex-wrap items-center gap-2">
+                            <span
+                              className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                                w.category === "sport" ? "bg-sky-100 text-sky-800" : "bg-violet-100 text-violet-800"
+                              }`}
+                            >
+                              {t(ACTIVITY_CATEGORY_LABEL_KEYS[w.category])}
+                            </span>
                             {w.title}
                             {isPast && (
                               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-600">
@@ -817,6 +892,12 @@ export const AdminDashboard: React.FC = () => {
                             <MapPin className="w-3.5 h-3.5 shrink-0" />
                             {w.location}
                           </p>
+                          {formatAgeRange(w.minAge, w.maxAge, t) && (
+                            <p className="text-xs text-slate-600 flex items-center gap-1.5">
+                              <Users className="w-3.5 h-3.5 shrink-0" />
+                              {formatAgeRange(w.minAge, w.maxAge, t)}
+                            </p>
+                          )}
                           {w.description && <p className="text-xs text-slate-500 mt-1">{w.description}</p>}
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
@@ -947,6 +1028,36 @@ export const AdminDashboard: React.FC = () => {
                   value={wsCapacity}
                   onChange={(e) => setWsCapacity(e.target.value)}
                   placeholder={t("admin.workshopCapacityLabel")}
+                  className="px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-hidden focus:border-slate-600 focus:ring-1 focus:ring-slate-600"
+                />
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                <select
+                  value={wsCategory}
+                  onChange={(e) => setWsCategory(e.target.value as WorkshopCategory)}
+                  aria-label={t("admin.workshopCategoryLabel")}
+                  className="px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-hidden focus:border-slate-600 focus:ring-1 focus:ring-slate-600"
+                >
+                  {ACTIVITY_CATEGORIES.map((c) => (
+                    <option key={c} value={c}>
+                      {t(ACTIVITY_CATEGORY_LABEL_KEYS[c])}
+                    </option>
+                  ))}
+                </select>
+                <input
+                  type="number"
+                  min={0}
+                  value={wsMinAge}
+                  onChange={(e) => setWsMinAge(e.target.value)}
+                  placeholder={t("admin.workshopMinAgeLabel")}
+                  className="px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-hidden focus:border-slate-600 focus:ring-1 focus:ring-slate-600"
+                />
+                <input
+                  type="number"
+                  min={0}
+                  value={wsMaxAge}
+                  onChange={(e) => setWsMaxAge(e.target.value)}
+                  placeholder={t("admin.workshopMaxAgeLabel")}
                   className="px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-hidden focus:border-slate-600 focus:ring-1 focus:ring-slate-600"
                 />
               </div>

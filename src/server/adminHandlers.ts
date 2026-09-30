@@ -498,8 +498,20 @@ export async function handleAdminDocumentRemove(
 }
 
 // ---------------------------------------------------------------------------
-// nTIC workshops management — creation plus the list of who signed up
+// Activities management (nTIC workshops, soccer team...) — creation plus the
+// list of who signed up. Stored in the `workshops` table for history's sake.
 // ---------------------------------------------------------------------------
+
+const WORKSHOP_CATEGORIES = ["ntic", "sport"];
+
+// undefined = not provided, null = no limit, "invalid" = reject the request.
+function parseAgeLimit(value: unknown): number | null | undefined | "invalid" {
+  if (value === undefined) return undefined;
+  if (value === null || value === "") return null;
+  return typeof value === "number" && Number.isInteger(value) && value >= 0 && value <= 120 ? value : "invalid";
+}
+
+const AGE_LIMIT_ERROR = "Tranche d'âge invalide (l'âge minimum doit être inférieur ou égal à l'âge maximum).";
 
 export interface AdminWorkshopsListBody {
   token?: string;
@@ -538,6 +550,9 @@ export async function handleAdminWorkshopsList(
         location: row.location,
         capacity: row.capacity,
         registrationsOpen: row.registrations_open !== false,
+        category: row.category ?? "ntic",
+        minAge: row.min_age ?? null,
+        maxAge: row.max_age ?? null,
         registrations: (row.workshop_registrations || []).map((r: Record<string, any>) => ({
           id: r.id,
           memberName: `${r.members?.first_name ?? ""} ${r.members?.last_name ?? ""}`.trim(),
@@ -559,6 +574,9 @@ export interface AdminWorkshopAddBody {
   startsAt?: string;
   location?: string;
   capacity?: number;
+  category?: string;
+  minAge?: number | null;
+  maxAge?: number | null;
 }
 
 export async function handleAdminWorkshopAdd(
@@ -571,10 +589,19 @@ export async function handleAdminWorkshopAdd(
 
   const { title, description, startsAt, location, capacity } = data;
   if (!title?.trim() || !location?.trim() || !startsAt || Number.isNaN(Date.parse(startsAt))) {
-    return { status: 400, body: { error: "Titre, date et lieu de l'atelier requis." } };
+    return { status: 400, body: { error: "Titre, date et lieu de l'activité requis." } };
   }
   if (!capacity || !Number.isInteger(capacity) || capacity < 1) {
     return { status: 400, body: { error: "Le nombre de places doit être au moins 1." } };
+  }
+  const category = data.category ?? "ntic";
+  if (!WORKSHOP_CATEGORIES.includes(category)) {
+    return { status: 400, body: { error: "Catégorie d'activité invalide." } };
+  }
+  const minAge = parseAgeLimit(data.minAge) ?? null;
+  const maxAge = parseAgeLimit(data.maxAge) ?? null;
+  if (minAge === "invalid" || maxAge === "invalid" || (minAge !== null && maxAge !== null && minAge > maxAge)) {
+    return { status: 400, body: { error: AGE_LIMIT_ERROR } };
   }
 
   const supabase = getSupabaseClient()!;
@@ -586,6 +613,9 @@ export async function handleAdminWorkshopAdd(
       starts_at: new Date(startsAt).toISOString(),
       location: location.trim(),
       capacity,
+      category,
+      min_age: minAge,
+      max_age: maxAge,
     })
     .select()
     .single();
@@ -606,6 +636,9 @@ export async function handleAdminWorkshopAdd(
         location: row.location,
         capacity: row.capacity,
         registrationsOpen: row.registrations_open !== false,
+        category: row.category ?? "ntic",
+        minAge: row.min_age ?? null,
+        maxAge: row.max_age ?? null,
         registrations: [],
       },
     },
@@ -650,6 +683,9 @@ export interface AdminWorkshopUpdateBody {
   location?: string;
   capacity?: number;
   registrationsOpen?: boolean;
+  category?: string;
+  minAge?: number | null;
+  maxAge?: number | null;
 }
 
 // Partial update: only the fields present in the body are changed, so the
@@ -669,7 +705,7 @@ export async function handleAdminWorkshopUpdate(
 
   const updates: Record<string, unknown> = {};
   if (title !== undefined) {
-    if (!title.trim()) return { status: 400, body: { error: "Le titre de l'atelier est requis." } };
+    if (!title.trim()) return { status: 400, body: { error: "Le titre de l'activité est requis." } };
     updates.title = title.trim();
   }
   if (description !== undefined) updates.description = description.trim() || null;
@@ -678,7 +714,7 @@ export async function handleAdminWorkshopUpdate(
     updates.starts_at = new Date(startsAt).toISOString();
   }
   if (location !== undefined) {
-    if (!location.trim()) return { status: 400, body: { error: "Le lieu de l'atelier est requis." } };
+    if (!location.trim()) return { status: 400, body: { error: "Le lieu de l'activité est requis." } };
     updates.location = location.trim();
   }
   if (capacity !== undefined) {
@@ -688,6 +724,21 @@ export async function handleAdminWorkshopUpdate(
     updates.capacity = capacity;
   }
   if (registrationsOpen !== undefined) updates.registrations_open = Boolean(registrationsOpen);
+  if (data.category !== undefined) {
+    if (!WORKSHOP_CATEGORIES.includes(data.category)) {
+      return { status: 400, body: { error: "Catégorie d'activité invalide." } };
+    }
+    updates.category = data.category;
+  }
+  // The min <= max check only runs when both are sent together (the edit
+  // form always does); otherwise the database constraint still guards it.
+  const minAge = parseAgeLimit(data.minAge);
+  const maxAge = parseAgeLimit(data.maxAge);
+  if (minAge === "invalid" || maxAge === "invalid" || (minAge != null && maxAge != null && minAge > maxAge)) {
+    return { status: 400, body: { error: AGE_LIMIT_ERROR } };
+  }
+  if (minAge !== undefined) updates.min_age = minAge;
+  if (maxAge !== undefined) updates.max_age = maxAge;
 
   if (Object.keys(updates).length === 0) {
     return { status: 400, body: { error: "Aucune modification fournie" } };
@@ -717,6 +768,10 @@ export async function handleAdminWorkshopUpdate(
   const { error } = await supabase.from("workshops").update(updates).eq("id", id);
 
   if (error) {
+    // Check constraint violation (e.g. only one age bound sent, crossing the other).
+    if (error.code === "23514") {
+      return { status: 400, body: { error: AGE_LIMIT_ERROR } };
+    }
     console.error("Admin workshop update failed:", error);
     return { status: 500, body: { error: "Erreur serveur, réessayez dans un instant." } };
   }

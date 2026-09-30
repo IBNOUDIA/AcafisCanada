@@ -22,6 +22,7 @@ import {
 import { useTranslation } from "../i18n/translations";
 import { useLanguage } from "../i18n/LanguageContext";
 import { MemberRecord, MemberDocument, MemberChild, MemberWorkshop } from "../types";
+import { ACTIVITY_CATEGORY_LABEL_KEYS, formatAgeRange, isEligibleForActivity } from "../lib/activity";
 import { MEMBER_STORAGE_KEY } from "../lib/memberSession";
 import { PAYMENT_INTERAC_INFO } from "../data/acafisData";
 
@@ -488,13 +489,19 @@ export const MemberDashboard: React.FC = () => {
                   return child?.firstName || t("memberDashboard.childUnnamed");
                 };
                 const registeredIds = new Set(w.myRegistrations.map((r) => r.childId ?? "self"));
-                const candidates = [
-                  { value: "self", label: t("memberDashboard.workshopMyself") },
-                  ...children.map((c) => ({
-                    value: c.id,
-                    label: `${c.firstName || t("memberDashboard.childUnnamed")} (${new Date().getFullYear() - c.birthYear} ${t("memberDashboard.childAgeSuffix")})`,
-                  })),
-                ].filter((c) => !registeredIds.has(c.value));
+                const eligible = [
+                  ...(isEligibleForActivity(w, null)
+                    ? [{ value: "self", label: t("memberDashboard.workshopMyself") }]
+                    : []),
+                  ...children
+                    .filter((c) => isEligibleForActivity(w, c.birthYear))
+                    .map((c) => ({
+                      value: c.id,
+                      label: `${c.firstName || t("memberDashboard.childUnnamed")} (${new Date().getFullYear() - c.birthYear} ${t("memberDashboard.childAgeSuffix")})`,
+                    })),
+                ];
+                const candidates = eligible.filter((c) => !registeredIds.has(c.value));
+                const ageRange = formatAgeRange(w.minAge, w.maxAge, t);
                 const pick = candidates.some((c) => c.value === workshopPick[w.id])
                   ? workshopPick[w.id]
                   : candidates[0]?.value || "";
@@ -505,7 +512,16 @@ export const MemberDashboard: React.FC = () => {
                   <li key={w.id} className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
                     <div className="flex items-start justify-between gap-3">
                       <div>
-                        <p className="text-sm font-semibold text-slate-900">{w.title}</p>
+                        <p className="text-sm font-semibold text-slate-900 flex flex-wrap items-center gap-2">
+                          <span
+                            className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
+                              w.category === "sport" ? "bg-sky-100 text-sky-800" : "bg-violet-100 text-violet-800"
+                            }`}
+                          >
+                            {t(ACTIVITY_CATEGORY_LABEL_KEYS[w.category])}
+                          </span>
+                          {w.title}
+                        </p>
                         <p className="text-xs text-slate-600 flex items-center gap-1.5 mt-0.5">
                           <CalendarDays className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
                           {new Date(w.startsAt).toLocaleString(lang === "en" ? "en-CA" : "fr-CA", {
@@ -517,6 +533,12 @@ export const MemberDashboard: React.FC = () => {
                           <MapPin className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
                           {w.location}
                         </p>
+                        {ageRange && (
+                          <p className="text-xs text-slate-600 flex items-center gap-1.5">
+                            <Users className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                            {ageRange}
+                          </p>
+                        )}
                         {w.description && <p className="text-xs text-slate-500 mt-1.5">{w.description}</p>}
                       </div>
                       <span
@@ -561,7 +583,11 @@ export const MemberDashboard: React.FC = () => {
                     )}
 
                     {candidates.length === 0 ? (
-                      <p className="text-[11px] text-slate-500">{t("memberDashboard.workshopAllRegistered")}</p>
+                      <p className="text-[11px] text-slate-500">
+                        {eligible.length === 0
+                          ? t("memberDashboard.workshopNoEligible")
+                          : t("memberDashboard.workshopAllRegistered")}
+                      </p>
                     ) : (
                       !isFull && !isClosed && (
                         <div className="flex flex-wrap gap-2">
