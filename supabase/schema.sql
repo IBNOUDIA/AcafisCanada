@@ -147,11 +147,11 @@ create table if not exists workshops (
 alter table workshops add column if not exists registrations_open boolean not null default true;
 
 -- Activity type, so the same sign-up system serves nTIC workshops, the soccer
--- team, etc. Extend the check constraint (and WORKSHOP_CATEGORIES in
--- src/server/adminHandlers.ts) to add a category.
+-- team, the culinary club ('autre'), etc. To add a category, see the comment
+-- above ACTIVITY_CATEGORIES in src/lib/activity.ts.
 alter table workshops add column if not exists category text not null default 'ntic';
 alter table workshops drop constraint if exists workshops_category_check;
-alter table workshops add constraint workshops_category_check check (category in ('ntic', 'sport'));
+alter table workshops add constraint workshops_category_check check (category in ('ntic', 'sport', 'autre'));
 
 -- Optional age range (e.g. 13-17 for the teen soccer team), enforced in
 -- register_for_workshop below. null = no limit on that side.

@@ -503,7 +503,7 @@ export async function handleAdminDocumentRemove(
 // list of who signed up. Stored in the `workshops` table for history's sake.
 // ---------------------------------------------------------------------------
 
-const WORKSHOP_CATEGORIES = ["ntic", "sport"];
+const WORKSHOP_CATEGORIES = ["ntic", "sport", "autre"];
 
 // undefined = not provided, null = no limit, "invalid" = reject the request.
 function parseAgeLimit(value: unknown): number | null | undefined | "invalid" {

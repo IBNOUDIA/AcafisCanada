@@ -1,11 +1,21 @@
 import type { TranslationKey } from "../i18n/translations";
 import type { MemberChild, WorkshopCategory } from "../types";
 
-export const ACTIVITY_CATEGORIES: WorkshopCategory[] = ["ntic", "sport"];
+// Adding a category: extend WorkshopCategory (types.ts), the three maps
+// below, WORKSHOP_CATEGORIES (src/server/adminHandlers.ts) and the
+// workshops_category_check constraint (supabase/schema.sql).
+export const ACTIVITY_CATEGORIES: WorkshopCategory[] = ["ntic", "sport", "autre"];
 
 export const ACTIVITY_CATEGORY_LABEL_KEYS: Record<WorkshopCategory, TranslationKey> = {
   ntic: "activity.categoryNtic",
   sport: "activity.categorySport",
+  autre: "activity.categoryAutre",
+};
+
+export const ACTIVITY_CATEGORY_BADGE_CLASSES: Record<WorkshopCategory, string> = {
+  ntic: "bg-violet-100 text-violet-800",
+  sport: "bg-sky-100 text-sky-800",
+  autre: "bg-rose-100 text-rose-800",
 };
 
 // "13–17 ans", "13 ans et +", "Jusqu'à 17 ans", or null when unrestricted.

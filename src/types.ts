@@ -149,7 +149,7 @@ export interface MemberDocument {
   publishedAt: string;
 }
 
-export type WorkshopCategory = "ntic" | "sport";
+export type WorkshopCategory = "ntic" | "sport" | "autre";
 
 // An upcoming activity (nTIC workshop, soccer...) as seen by a logged-in
 // member. myRegistrations holds this member's own seats only (childId null =

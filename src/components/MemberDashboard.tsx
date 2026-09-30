@@ -23,6 +23,7 @@ import { useTranslation } from "../i18n/translations";
 import { useLanguage } from "../i18n/LanguageContext";
 import { MemberRecord, MemberDocument, MemberChild, MemberWorkshop } from "../types";
 import {
+  ACTIVITY_CATEGORY_BADGE_CLASSES,
   ACTIVITY_CATEGORY_LABEL_KEYS,
   GENDER_RESTRICTION_LABEL_KEYS,
   formatAgeRange,
@@ -550,7 +551,7 @@ export const MemberDashboard: React.FC = () => {
                         <p className="text-sm font-semibold text-slate-900 flex flex-wrap items-center gap-2">
                           <span
                             className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${
-                              w.category === "sport" ? "bg-sky-100 text-sky-800" : "bg-violet-100 text-violet-800"
+                              ACTIVITY_CATEGORY_BADGE_CLASSES[w.category]
                             }`}
                           >
                             {t(ACTIVITY_CATEGORY_LABEL_KEYS[w.category])}
