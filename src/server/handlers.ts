@@ -555,6 +555,50 @@ export async function verifyMember(
   return { status: 200, body: { member: mapMemberRow(row) } };
 }
 
+export interface MemberUpdateContactBody {
+  email?: string;
+  memberId?: string;
+  phone?: string;
+  city?: string;
+}
+
+// Lets a member keep their own phone and city up to date from the Espace
+// Membre. The email is deliberately not editable here: it's the login
+// credential, so a typo would lock the member out — the Bureau changes it.
+export async function handleMemberUpdateContact(
+  data: MemberUpdateContactBody,
+  ip: string
+): Promise<HandlerResult<{ member?: Record<string, unknown>; error?: string }>> {
+  const verification = await verifyMember(data.email, data.memberId, ip);
+  if (verification.status !== 200) {
+    return { status: verification.status, body: { error: verification.body.error } };
+  }
+
+  const phone = (data.phone ?? "").trim();
+  const city = (data.city ?? "").trim();
+  if (phone && !/^[0-9+().\s-]{7,25}$/.test(phone)) {
+    return { status: 400, body: { error: "Numéro de téléphone invalide." } };
+  }
+  if (city.length > 80) {
+    return { status: 400, body: { error: "Nom de ville trop long." } };
+  }
+
+  const supabase = getSupabaseClient()!;
+  const { data: row, error } = await supabase
+    .from("members")
+    .update({ phone: phone || null, city: city || null })
+    .eq("member_id", verification.body.member!.memberId as string)
+    .select()
+    .single();
+
+  if (error) {
+    console.error("Supabase member contact update failed:", error);
+    return { status: 500, body: { error: "Erreur serveur, réessayez dans un instant." } };
+  }
+
+  return { status: 200, body: { member: mapMemberRow(row) } };
+}
+
 export async function handleMemberLogin(
   data: MemberLoginBody,
   ip: string

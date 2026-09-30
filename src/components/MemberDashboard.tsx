@@ -32,6 +32,7 @@ import {
 } from "../lib/activity";
 import { ChildSportFileForm } from "./ChildSportFileForm";
 import { MemberSurveys } from "./surveys/MemberSurveys";
+import { MemberContactForm } from "./MemberContactForm";
 import { MEMBER_STORAGE_KEY } from "../lib/memberSession";
 import { PAYMENT_INTERAC_INFO } from "../data/acafisData";
 
@@ -257,7 +258,6 @@ export const MemberDashboard: React.FC = () => {
     { icon: <CalendarDays className="w-4 h-4" />, label: t("memberDashboard.yearLabel"), value: String(member.membershipYear) },
     { icon: <CreditCard className="w-4 h-4" />, label: t("memberDashboard.feeLabel"), value: member.annualFee },
     { icon: <Mail className="w-4 h-4" />, label: t("memberDashboard.emailLabel"), value: member.email },
-    { icon: <MapPin className="w-4 h-4" />, label: t("memberDashboard.cityLabel"), value: member.city },
     { icon: <CalendarDays className="w-4 h-4" />, label: t("memberDashboard.issuedAtLabel"), value: member.issuedAt },
   ];
 
@@ -318,6 +318,14 @@ export const MemberDashboard: React.FC = () => {
               </div>
             ))}
           </div>
+
+          <MemberContactForm
+            member={member}
+            onSaved={(updated) => {
+              setMember(updated);
+              localStorage.setItem(MEMBER_STORAGE_KEY, JSON.stringify(updated));
+            }}
+          />
 
           <div className="mx-6 sm:mx-8 mb-6 p-4 rounded-xl bg-amber-50 border border-amber-200 flex items-start gap-3">
             <Sparkles className="w-4 h-4 text-amber-600 mt-0.5 shrink-0" />

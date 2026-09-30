@@ -10,6 +10,7 @@ import {
   handleMemberClaimInfo,
   handleMemberClaim,
   handleMemberDocuments,
+  handleMemberUpdateContact,
   handleMemberChildrenList,
   handleMemberChildAdd,
   handleMemberChildRemove,
@@ -99,6 +100,11 @@ app.post("/api/members/claim/confirm", async (req, res) => {
 // Members-only documents endpoint
 app.post("/api/members/documents", async (req, res) => {
   const result = await handleMemberDocuments(req.body, getClientIp(req));
+  res.status(result.status).json(result.body);
+});
+
+app.post("/api/members/contact", async (req, res) => {
+  const result = await handleMemberUpdateContact(req.body, getClientIp(req));
   res.status(result.status).json(result.body);
 });
 
