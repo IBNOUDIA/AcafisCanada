@@ -3,6 +3,7 @@ import { randomUUID } from "crypto";
 import { getSupabaseClient } from "./supabaseClient.js";
 import { checkRateLimit, RATE_LIMIT_ERROR } from "./rateLimit.js";
 import { isValidEmail } from "./validation.js";
+import { promoteWaitlist } from "./waitlist.js";
 
 interface HandlerResult<T> {
   status: number;
@@ -513,6 +514,72 @@ function parseAgeLimit(value: unknown): number | null | undefined | "invalid" {
 
 const AGE_LIMIT_ERROR = "Tranche d'âge invalide (l'âge minimum doit être inférieur ou égal à l'âge maximum).";
 
+const GENDER_RESTRICTIONS = ["feminin", "masculin"];
+
+interface ActivityOptionsInput {
+  genderRestriction?: string | null;
+  registrationDeadline?: string | null;
+  requiresPaidMembership?: boolean;
+  feeAmount?: number | null;
+}
+
+// Eligibility/logistics options shared by create and update. With
+// `allFields`, every option gets a column value (defaults for missing ones);
+// otherwise only the options present in `data` are returned.
+function parseActivityOptions(
+  data: ActivityOptionsInput,
+  allFields: boolean
+): { columns: Record<string, unknown> } | { error: string } {
+  const columns: Record<string, unknown> = {};
+
+  if (allFields || data.genderRestriction !== undefined) {
+    const gender = data.genderRestriction || null;
+    if (gender !== null && !GENDER_RESTRICTIONS.includes(gender)) {
+      return { error: "Restriction de genre invalide." };
+    }
+    columns.gender_restriction = gender;
+  }
+  if (allFields || data.registrationDeadline !== undefined) {
+    const deadline = data.registrationDeadline || null;
+    if (deadline !== null && Number.isNaN(Date.parse(deadline))) {
+      return { error: "Date limite d'inscription invalide." };
+    }
+    columns.registration_deadline = deadline ? new Date(deadline).toISOString() : null;
+  }
+  if (allFields || data.requiresPaidMembership !== undefined) {
+    columns.requires_paid_membership = Boolean(data.requiresPaidMembership);
+  }
+  if (allFields || data.feeAmount !== undefined) {
+    const fee = data.feeAmount ?? null;
+    if (fee !== null && (typeof fee !== "number" || !Number.isFinite(fee) || fee < 0 || fee > 10000)) {
+      return { error: "Montant des frais invalide." };
+    }
+    columns.fee_amount = fee === null || fee === 0 ? null : Math.round(fee * 100) / 100;
+  }
+
+  return { columns };
+}
+
+// Activity fields common to the list and create responses.
+function mapWorkshopRow(row: Record<string, any>): Record<string, unknown> {
+  return {
+    id: row.id,
+    title: row.title,
+    description: row.description,
+    startsAt: row.starts_at,
+    location: row.location,
+    capacity: row.capacity,
+    registrationsOpen: row.registrations_open !== false,
+    category: row.category ?? "ntic",
+    minAge: row.min_age ?? null,
+    maxAge: row.max_age ?? null,
+    genderRestriction: row.gender_restriction ?? null,
+    registrationDeadline: row.registration_deadline ?? null,
+    requiresPaidMembership: row.requires_paid_membership === true,
+    feeAmount: row.fee_amount === null || row.fee_amount === undefined ? null : Number(row.fee_amount),
+  };
+}
+
 export interface AdminWorkshopsListBody {
   token?: string;
 }
@@ -529,7 +596,7 @@ export async function handleAdminWorkshopsList(
   const { data: rows, error } = await supabase
     .from("workshops")
     .select(
-      "*, workshop_registrations (id, created_at, members (first_name, last_name, email), member_children (first_name, birth_year))"
+      "*, workshop_registrations (id, created_at, status, fee_paid, attended, members (first_name, last_name, email, phone), member_children (first_name, birth_year, gender, emergency_contact_name, emergency_contact_phone, health_notes, jersey_size, photo_consent, parental_consent_at))"
     )
     .order("starts_at", { ascending: false });
 
@@ -543,25 +610,44 @@ export async function handleAdminWorkshopsList(
     status: 200,
     body: {
       workshops: (rows || []).map((row: Record<string, any>) => ({
-        id: row.id,
-        title: row.title,
-        description: row.description,
-        startsAt: row.starts_at,
-        location: row.location,
-        capacity: row.capacity,
-        registrationsOpen: row.registrations_open !== false,
-        category: row.category ?? "ntic",
-        minAge: row.min_age ?? null,
-        maxAge: row.max_age ?? null,
-        registrations: (row.workshop_registrations || []).map((r: Record<string, any>) => ({
-          id: r.id,
-          memberName: `${r.members?.first_name ?? ""} ${r.members?.last_name ?? ""}`.trim(),
-          memberEmail: r.members?.email ?? "",
-          // null when the member registered themself rather than a child
-          child: r.member_children
-            ? { firstName: r.member_children.first_name, age: currentYear - r.member_children.birth_year }
-            : null,
-        })),
+        ...mapWorkshopRow(row),
+        // Confirmed seats first, then the waitlist — each in sign-up order,
+        // which is also the order the waitlist gets promoted in.
+        registrations: [...(row.workshop_registrations || [])]
+          .sort(
+            (a: Record<string, any>, b: Record<string, any>) =>
+              Number(a.status === "waitlist") - Number(b.status === "waitlist") ||
+              a.created_at.localeCompare(b.created_at) ||
+              a.id.localeCompare(b.id)
+          )
+          .map((r: Record<string, any>) => {
+            const c = r.member_children;
+            return {
+              id: r.id,
+              status: r.status === "waitlist" ? "waitlist" : "confirmed",
+              feePaid: r.fee_paid === true,
+              attended: r.attended ?? null,
+              memberName: `${r.members?.first_name ?? ""} ${r.members?.last_name ?? ""}`.trim(),
+              memberEmail: r.members?.email ?? "",
+              memberPhone: r.members?.phone ?? "",
+              // null when the member registered themself rather than a child
+              child: c
+                ? {
+                    firstName: c.first_name,
+                    age: currentYear - c.birth_year,
+                    gender: c.gender,
+                    sportFile: {
+                      emergencyContactName: c.emergency_contact_name ?? "",
+                      emergencyContactPhone: c.emergency_contact_phone ?? "",
+                      healthNotes: c.health_notes ?? "",
+                      jerseySize: c.jersey_size ?? "",
+                      photoConsent: c.photo_consent ?? false,
+                      parentalConsentAt: c.parental_consent_at ?? null,
+                    },
+                  }
+                : null,
+            };
+          }),
       })),
     },
   };
@@ -577,6 +663,10 @@ export interface AdminWorkshopAddBody {
   category?: string;
   minAge?: number | null;
   maxAge?: number | null;
+  genderRestriction?: string | null;
+  registrationDeadline?: string | null;
+  requiresPaidMembership?: boolean;
+  feeAmount?: number | null;
 }
 
 export async function handleAdminWorkshopAdd(
@@ -603,6 +693,10 @@ export async function handleAdminWorkshopAdd(
   if (minAge === "invalid" || maxAge === "invalid" || (minAge !== null && maxAge !== null && minAge > maxAge)) {
     return { status: 400, body: { error: AGE_LIMIT_ERROR } };
   }
+  const options = parseActivityOptions(data, true);
+  if ("error" in options) {
+    return { status: 400, body: { error: options.error } };
+  }
 
   const supabase = getSupabaseClient()!;
   const { data: row, error } = await supabase
@@ -616,6 +710,7 @@ export async function handleAdminWorkshopAdd(
       category,
       min_age: minAge,
       max_age: maxAge,
+      ...options.columns,
     })
     .select()
     .single();
@@ -625,24 +720,7 @@ export async function handleAdminWorkshopAdd(
     return { status: 500, body: { error: "Erreur serveur, réessayez dans un instant." } };
   }
 
-  return {
-    status: 200,
-    body: {
-      workshop: {
-        id: row.id,
-        title: row.title,
-        description: row.description,
-        startsAt: row.starts_at,
-        location: row.location,
-        capacity: row.capacity,
-        registrationsOpen: row.registrations_open !== false,
-        category: row.category ?? "ntic",
-        minAge: row.min_age ?? null,
-        maxAge: row.max_age ?? null,
-        registrations: [],
-      },
-    },
-  };
+  return { status: 200, body: { workshop: { ...mapWorkshopRow(row), registrations: [] } } };
 }
 
 export interface AdminWorkshopRemoveBody {
@@ -686,6 +764,10 @@ export interface AdminWorkshopUpdateBody {
   category?: string;
   minAge?: number | null;
   maxAge?: number | null;
+  genderRestriction?: string | null;
+  registrationDeadline?: string | null;
+  requiresPaidMembership?: boolean;
+  feeAmount?: number | null;
 }
 
 // Partial update: only the fields present in the body are changed, so the
@@ -739,6 +821,11 @@ export async function handleAdminWorkshopUpdate(
   }
   if (minAge !== undefined) updates.min_age = minAge;
   if (maxAge !== undefined) updates.max_age = maxAge;
+  const options = parseActivityOptions(data, false);
+  if ("error" in options) {
+    return { status: 400, body: { error: options.error } };
+  }
+  Object.assign(updates, options.columns);
 
   if (Object.keys(updates).length === 0) {
     return { status: 400, body: { error: "Aucune modification fournie" } };
@@ -746,13 +833,15 @@ export async function handleAdminWorkshopUpdate(
 
   const supabase = getSupabaseClient()!;
 
-  // Lowering capacity below the seats already taken would silently overbook
-  // the workshop — the admin has to remove registrations first.
+  // Lowering capacity below the confirmed seats would silently overbook the
+  // activity — the admin has to remove registrations first. Waitlisted rows
+  // don't hold a seat, so they don't count.
   if (capacity !== undefined) {
     const { count, error: countError } = await supabase
       .from("workshop_registrations")
       .select("id", { count: "exact", head: true })
-      .eq("workshop_id", id);
+      .eq("workshop_id", id)
+      .eq("status", "confirmed");
     if (countError) {
       console.error("Admin workshop registrations count failed:", countError);
       return { status: 500, body: { error: "Erreur serveur, réessayez dans un instant." } };
@@ -774,6 +863,11 @@ export async function handleAdminWorkshopUpdate(
     }
     console.error("Admin workshop update failed:", error);
     return { status: 500, body: { error: "Erreur serveur, réessayez dans un instant." } };
+  }
+
+  // More seats may let waitlisted families in.
+  if (capacity !== undefined) {
+    await promoteWaitlist(id);
   }
 
   return { status: 200, body: { success: true } };
@@ -798,10 +892,58 @@ export async function handleAdminWorkshopRegistrationRemove(
   }
 
   const supabase = getSupabaseClient()!;
-  const { error } = await supabase.from("workshop_registrations").delete().eq("id", data.id);
+  const { data: deleted, error } = await supabase
+    .from("workshop_registrations")
+    .delete()
+    .eq("id", data.id)
+    .select("workshop_id, status");
 
   if (error) {
     console.error("Admin workshop registration remove failed:", error);
+    return { status: 500, body: { error: "Erreur serveur, réessayez dans un instant." } };
+  }
+
+  // A freed confirmed seat goes to the first family on the waitlist.
+  if (deleted?.[0]?.status === "confirmed") {
+    await promoteWaitlist(deleted[0].workshop_id);
+  }
+
+  return { status: 200, body: { success: true } };
+}
+
+export interface AdminWorkshopRegistrationUpdateBody {
+  token?: string;
+  id?: string;
+  feePaid?: boolean;
+  attended?: boolean | null;
+}
+
+// Per-seat bookkeeping by the Bureau Exécutif: activity fee received
+// (Interac) and attendance on the day (null = not recorded).
+export async function handleAdminWorkshopRegistrationUpdate(
+  data: AdminWorkshopRegistrationUpdateBody
+): Promise<HandlerResult<{ success?: boolean; error?: string }>> {
+  const verification = await verifyAdminSession(data.token);
+  if (verification.status !== 200) {
+    return { status: verification.status, body: { error: verification.error } };
+  }
+
+  if (!data.id) {
+    return { status: 400, body: { error: "Identifiant requis" } };
+  }
+
+  const updates: Record<string, unknown> = {};
+  if (data.feePaid !== undefined) updates.fee_paid = Boolean(data.feePaid);
+  if (data.attended !== undefined) updates.attended = data.attended === null ? null : Boolean(data.attended);
+  if (Object.keys(updates).length === 0) {
+    return { status: 400, body: { error: "Aucune modification fournie" } };
+  }
+
+  const supabase = getSupabaseClient()!;
+  const { error } = await supabase.from("workshop_registrations").update(updates).eq("id", data.id);
+
+  if (error) {
+    console.error("Admin workshop registration update failed:", error);
     return { status: 500, body: { error: "Erreur serveur, réessayez dans un instant." } };
   }
 

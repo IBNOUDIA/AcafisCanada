@@ -13,6 +13,7 @@ import {
   handleMemberChildrenList,
   handleMemberChildAdd,
   handleMemberChildRemove,
+  handleMemberChildSportFile,
   handleMemberWorkshopsList,
   handleMemberWorkshopRegister,
   handleMemberWorkshopUnregister,
@@ -34,6 +35,7 @@ import {
   handleAdminWorkshopRemove,
   handleAdminWorkshopUpdate,
   handleAdminWorkshopRegistrationRemove,
+  handleAdminWorkshopRegistrationUpdate,
 } from "./src/server/adminHandlers";
 
 dotenv.config();
@@ -101,6 +103,11 @@ app.post("/api/members/children/add", async (req, res) => {
 
 app.post("/api/members/children/remove", async (req, res) => {
   const result = await handleMemberChildRemove(req.body, getClientIp(req));
+  res.status(result.status).json(result.body);
+});
+
+app.post("/api/members/children/sport-file", async (req, res) => {
+  const result = await handleMemberChildSportFile(req.body, getClientIp(req));
   res.status(result.status).json(result.body);
 });
 
@@ -193,6 +200,11 @@ app.post("/api/admin/workshops-update", async (req, res) => {
 
 app.post("/api/admin/workshops-registration-remove", async (req, res) => {
   const result = await handleAdminWorkshopRegistrationRemove(req.body);
+  res.status(result.status).json(result.body);
+});
+
+app.post("/api/admin/workshops-registration-update", async (req, res) => {
+  const result = await handleAdminWorkshopRegistrationUpdate(req.body);
   res.status(result.status).json(result.body);
 });
 

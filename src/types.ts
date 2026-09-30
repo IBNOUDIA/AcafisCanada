@@ -124,6 +124,18 @@ export interface MemberChild {
   firstName: string | null;
   birthYear: number;
   gender: "feminin" | "masculin" | "autre";
+  sportFile: ChildSportFile;
+}
+
+// Filled once per child, required for sport activities. parentalConsentAt is
+// only valid for the calendar year it was given in.
+export interface ChildSportFile {
+  emergencyContactName: string;
+  emergencyContactPhone: string;
+  healthNotes: string;
+  jerseySize: string;
+  photoConsent: boolean;
+  parentalConsentAt: string | null;
 }
 
 // A members-only document (AG minutes, annual financial report...) — the
@@ -150,9 +162,20 @@ export interface MemberWorkshop {
   location: string;
   capacity: number;
   spotsLeft: number;
+  waitlistCount: number;
   registrationsOpen: boolean;
+  registrationDeadline: string | null;
   category: WorkshopCategory;
   minAge: number | null;
   maxAge: number | null;
-  myRegistrations: Array<{ id: string; childId: string | null }>;
+  genderRestriction: "feminin" | "masculin" | null;
+  requiresPaidMembership: boolean;
+  feeAmount: number | null;
+  myRegistrations: Array<{
+    id: string;
+    childId: string | null;
+    status: "confirmed" | "waitlist";
+    waitlistPosition: number | null;
+    feePaid: boolean;
+  }>;
 }

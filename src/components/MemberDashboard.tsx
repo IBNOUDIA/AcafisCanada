@@ -22,7 +22,14 @@ import {
 import { useTranslation } from "../i18n/translations";
 import { useLanguage } from "../i18n/LanguageContext";
 import { MemberRecord, MemberDocument, MemberChild, MemberWorkshop } from "../types";
-import { ACTIVITY_CATEGORY_LABEL_KEYS, formatAgeRange, isEligibleForActivity } from "../lib/activity";
+import {
+  ACTIVITY_CATEGORY_LABEL_KEYS,
+  GENDER_RESTRICTION_LABEL_KEYS,
+  formatAgeRange,
+  hasValidSportFile,
+  isEligibleForActivity,
+} from "../lib/activity";
+import { ChildSportFileForm } from "./ChildSportFileForm";
 import { MEMBER_STORAGE_KEY } from "../lib/memberSession";
 import { PAYMENT_INTERAC_INFO } from "../data/acafisData";
 
@@ -49,6 +56,7 @@ export const MemberDashboard: React.FC = () => {
   const [workshopPick, setWorkshopPick] = useState<Record<string, string>>({});
   const [workshopError, setWorkshopError] = useState<Record<string, string>>({});
   const [busyWorkshopId, setBusyWorkshopId] = useState<string | null>(null);
+  const [sportFileChildId, setSportFileChildId] = useState<string | null>(null);
 
   useEffect(() => {
     document.title = `${t("memberDashboard.title")} — ACAFIS Canada`;
@@ -131,19 +139,13 @@ export const MemberDashboard: React.FC = () => {
       });
       const data = await response.json();
       if (response.ok) {
-        setWorkshops((prev) =>
-          prev.map((w) =>
-            w.id === workshopId
-              ? { ...w, spotsLeft: w.spotsLeft - 1, myRegistrations: [...w.myRegistrations, data.registration] }
-              : w
-          )
-        );
         setWorkshopPick((prev) => ({ ...prev, [workshopId]: "" }));
       } else {
         setWorkshopError((prev) => ({ ...prev, [workshopId]: data.error || t("memberDashboard.workshopError") }));
-        // Seat counts may be stale (e.g. someone else just took the last spot).
-        loadWorkshops({ email: member.email, memberId: member.memberId });
       }
+      // Refetch either way: the seat may have landed on the waitlist (with a
+      // position), or counts may be stale (someone else took the last spot).
+      loadWorkshops({ email: member.email, memberId: member.memberId });
     } catch {
       setWorkshopError((prev) => ({ ...prev, [workshopId]: t("memberDashboard.workshopError") }));
     } finally {
@@ -156,7 +158,7 @@ export const MemberDashboard: React.FC = () => {
     setWorkshops((prev) =>
       prev.map((w) =>
         w.id === workshopId
-          ? { ...w, spotsLeft: w.spotsLeft + 1, myRegistrations: w.myRegistrations.filter((r) => r.id !== registrationId) }
+          ? { ...w, myRegistrations: w.myRegistrations.filter((r) => r.id !== registrationId) }
           : w
       )
     );
@@ -169,6 +171,8 @@ export const MemberDashboard: React.FC = () => {
     } catch {
       // Best-effort — worst case the seat reappears on the next visit's refetch.
     }
+    // The freed seat may have gone to the waitlist: refetch the real counts.
+    loadWorkshops({ email: member.email, memberId: member.memberId });
   };
 
   const handleAddChild = async (e: React.FormEvent) => {
@@ -209,10 +213,7 @@ export const MemberDashboard: React.FC = () => {
     setChildren((prev) => prev.filter((c) => c.id !== childId));
     // The child's workshop seats are freed server-side too (on delete cascade).
     setWorkshops((prev) =>
-      prev.map((w) => {
-        const kept = w.myRegistrations.filter((r) => r.childId !== childId);
-        return { ...w, spotsLeft: w.spotsLeft + (w.myRegistrations.length - kept.length), myRegistrations: kept };
-      })
+      prev.map((w) => ({ ...w, myRegistrations: w.myRegistrations.filter((r) => r.childId !== childId) }))
     );
     try {
       await fetch("/api/members/children/remove", {
@@ -395,26 +396,51 @@ export const MemberDashboard: React.FC = () => {
               {children.map((child) => {
                 const age = new Date().getFullYear() - child.birthYear;
                 const genderLabel = t(CHILD_GENDERS.find((g) => g.value === child.gender)?.labelKey || "memberDashboard.genderAutre");
+                const sportFileOk = hasValidSportFile(child, new Date().getFullYear());
                 return (
-                  <li
-                    key={child.id}
-                    className="flex items-center justify-between gap-3 p-3.5 rounded-xl bg-slate-50 border border-slate-200"
-                  >
-                    <div>
-                      <p className="text-sm font-semibold text-slate-900">
-                        {child.firstName || t("memberDashboard.childUnnamed")}
-                      </p>
-                      <p className="text-xs text-slate-500">
-                        {age} {t("memberDashboard.childAgeSuffix")} · {genderLabel}
-                      </p>
+                  <li key={child.id} className="p-3.5 rounded-xl bg-slate-50 border border-slate-200">
+                    <div className="flex items-center justify-between gap-3">
+                      <div>
+                        <p className="text-sm font-semibold text-slate-900">
+                          {child.firstName || t("memberDashboard.childUnnamed")}
+                        </p>
+                        <p className="text-xs text-slate-500">
+                          {age} {t("memberDashboard.childAgeSuffix")} · {genderLabel}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2 shrink-0">
+                        <button
+                          onClick={() => setSportFileChildId(sportFileChildId === child.id ? null : child.id)}
+                          className={`px-2.5 py-1 rounded-full text-[11px] font-bold cursor-pointer ${
+                            sportFileOk
+                              ? "bg-emerald-100 text-emerald-800 hover:bg-emerald-200"
+                              : "bg-sky-100 text-sky-800 hover:bg-sky-200"
+                          }`}
+                        >
+                          {sportFileOk
+                            ? `${t("memberDashboard.sportFileValid")} ${new Date().getFullYear()} ✓`
+                            : t("memberDashboard.sportFileMissing")}
+                        </button>
+                        <button
+                          onClick={() => handleRemoveChild(child.id)}
+                          aria-label={t("memberDashboard.removeChildBtn")}
+                          className="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
                     </div>
-                    <button
-                      onClick={() => handleRemoveChild(child.id)}
-                      aria-label={t("memberDashboard.removeChildBtn")}
-                      className="shrink-0 p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
+                    {sportFileChildId === child.id && (
+                      <ChildSportFileForm
+                        member={member}
+                        child={child}
+                        onCancel={() => setSportFileChildId(null)}
+                        onSaved={(saved) => {
+                          setChildren((prev) => prev.map((c) => (c.id === saved.id ? saved : c)));
+                          setSportFileChildId(null);
+                        }}
+                      />
+                    )}
                   </li>
                 );
               })}
@@ -489,12 +515,19 @@ export const MemberDashboard: React.FC = () => {
                   return child?.firstName || t("memberDashboard.childUnnamed");
                 };
                 const registeredIds = new Set(w.myRegistrations.map((r) => r.childId ?? "self"));
+                const eligibleChildren = children.filter((c) => isEligibleForActivity(w, c));
+                // Sport: an eligible child still needs this year's fiche sportive.
+                const activityYear = new Date(w.startsAt).getFullYear();
+                const needsSportFile =
+                  w.category === "sport"
+                    ? eligibleChildren.filter((c) => !registeredIds.has(c.id) && !hasValidSportFile(c, activityYear))
+                    : [];
                 const eligible = [
                   ...(isEligibleForActivity(w, null)
                     ? [{ value: "self", label: t("memberDashboard.workshopMyself") }]
                     : []),
-                  ...children
-                    .filter((c) => isEligibleForActivity(w, c.birthYear))
+                  ...eligibleChildren
+                    .filter((c) => !needsSportFile.includes(c))
                     .map((c) => ({
                       value: c.id,
                       label: `${c.firstName || t("memberDashboard.childUnnamed")} (${new Date().getFullYear() - c.birthYear} ${t("memberDashboard.childAgeSuffix")})`,
@@ -507,6 +540,8 @@ export const MemberDashboard: React.FC = () => {
                   : candidates[0]?.value || "";
                 const isFull = w.spotsLeft <= 0;
                 const isClosed = !w.registrationsOpen;
+                const membershipBlocked = w.requiresPaidMembership && !isPaid;
+                const dateLocale = lang === "en" ? "en-CA" : "fr-CA";
 
                 return (
                   <li key={w.id} className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
@@ -520,11 +555,21 @@ export const MemberDashboard: React.FC = () => {
                           >
                             {t(ACTIVITY_CATEGORY_LABEL_KEYS[w.category])}
                           </span>
+                          {w.genderRestriction && (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-700">
+                              {t(GENDER_RESTRICTION_LABEL_KEYS[w.genderRestriction])}
+                            </span>
+                          )}
+                          {w.requiresPaidMembership && (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
+                              {t("memberDashboard.workshopMembersOnly")}
+                            </span>
+                          )}
                           {w.title}
                         </p>
                         <p className="text-xs text-slate-600 flex items-center gap-1.5 mt-0.5">
                           <CalendarDays className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
-                          {new Date(w.startsAt).toLocaleString(lang === "en" ? "en-CA" : "fr-CA", {
+                          {new Date(w.startsAt).toLocaleString(dateLocale, {
                             dateStyle: "full",
                             timeStyle: "short",
                           })}
@@ -539,21 +584,39 @@ export const MemberDashboard: React.FC = () => {
                             {ageRange}
                           </p>
                         )}
+                        {w.registrationDeadline && (
+                          <p className="text-xs text-slate-600 flex items-center gap-1.5">
+                            <Clock className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                            {t("memberDashboard.workshopDeadline")}{" "}
+                            {new Date(w.registrationDeadline).toLocaleString(dateLocale, {
+                              dateStyle: "long",
+                              timeStyle: "short",
+                            })}
+                          </p>
+                        )}
+                        {w.feeAmount !== null && (
+                          <p className="text-xs text-slate-600 flex items-center gap-1.5">
+                            <CreditCard className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                            {t("memberDashboard.workshopFeeInfo")
+                              .replace("{amount}", String(w.feeAmount))
+                              .replace("{email}", PAYMENT_INTERAC_INFO.email)}
+                          </p>
+                        )}
                         {w.description && <p className="text-xs text-slate-500 mt-1.5">{w.description}</p>}
                       </div>
                       <span
                         className={`shrink-0 px-2.5 py-1 rounded-full text-[11px] font-bold ${
-                          isFull
-                            ? "bg-red-100 text-red-700"
-                            : isClosed
-                              ? "bg-amber-100 text-amber-800"
+                          isClosed
+                            ? "bg-amber-100 text-amber-800"
+                            : isFull
+                              ? "bg-red-100 text-red-700"
                               : "bg-emerald-100 text-emerald-800"
                         }`}
                       >
-                        {isFull
-                          ? t("memberDashboard.workshopFull")
-                          : isClosed
-                            ? t("memberDashboard.workshopClosed")
+                        {isClosed
+                          ? t("memberDashboard.workshopClosed")
+                          : isFull
+                            ? t("memberDashboard.workshopFullWaitlist")
                             : `${w.spotsLeft} ${t("memberDashboard.workshopSpotsLeft")}`}
                       </span>
                     </div>
@@ -566,9 +629,24 @@ export const MemberDashboard: React.FC = () => {
                         {w.myRegistrations.map((r) => (
                           <span
                             key={r.id}
-                            className="inline-flex items-center gap-1 pl-2.5 pr-1 py-0.5 rounded-full text-xs font-semibold bg-emerald-50 text-emerald-900 border border-emerald-200"
+                            className={`inline-flex items-center gap-1 pl-2.5 pr-1 py-0.5 rounded-full text-xs font-semibold border ${
+                              r.status === "waitlist"
+                                ? "bg-amber-50 text-amber-900 border-amber-200"
+                                : "bg-emerald-50 text-emerald-900 border-emerald-200"
+                            }`}
                           >
                             {personLabel(r.childId)}
+                            {r.status === "waitlist" && (
+                              <span className="font-normal">
+                                · {t("memberDashboard.workshopWaitlisted")}
+                                {r.waitlistPosition}
+                              </span>
+                            )}
+                            {r.status === "confirmed" && w.feeAmount !== null && (
+                              <span className="font-normal">
+                                · {r.feePaid ? t("memberDashboard.workshopFeePaid") : t("memberDashboard.workshopFeeDue")}
+                              </span>
+                            )}
                             <button
                               onClick={() => handleWorkshopUnregister(w.id, r.id)}
                               aria-label={t("memberDashboard.workshopUnregister")}
@@ -582,14 +660,29 @@ export const MemberDashboard: React.FC = () => {
                       </div>
                     )}
 
-                    {candidates.length === 0 ? (
-                      <p className="text-[11px] text-slate-500">
-                        {eligible.length === 0
-                          ? t("memberDashboard.workshopNoEligible")
-                          : t("memberDashboard.workshopAllRegistered")}
+                    {needsSportFile.length > 0 && !isClosed && !membershipBlocked && (
+                      <p className="text-[11px] text-sky-800 bg-sky-50 border border-sky-200 rounded-xl px-3 py-2">
+                        {t("memberDashboard.sportFileNeeded")}{" "}
+                        <strong>
+                          {needsSportFile.map((c) => c.firstName || t("memberDashboard.childUnnamed")).join(", ")}
+                        </strong>
                       </p>
+                    )}
+
+                    {membershipBlocked ? (
+                      <p className="text-[11px] text-amber-900 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
+                        {t("memberDashboard.workshopMembershipRequired")}
+                      </p>
+                    ) : candidates.length === 0 ? (
+                      needsSportFile.length === 0 && (
+                        <p className="text-[11px] text-slate-500">
+                          {eligible.length === 0
+                            ? t("memberDashboard.workshopNoEligible")
+                            : t("memberDashboard.workshopAllRegistered")}
+                        </p>
+                      )
                     ) : (
-                      !isFull && !isClosed && (
+                      !isClosed && (
                         <div className="flex flex-wrap gap-2">
                           <select
                             value={pick}
@@ -608,7 +701,9 @@ export const MemberDashboard: React.FC = () => {
                             className="flex items-center gap-1.5 px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 transition-colors cursor-pointer disabled:opacity-60"
                           >
                             <Plus className="w-3.5 h-3.5" />
-                            <span>{t("memberDashboard.workshopRegisterBtn")}</span>
+                            <span>
+                              {isFull ? t("memberDashboard.workshopWaitlistBtn") : t("memberDashboard.workshopRegisterBtn")}
+                            </span>
                           </button>
                         </div>
                       )

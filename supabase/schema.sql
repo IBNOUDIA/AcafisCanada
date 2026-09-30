@@ -76,6 +76,17 @@ create table if not exists member_children (
 
 create index if not exists member_children_member_id_idx on member_children (member_id);
 
+-- "Fiche sportive": filled once per child by the parent, required before
+-- signing the child up for a sport activity. parental_consent_at is the
+-- moment the parent ticked the consent box; it's valid for that calendar
+-- year only (checked in register_for_workshop), so it's renewed each season.
+alter table member_children add column if not exists emergency_contact_name text;
+alter table member_children add column if not exists emergency_contact_phone text;
+alter table member_children add column if not exists health_notes text;
+alter table member_children add column if not exists jersey_size text;
+alter table member_children add column if not exists photo_consent boolean;
+alter table member_children add column if not exists parental_consent_at timestamptz;
+
 alter table member_children enable row level security;
 
 -- Per-IP rate limiting for public API endpoints (contact, registration,
@@ -153,6 +164,22 @@ alter table workshops add constraint workshops_age_range_check check (
   and (min_age is null or max_age is null or min_age <= max_age)
 );
 
+-- Eligibility and logistics options, all optional:
+--   gender_restriction       : null = mixed, else only children of that gender
+--   registration_deadline    : sign-ups close automatically after this moment
+--   requires_paid_membership : only members whose dues are paid can register
+--   fee_amount               : activity fee in CAD, paid by Interac (tracked
+--                              per registration in workshop_registrations)
+alter table workshops add column if not exists gender_restriction text;
+alter table workshops drop constraint if exists workshops_gender_restriction_check;
+alter table workshops add constraint workshops_gender_restriction_check
+  check (gender_restriction is null or gender_restriction in ('feminin', 'masculin'));
+alter table workshops add column if not exists registration_deadline timestamptz;
+alter table workshops add column if not exists requires_paid_membership boolean not null default false;
+alter table workshops add column if not exists fee_amount numeric(8, 2);
+alter table workshops drop constraint if exists workshops_fee_amount_check;
+alter table workshops add constraint workshops_fee_amount_check check (fee_amount is null or fee_amount >= 0);
+
 create index if not exists workshops_starts_at_idx on workshops (starts_at);
 
 alter table workshops enable row level security;
@@ -172,6 +199,18 @@ create table if not exists workshop_registrations (
 create unique index if not exists workshop_registrations_unique_idx
   on workshop_registrations (workshop_id, member_id, coalesce(child_id, '00000000-0000-0000-0000-000000000000'::uuid));
 
+-- status 'waitlist' = signed up after the activity was full; only
+-- 'confirmed' rows count against capacity. promote_workshop_waitlist below
+-- moves the oldest waitlisted rows up when seats free up.
+alter table workshop_registrations add column if not exists status text not null default 'confirmed';
+alter table workshop_registrations drop constraint if exists workshop_registrations_status_check;
+alter table workshop_registrations add constraint workshop_registrations_status_check
+  check (status in ('confirmed', 'waitlist'));
+-- Set by the Bureau Exécutif: activity fee received, and attendance (null =
+-- not recorded yet).
+alter table workshop_registrations add column if not exists fee_paid boolean not null default false;
+alter table workshop_registrations add column if not exists attended boolean;
+
 create index if not exists workshop_registrations_workshop_idx on workshop_registrations (workshop_id);
 create index if not exists workshop_registrations_member_idx on workshop_registrations (member_id);
 
@@ -179,6 +218,7 @@ alter table workshop_registrations enable row level security;
 
 -- Seat-limited registration in one transaction: locking the workshop row
 -- serializes concurrent sign-ups, so the last seat can't be taken twice.
+-- When the activity is full the seat is taken on the waitlist instead.
 -- Called by the server via supabase.rpc() with the service_role key only.
 create or replace function register_for_workshop(p_workshop_id uuid, p_member_id text, p_child_id uuid)
 returns workshop_registrations
@@ -186,9 +226,12 @@ language plpgsql
 as $$
 declare
   w workshops;
+  c member_children;
   taken integer;
   already integer;
   child_age integer;
+  activity_year integer;
+  dues text;
   reg workshop_registrations;
 begin
   select * into w from workshops where id = p_workshop_id for update;
@@ -201,19 +244,51 @@ begin
   if not w.registrations_open then
     raise exception 'workshop_closed';
   end if;
+  if w.registration_deadline is not null and now() > w.registration_deadline then
+    raise exception 'deadline_passed';
+  end if;
 
-  -- Only birth_year is stored, so a child's age is counted in the activity's
-  -- year. The member themself is an adult: excluded when max_age is under 18.
+  if w.requires_paid_membership then
+    select payment_status into dues from members where member_id = p_member_id;
+    if dues is distinct from 'paid' then
+      raise exception 'membership_unpaid';
+    end if;
+  end if;
+
+  activity_year := extract(year from w.starts_at at time zone 'America/Toronto')::integer;
+
   if p_child_id is null then
+    -- The member themself: an adult (excluded when max_age is under 18), and
+    -- no gender is stored for members, so gendered activities are children-only.
     if w.max_age is not null and w.max_age < 18 then
       raise exception 'age_not_eligible';
     end if;
-  elsif w.min_age is not null or w.max_age is not null then
-    select extract(year from w.starts_at at time zone 'America/Toronto')::integer - birth_year
-      into child_age from member_children where id = p_child_id;
+    if w.gender_restriction is not null then
+      raise exception 'gender_not_eligible';
+    end if;
+  else
+    select * into c from member_children where id = p_child_id and member_id = p_member_id;
+    if not found then
+      raise exception 'child_not_found';
+    end if;
+
+    -- Only birth_year is stored, so a child's age is counted in the activity's year.
+    child_age := activity_year - c.birth_year;
     if (w.min_age is not null and child_age < w.min_age)
       or (w.max_age is not null and child_age > w.max_age) then
       raise exception 'age_not_eligible';
+    end if;
+    if w.gender_restriction is not null and c.gender <> w.gender_restriction then
+      raise exception 'gender_not_eligible';
+    end if;
+
+    -- Sport: the child's fiche sportive must be filled and consented this year.
+    if w.category = 'sport' and (
+      c.parental_consent_at is null
+      or extract(year from c.parental_consent_at at time zone 'America/Toronto')::integer <> activity_year
+      or coalesce(c.emergency_contact_phone, '') = ''
+    ) then
+      raise exception 'sport_file_missing';
     end if;
   end if;
 
@@ -230,13 +305,12 @@ begin
     raise exception 'already_registered';
   end if;
 
-  select count(*) into taken from workshop_registrations where workshop_id = p_workshop_id;
-  if taken >= w.capacity then
-    raise exception 'workshop_full';
-  end if;
+  select count(*) into taken from workshop_registrations
+    where workshop_id = p_workshop_id and status = 'confirmed';
 
-  insert into workshop_registrations (workshop_id, member_id, child_id)
-  values (p_workshop_id, p_member_id, p_child_id)
+  insert into workshop_registrations (workshop_id, member_id, child_id, status)
+  values (p_workshop_id, p_member_id, p_child_id,
+          case when taken >= w.capacity then 'waitlist' else 'confirmed' end)
   returning * into reg;
   return reg;
 exception
@@ -246,3 +320,43 @@ end;
 $$;
 
 revoke execute on function register_for_workshop(uuid, text, uuid) from public, anon, authenticated;
+
+-- Fills freed seats from the waitlist, oldest sign-up first. Called by the
+-- server after a cancellation, a removal or a capacity increase; returns the
+-- promoted rows so their families can be emailed.
+create or replace function promote_workshop_waitlist(p_workshop_id uuid)
+returns setof workshop_registrations
+language plpgsql
+as $$
+declare
+  w workshops;
+  free_seats integer;
+  reg workshop_registrations;
+begin
+  select * into w from workshops where id = p_workshop_id for update;
+  if not found or w.starts_at < now() then
+    return;
+  end if;
+
+  select w.capacity - count(*) into free_seats from workshop_registrations
+    where workshop_id = p_workshop_id and status = 'confirmed';
+  if free_seats <= 0 then
+    return;
+  end if;
+
+  for reg in
+    update workshop_registrations set status = 'confirmed'
+    where id in (
+      select id from workshop_registrations
+      where workshop_id = p_workshop_id and status = 'waitlist'
+      order by created_at, id
+      limit free_seats
+    )
+    returning *
+  loop
+    return next reg;
+  end loop;
+end;
+$$;
+
+revoke execute on function promote_workshop_waitlist(uuid) from public, anon, authenticated;

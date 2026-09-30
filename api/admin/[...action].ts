@@ -15,6 +15,7 @@ import {
   handleAdminWorkshopRemove,
   handleAdminWorkshopUpdate,
   handleAdminWorkshopRegistrationRemove,
+  handleAdminWorkshopRegistrationUpdate,
 } from "../../src/server/adminHandlers.js";
 import { getClientIp } from "../../src/server/requestIp.js";
 
@@ -112,6 +113,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
     case "workshops-registration-remove": {
       const result = await handleAdminWorkshopRegistrationRemove(body);
+      res.status(result.status).json(result.body);
+      return;
+    }
+    case "workshops-registration-update": {
+      const result = await handleAdminWorkshopRegistrationUpdate(body);
       res.status(result.status).json(result.body);
       return;
     }

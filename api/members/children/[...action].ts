@@ -3,6 +3,7 @@ import {
   handleMemberChildrenList,
   handleMemberChildAdd,
   handleMemberChildRemove,
+  handleMemberChildSportFile,
 } from "../../../src/server/handlers.js";
 import { getClientIp } from "../../../src/server/requestIp.js";
 
@@ -36,6 +37,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
     case "remove": {
       const result = await handleMemberChildRemove(body, ip);
+      res.status(result.status).json(result.body);
+      return;
+    }
+    case "sport-file": {
+      const result = await handleMemberChildSportFile(body, ip);
       res.status(result.status).json(result.body);
       return;
     }

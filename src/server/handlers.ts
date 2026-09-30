@@ -4,9 +4,10 @@
  */
 
 import { GoogleGenAI } from "@google/genai";
-import { Resend } from "resend";
 import { createHmac, timingSafeEqual } from "crypto";
 import { getSupabaseClient } from "./supabaseClient.js";
+import { getResendClient, EMAIL_FROM } from "./email.js";
+import { promoteWaitlist } from "./waitlist.js";
 import { checkRateLimit, RATE_LIMIT_ERROR } from "./rateLimit.js";
 import { isValidEmail } from "./validation.js";
 
@@ -26,15 +27,6 @@ function getGeminiClient(): GoogleGenAI | null {
   return genAI;
 }
 
-// Lazy Resend client initialization
-let resendClient: Resend | null = null;
-function getResendClient(): Resend | null {
-  if (!resendClient && process.env.RESEND_API_KEY) {
-    resendClient = new Resend(process.env.RESEND_API_KEY);
-  }
-  return resendClient;
-}
-
 // TEMPORAIRE (en attendant l'achat et la verification du domaine acafis.ca) :
 // sur decision du bureau, les deux formulaires sont routes vers le courriel du
 // president Moustapha Sane le temps de la transition, avant de revenir aux
@@ -42,7 +34,6 @@ function getResendClient(): Resend | null {
 // resend.com/domains.
 const CONTACT_TO_EMAIL = process.env.CONTACT_TO_EMAIL || "taphasane1910@gmail.com"; // officiel : infos@acafis.ca
 const MEMBERSHIP_TO_EMAIL = process.env.MEMBERSHIP_TO_EMAIL || "taphasane1910@gmail.com"; // officiel : acafisfinance2@gmail.com
-const EMAIL_FROM = process.env.RESEND_FROM_EMAIL || "ACAFIS Canada <onboarding@resend.dev>";
 
 interface HandlerResult<T> {
   status: number;
@@ -752,6 +743,14 @@ function mapChildRow(row: Record<string, any>): Record<string, unknown> {
     firstName: row.first_name,
     birthYear: row.birth_year,
     gender: row.gender,
+    sportFile: {
+      emergencyContactName: row.emergency_contact_name ?? "",
+      emergencyContactPhone: row.emergency_contact_phone ?? "",
+      healthNotes: row.health_notes ?? "",
+      jerseySize: row.jersey_size ?? "",
+      photoConsent: row.photo_consent ?? false,
+      parentalConsentAt: row.parental_consent_at ?? null,
+    },
   };
 }
 
@@ -869,9 +868,79 @@ export async function handleMemberChildRemove(
   return { status: 200, body: { success: true } };
 }
 
+export interface MemberChildSportFileBody {
+  email?: string;
+  memberId?: string;
+  childId?: string;
+  emergencyContactName?: string;
+  emergencyContactPhone?: string;
+  healthNotes?: string;
+  jerseySize?: string;
+  photoConsent?: boolean;
+  parentalConsent?: boolean;
+}
+
+// Same list as src/lib/activity.ts (the form's dropdown).
+const JERSEY_SIZES = ["YXS", "YS", "YM", "YL", "S", "M", "L", "XL"];
+
+// Saves a child's fiche sportive. Ticking the parental consent box stamps
+// parental_consent_at with today, which register_for_workshop accepts for
+// sport activities of the same calendar year.
+export async function handleMemberChildSportFile(
+  data: MemberChildSportFileBody,
+  ip: string
+): Promise<HandlerResult<{ child?: Record<string, unknown>; error?: string }>> {
+  const verification = await verifyMember(data.email, data.memberId, ip);
+  if (verification.status !== 200) {
+    return { status: verification.status, body: { error: verification.body.error } };
+  }
+
+  if (!data.childId) {
+    return { status: 400, body: { error: "Identifiant d'enfant requis" } };
+  }
+  if (!data.emergencyContactName?.trim() || !data.emergencyContactPhone?.trim()) {
+    return { status: 400, body: { error: "Le nom et le téléphone du contact d'urgence sont requis." } };
+  }
+  if (data.jerseySize && !JERSEY_SIZES.includes(data.jerseySize)) {
+    return { status: 400, body: { error: "Taille de maillot invalide." } };
+  }
+  if (!data.parentalConsent) {
+    return { status: 400, body: { error: "L'autorisation parentale est requise." } };
+  }
+
+  const memberRecord = verification.body.member!;
+  const supabase = getSupabaseClient()!;
+  // Scoped to member_id so a member can only ever edit their own children.
+  const { data: row, error } = await supabase
+    .from("member_children")
+    .update({
+      emergency_contact_name: data.emergencyContactName.trim().slice(0, 120),
+      emergency_contact_phone: data.emergencyContactPhone.trim().slice(0, 40),
+      health_notes: data.healthNotes?.trim().slice(0, 1000) || null,
+      jersey_size: data.jerseySize || null,
+      photo_consent: Boolean(data.photoConsent),
+      parental_consent_at: new Date().toISOString(),
+    })
+    .eq("id", data.childId)
+    .eq("member_id", memberRecord.memberId as string)
+    .select()
+    .maybeSingle();
+
+  if (error) {
+    console.error("Supabase member_children sport file update failed:", error);
+    return { status: 500, body: { error: "Erreur serveur, réessayez dans un instant." } };
+  }
+  if (!row) {
+    return { status: 404, body: { error: "Enfant introuvable dans votre recensement familial." } };
+  }
+
+  return { status: 200, body: { child: mapChildRow(row) } };
+}
+
 // ---------------------------------------------------------------------------
-// nTIC workshops — members sign up themselves and/or their declared children.
-// Workshops themselves are created by the Bureau Exécutif (adminHandlers.ts).
+// Activities (nTIC workshops, soccer...) — members sign up themselves and/or
+// their declared children. Activities themselves are created by the Bureau
+// Exécutif (adminHandlers.ts).
 // ---------------------------------------------------------------------------
 
 export interface MemberWorkshopsListBody {
@@ -892,7 +961,7 @@ export async function handleMemberWorkshopsList(
   const supabase = getSupabaseClient()!;
   const { data: rows, error } = await supabase
     .from("workshops")
-    .select("*, workshop_registrations (id, member_id, child_id)")
+    .select("*, workshop_registrations (id, member_id, child_id, status, created_at, fee_paid)")
     .gte("starts_at", new Date().toISOString())
     .order("starts_at", { ascending: true });
 
@@ -906,6 +975,12 @@ export async function handleMemberWorkshopsList(
     body: {
       workshops: (rows || []).map((row: Record<string, any>) => {
         const registrations: Array<Record<string, any>> = row.workshop_registrations || [];
+        const confirmed = registrations.filter((r) => r.status !== "waitlist");
+        // Same order promote_workshop_waitlist uses, so positions are accurate.
+        const waitlist = registrations
+          .filter((r) => r.status === "waitlist")
+          .sort((a, b) => a.created_at.localeCompare(b.created_at) || a.id.localeCompare(b.id));
+        const deadline: string | null = row.registration_deadline ?? null;
         return {
           id: row.id,
           title: row.title,
@@ -913,16 +988,29 @@ export async function handleMemberWorkshopsList(
           startsAt: row.starts_at,
           location: row.location,
           capacity: row.capacity,
-          spotsLeft: Math.max(0, row.capacity - registrations.length),
+          spotsLeft: Math.max(0, row.capacity - confirmed.length),
+          waitlistCount: waitlist.length,
           // `!== false` so a database not yet migrated (no column) reads as open.
-          registrationsOpen: row.registrations_open !== false,
+          // A passed deadline reads as closed, like the check in register_for_workshop.
+          registrationsOpen:
+            row.registrations_open !== false && (!deadline || new Date(deadline).getTime() > Date.now()),
+          registrationDeadline: deadline,
           category: row.category ?? "ntic",
           minAge: row.min_age ?? null,
           maxAge: row.max_age ?? null,
+          genderRestriction: row.gender_restriction ?? null,
+          requiresPaidMembership: row.requires_paid_membership === true,
+          feeAmount: row.fee_amount === null || row.fee_amount === undefined ? null : Number(row.fee_amount),
           // Only this member's own seats — other families' sign-ups stay private.
           myRegistrations: registrations
             .filter((r) => r.member_id === memberRecord.memberId)
-            .map((r) => ({ id: r.id, childId: r.child_id })),
+            .map((r) => ({
+              id: r.id,
+              childId: r.child_id,
+              status: r.status === "waitlist" ? "waitlist" : "confirmed",
+              waitlistPosition: r.status === "waitlist" ? waitlist.findIndex((x) => x.id === r.id) + 1 : null,
+              feePaid: r.fee_paid === true,
+            })),
         };
       }),
     },
@@ -940,8 +1028,21 @@ const WORKSHOP_RPC_ERRORS: Record<string, { status: number; error: string }> = {
   workshop_not_found: { status: 404, error: "Activité introuvable." },
   workshop_past: { status: 400, error: "Cette activité est déjà passée." },
   workshop_closed: { status: 409, error: "Les inscriptions à cette activité sont fermées." },
-  workshop_full: { status: 409, error: "Cette activité est complète." },
+  deadline_passed: { status: 409, error: "La date limite d'inscription à cette activité est passée." },
+  membership_unpaid: {
+    status: 403,
+    error: "Cette activité est réservée aux membres en règle : votre cotisation annuelle doit être payée.",
+  },
   age_not_eligible: { status: 400, error: "Cette personne n'est pas dans la tranche d'âge de l'activité." },
+  gender_not_eligible: {
+    status: 400,
+    error: "Cette activité est réservée aux filles ou aux garçons : cette personne ne correspond pas à l'équipe.",
+  },
+  sport_file_missing: {
+    status: 400,
+    error: "Complétez d'abord la fiche sportive de l'enfant (contact d'urgence et autorisation parentale de l'année).",
+  },
+  child_not_found: { status: 400, error: "Enfant introuvable dans votre recensement familial." },
   already_registered: { status: 409, error: "Cette personne est déjà inscrite à cette activité." },
 };
 
@@ -991,7 +1092,10 @@ export async function handleMemberWorkshopRegister(
     return { status: 500, body: { error: "Erreur serveur, réessayez dans un instant." } };
   }
 
-  return { status: 200, body: { registration: { id: row.id, childId: row.child_id } } };
+  return {
+    status: 200,
+    body: { registration: { id: row.id, childId: row.child_id, status: row.status, feePaid: row.fee_paid === true } },
+  };
 }
 
 export interface MemberWorkshopUnregisterBody {
@@ -1016,15 +1120,21 @@ export async function handleMemberWorkshopUnregister(
   const memberRecord = verification.body.member!;
   const supabase = getSupabaseClient()!;
   // Scoped to member_id so a member can only ever cancel their own seats.
-  const { error } = await supabase
+  const { data: deleted, error } = await supabase
     .from("workshop_registrations")
     .delete()
     .eq("id", data.registrationId)
-    .eq("member_id", memberRecord.memberId as string);
+    .eq("member_id", memberRecord.memberId as string)
+    .select("workshop_id, status");
 
   if (error) {
     console.error("Supabase workshop_registrations delete failed:", error);
     return { status: 500, body: { error: "Erreur serveur, réessayez dans un instant." } };
+  }
+
+  // A freed confirmed seat goes to the first family on the waitlist.
+  if (deleted?.[0]?.status === "confirmed") {
+    await promoteWaitlist(deleted[0].workshop_id);
   }
 
   return { status: 200, body: { success: true } };

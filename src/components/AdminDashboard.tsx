@@ -18,13 +18,27 @@ import {
   Lock,
   LockOpen,
   Download,
-  X,
 } from "lucide-react";
 import { useTranslation } from "../i18n/translations";
 import { useLanguage } from "../i18n/LanguageContext";
 import { ADMIN_SESSION_KEY, AdminSession } from "../lib/adminSession";
-import { ACTIVITY_CATEGORIES, ACTIVITY_CATEGORY_LABEL_KEYS, formatAgeRange } from "../lib/activity";
+import {
+  ACTIVITY_CATEGORIES,
+  ACTIVITY_CATEGORY_LABEL_KEYS,
+  GENDER_RESTRICTION_LABEL_KEYS,
+  formatAgeRange,
+} from "../lib/activity";
 import type { WorkshopCategory } from "../types";
+import {
+  ActivityOptionsFields,
+  ActivityOptionsForm,
+  AdminRegistration,
+  AdminRegistrationRow,
+  EMPTY_ACTIVITY_OPTIONS,
+  activityOptionsFrom,
+  activityOptionsPayload,
+  toDateTimeLocal,
+} from "./AdminActivityParts";
 
 interface AdminMember {
   memberId: string;
@@ -63,23 +77,15 @@ interface AdminWorkshop {
   category: WorkshopCategory;
   minAge: number | null;
   maxAge: number | null;
-  registrations: Array<{
-    id: string;
-    memberName: string;
-    memberEmail: string;
-    child: { firstName: string | null; age: number } | null;
-  }>;
+  genderRestriction: "feminin" | "masculin" | null;
+  registrationDeadline: string | null;
+  requiresPaidMembership: boolean;
+  feeAmount: number | null;
+  // Confirmed seats first, then the waitlist in promotion order (server-sorted).
+  registrations: AdminRegistration[];
 }
 
 type Tab = "members" | "family" | "workshops" | "documents" | "settings";
-
-// datetime-local inputs take local wall-clock time with no timezone, so an
-// ISO timestamp from the server has to be shifted before prefilling one.
-function toDateTimeLocal(iso: string): string {
-  const d = new Date(iso);
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
-}
 
 // Empty age field = no limit.
 function ageLimit(value: string): number | null {
@@ -121,6 +127,7 @@ export const AdminDashboard: React.FC = () => {
   const [wsCategory, setWsCategory] = useState<WorkshopCategory>("ntic");
   const [wsMinAge, setWsMinAge] = useState("");
   const [wsMaxAge, setWsMaxAge] = useState("");
+  const [wsOptions, setWsOptions] = useState<ActivityOptionsForm>(EMPTY_ACTIVITY_OPTIONS);
   const [wsError, setWsError] = useState("");
   const [editingWorkshopId, setEditingWorkshopId] = useState<string | null>(null);
   const [editWs, setEditWs] = useState({
@@ -132,6 +139,7 @@ export const AdminDashboard: React.FC = () => {
     category: "ntic" as WorkshopCategory,
     minAge: "",
     maxAge: "",
+    options: EMPTY_ACTIVITY_OPTIONS,
   });
   const [wsActionError, setWsActionError] = useState<Record<string, string>>({});
 
@@ -188,6 +196,12 @@ export const AdminDashboard: React.FC = () => {
       .then((data) => setDocuments(data.documents || []))
       .catch(() => {});
 
+    loadWorkshops(token);
+  }, [session]);
+
+  // Also re-run after actions that can move the waitlist (removing a seat,
+  // raising capacity), since promotions happen server-side.
+  const loadWorkshops = (token: string) => {
     fetch("/api/admin/workshops-list", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -196,7 +210,7 @@ export const AdminDashboard: React.FC = () => {
       .then((res) => (res.ok ? res.json() : Promise.reject()))
       .then((data) => setWorkshops(data.workshops || []))
       .catch(() => {});
-  }, [session]);
+  };
 
   const handleLogout = () => {
     localStorage.removeItem(ADMIN_SESSION_KEY);
@@ -333,6 +347,7 @@ export const AdminDashboard: React.FC = () => {
           category: wsCategory,
           minAge: ageLimit(wsMinAge),
           maxAge: ageLimit(wsMaxAge),
+          ...activityOptionsPayload(wsOptions),
         }),
       });
       const data = await response.json();
@@ -347,6 +362,7 @@ export const AdminDashboard: React.FC = () => {
         setWsCapacity("");
         setWsMinAge("");
         setWsMaxAge("");
+        setWsOptions(EMPTY_ACTIVITY_OPTIONS);
       } else {
         setWsError(data.error || t("admin.errorGeneric"));
       }
@@ -397,6 +413,7 @@ export const AdminDashboard: React.FC = () => {
       category: w.category,
       minAge: w.minAge === null ? "" : String(w.minAge),
       maxAge: w.maxAge === null ? "" : String(w.maxAge),
+      options: activityOptionsFrom(w),
     });
     setWsActionError((prev) => ({ ...prev, [w.id]: "" }));
   };
@@ -410,6 +427,7 @@ export const AdminDashboard: React.FC = () => {
     const capacity = Number(editWs.capacity);
     const minAge = ageLimit(editWs.minAge);
     const maxAge = ageLimit(editWs.maxAge);
+    const options = activityOptionsPayload(editWs.options);
     const ok = await updateWorkshop(id, {
       title: editWs.title,
       description: editWs.description,
@@ -419,28 +437,33 @@ export const AdminDashboard: React.FC = () => {
       category: editWs.category,
       minAge,
       maxAge,
+      ...options,
     });
     if (!ok) return;
-    setWorkshops((prev) =>
-      prev
-        .map((w) =>
-          w.id === id
-            ? {
-                ...w,
-                title: editWs.title.trim(),
-                description: editWs.description.trim() || null,
-                startsAt,
-                location: editWs.location.trim(),
-                capacity,
-                category: editWs.category,
-                minAge,
-                maxAge,
-              }
-            : w
-        )
-        .sort((a, b) => b.startsAt.localeCompare(a.startsAt))
-    );
     setEditingWorkshopId(null);
+    // Refetch rather than patch locally: a capacity increase may have
+    // promoted waitlisted families server-side.
+    if (session) loadWorkshops(session.token);
+  };
+
+  const updateRegistration = async (
+    workshopId: string,
+    registrationId: string,
+    fields: { feePaid?: boolean; attended?: boolean | null }
+  ) => {
+    if (!session) return;
+    setWorkshops((prev) =>
+      prev.map((w) =>
+        w.id === workshopId
+          ? { ...w, registrations: w.registrations.map((r) => (r.id === registrationId ? { ...r, ...fields } : r)) }
+          : w
+      )
+    );
+    await fetch("/api/admin/workshops-registration-update", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: session.token, id: registrationId, ...fields }),
+    }).catch(() => {});
   };
 
   const toggleWorkshopRegistrations = async (w: AdminWorkshop) => {
@@ -462,16 +485,44 @@ export const AdminDashboard: React.FC = () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ token: session.token, id: registrationId }),
     }).catch(() => {});
+    // The freed seat may have gone to the first family on the waitlist.
+    loadWorkshops(session.token);
   };
 
   const exportWorkshopCsv = (w: AdminWorkshop) => {
-    const header = [t("admin.csvParticipant"), t("admin.csvAge"), t("admin.csvMember"), t("admin.colEmail")];
-    const rows = w.registrations.map((r) => [
-      r.child ? r.child.firstName || t("memberDashboard.childUnnamed") : r.memberName,
-      r.child ? String(r.child.age) : "",
-      r.memberName,
-      r.memberEmail,
-    ]);
+    const yesNo = (value: boolean | null) =>
+      value === null ? "" : value ? t("admin.csvYes") : t("admin.csvNo");
+    const header = [
+      t("admin.csvParticipant"),
+      t("admin.csvAge"),
+      t("admin.csvStatus"),
+      t("admin.csvMember"),
+      t("admin.colEmail"),
+      t("admin.colPhone"),
+      t("admin.csvEmergency"),
+      t("admin.csvHealth"),
+      t("admin.csvJersey"),
+      t("admin.csvPhoto"),
+      t("admin.csvFeePaid"),
+      t("admin.csvAttended"),
+    ];
+    const rows = w.registrations.map((r) => {
+      const file = r.child?.sportFile;
+      return [
+        r.child ? r.child.firstName || t("memberDashboard.childUnnamed") : r.memberName,
+        r.child ? String(r.child.age) : "",
+        r.status === "waitlist" ? t("admin.workshopWaitlist") : t("admin.csvConfirmed"),
+        r.memberName,
+        r.memberEmail,
+        r.memberPhone,
+        file?.emergencyContactPhone ? `${file.emergencyContactName} ${file.emergencyContactPhone}` : "",
+        file?.healthNotes || "",
+        file?.jerseySize || "",
+        r.child ? yesNo(file?.photoConsent ?? false) : "",
+        w.feeAmount !== null ? yesNo(r.feePaid) : "",
+        yesNo(r.attended),
+      ];
+    });
     const csv = [header, ...rows].map((row) => row.map(csvCell).join(",")).join("\r\n");
     // BOM so Excel opens the accents correctly.
     const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
@@ -767,6 +818,10 @@ export const AdminDashboard: React.FC = () => {
                 {workshops.map((w) => {
                   const isPast = new Date(w.startsAt).getTime() < Date.now();
                   const isEditing = editingWorkshopId === w.id;
+                  const confirmedCount = w.registrations.filter((r) => r.status === "confirmed").length;
+                  const waitlistIds = w.registrations.filter((r) => r.status === "waitlist").map((r) => r.id);
+                  const attendedCount = w.registrations.filter((r) => r.attended === true).length;
+                  const dateLocale = lang === "en" ? "en-CA" : "fr-CA";
                   return (
                     <li key={w.id} className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
                       {isEditing ? (
@@ -805,7 +860,7 @@ export const AdminDashboard: React.FC = () => {
                             <input
                               type="number"
                               required
-                              min={Math.max(1, w.registrations.length)}
+                              min={Math.max(1, confirmedCount)}
                               value={editWs.capacity}
                               onChange={(e) => setEditWs((prev) => ({ ...prev, capacity: e.target.value }))}
                               placeholder={t("admin.workshopCapacityLabel")}
@@ -842,6 +897,11 @@ export const AdminDashboard: React.FC = () => {
                               className="px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white"
                             />
                           </div>
+                          <ActivityOptionsFields
+                            value={editWs.options}
+                            onChange={(options) => setEditWs((prev) => ({ ...prev, options }))}
+                            inputClassName="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white"
+                          />
                           <div className="flex items-center gap-2">
                             <button
                               type="submit"
@@ -869,6 +929,16 @@ export const AdminDashboard: React.FC = () => {
                             >
                               {t(ACTIVITY_CATEGORY_LABEL_KEYS[w.category])}
                             </span>
+                            {w.genderRestriction && (
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-700">
+                                {t(GENDER_RESTRICTION_LABEL_KEYS[w.genderRestriction])}
+                              </span>
+                            )}
+                            {w.requiresPaidMembership && (
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
+                                {t("memberDashboard.workshopMembersOnly")}
+                              </span>
+                            )}
                             {w.title}
                             {isPast && (
                               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-600">
@@ -898,17 +968,47 @@ export const AdminDashboard: React.FC = () => {
                               {formatAgeRange(w.minAge, w.maxAge, t)}
                             </p>
                           )}
+                          {w.registrationDeadline && (
+                            <p className="text-xs text-slate-600 flex items-center gap-1.5">
+                              <Clock className="w-3.5 h-3.5 shrink-0" />
+                              {t("memberDashboard.workshopDeadline")}{" "}
+                              {new Date(w.registrationDeadline).toLocaleString(dateLocale, {
+                                dateStyle: "long",
+                                timeStyle: "short",
+                              })}
+                            </p>
+                          )}
+                          {w.feeAmount !== null && (
+                            <p className="text-xs text-slate-600 flex items-center gap-1.5">
+                              <CheckCircle2 className="w-3.5 h-3.5 shrink-0" />
+                              {t("admin.workshopFeeShort")} {w.feeAmount} $ ·{" "}
+                              {w.registrations.filter((r) => r.status === "confirmed" && r.feePaid).length}/{confirmedCount}{" "}
+                              {t("admin.workshopFeePaid").toLowerCase()}
+                            </p>
+                          )}
                           {w.description && <p className="text-xs text-slate-500 mt-1">{w.description}</p>}
                         </div>
                         <div className="flex items-center gap-2 shrink-0">
-                          <span
-                            className={`px-2.5 py-1 rounded-full text-[11px] font-bold ${
-                              w.registrations.length >= w.capacity
-                                ? "bg-red-100 text-red-700"
-                                : "bg-emerald-100 text-emerald-800"
-                            }`}
-                          >
-                            {w.registrations.length}/{w.capacity} {t("admin.workshopSeats")}
+                          <span className="flex flex-col items-end gap-1">
+                            <span
+                              className={`px-2.5 py-1 rounded-full text-[11px] font-bold ${
+                                confirmedCount >= w.capacity
+                                  ? "bg-red-100 text-red-700"
+                                  : "bg-emerald-100 text-emerald-800"
+                              }`}
+                            >
+                              {confirmedCount}/{w.capacity} {t("admin.workshopSeats")}
+                            </span>
+                            {waitlistIds.length > 0 && (
+                              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
+                                +{waitlistIds.length} {t("admin.workshopWaitlist").toLowerCase()}
+                              </span>
+                            )}
+                            {isPast && confirmedCount > 0 && (
+                              <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-700">
+                                {attendedCount}/{confirmedCount} {t("admin.workshopAttendanceCount")}
+                              </span>
+                            )}
                           </span>
                           {!isPast && (
                             <button
@@ -961,25 +1061,16 @@ export const AdminDashboard: React.FC = () => {
                       ) : (
                         <ul className="divide-y divide-slate-200 border-t border-slate-200 text-xs">
                           {w.registrations.map((r) => (
-                            <li key={r.id} className="py-1.5 flex flex-wrap items-center justify-between gap-2">
-                              <span className="font-semibold text-slate-800">
-                                {r.child
-                                  ? `${r.child.firstName || t("memberDashboard.childUnnamed")} (${r.child.age} ${t("memberDashboard.childAgeSuffix")})`
-                                  : r.memberName}
-                              </span>
-                              <span className="text-slate-500">
-                                {r.child ? `${r.memberName} · ` : `${t("admin.workshopSelf")} · `}
-                                {r.memberEmail}
-                                <button
-                                  onClick={() => handleRemoveRegistration(w.id, r.id)}
-                                  title={t("admin.workshopRegistrationRemove")}
-                                  aria-label={t("admin.workshopRegistrationRemove")}
-                                  className="ml-2 p-0.5 rounded-full text-slate-400 hover:text-red-600 hover:bg-red-50 align-middle cursor-pointer"
-                                >
-                                  <X className="w-3.5 h-3.5" />
-                                </button>
-                              </span>
-                            </li>
+                            <AdminRegistrationRow
+                              key={r.id}
+                              registration={r}
+                              category={w.category}
+                              hasFee={w.feeAmount !== null}
+                              isPast={isPast}
+                              waitlistPosition={r.status === "waitlist" ? waitlistIds.indexOf(r.id) + 1 : null}
+                              onUpdate={(fields) => updateRegistration(w.id, r.id, fields)}
+                              onRemove={() => handleRemoveRegistration(w.id, r.id)}
+                            />
                           ))}
                         </ul>
                       )}
@@ -1061,6 +1152,11 @@ export const AdminDashboard: React.FC = () => {
                   className="px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-hidden focus:border-slate-600 focus:ring-1 focus:ring-slate-600"
                 />
               </div>
+              <ActivityOptionsFields
+                value={wsOptions}
+                onChange={setWsOptions}
+                inputClassName="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm focus:outline-hidden focus:border-slate-600 focus:ring-1 focus:ring-slate-600"
+              />
               {wsError && (
                 <p className="text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded-xl px-3.5 py-2.5">
                   {wsError}
