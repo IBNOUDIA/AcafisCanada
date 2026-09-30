@@ -369,3 +369,77 @@ end;
 $$;
 
 revoke execute on function promote_workshop_waitlist(uuid) from public, anon, authenticated;
+
+-- ---------------------------------------------------------------------------
+-- Member surveys (sondages), created by the Bureau Exécutif. Questions are
+-- JSON (shape: src/lib/surveys.ts) and frozen once the survey is published.
+-- ---------------------------------------------------------------------------
+create table if not exists surveys (
+  id uuid primary key default gen_random_uuid(),
+  title text not null,
+  description text,
+  questions jsonb not null default '[]'::jsonb,
+  is_anonymous boolean not null default false,
+  -- Members can see the aggregated results once the survey is closed.
+  results_visible boolean not null default false,
+  status text not null default 'draft' check (status in ('draft', 'open', 'closed')),
+  closes_at timestamptz,
+  published_at timestamptz,
+  created_at timestamptz not null default now()
+);
+
+alter table surveys enable row level security;
+
+-- Who took part (one row per member and survey: enforces a single answer and
+-- gives the participation rate), kept apart from what they answered.
+create table if not exists survey_participants (
+  survey_id uuid not null references surveys (id) on delete cascade,
+  member_id text not null references members (member_id) on delete cascade,
+  submitted_at timestamptz not null default now(),
+  primary key (survey_id, member_id)
+);
+
+alter table survey_participants enable row level security;
+
+-- What was answered. member_id is null for anonymous surveys, and there's
+-- deliberately no timestamp, so an anonymous response can't be matched to a
+-- participant by submission time.
+create table if not exists survey_responses (
+  id uuid primary key default gen_random_uuid(),
+  survey_id uuid not null references surveys (id) on delete cascade,
+  member_id text references members (member_id) on delete cascade,
+  answers jsonb not null
+);
+
+create index if not exists survey_responses_survey_idx on survey_responses (survey_id);
+
+alter table survey_responses enable row level security;
+
+-- Records participation and the response together, so a member can never end
+-- up counted without an answer (or answer twice). Answers are validated by the
+-- server beforehand (src/lib/surveys.ts). service_role only.
+create or replace function submit_survey_response(p_survey_id uuid, p_member_id text, p_answers jsonb)
+returns void
+language plpgsql
+as $$
+declare
+  s surveys;
+begin
+  select * into s from surveys where id = p_survey_id for share;
+  if not found then
+    raise exception 'survey_not_found';
+  end if;
+  if s.status <> 'open' or (s.closes_at is not null and now() > s.closes_at) then
+    raise exception 'survey_closed';
+  end if;
+
+  insert into survey_participants (survey_id, member_id) values (p_survey_id, p_member_id);
+  insert into survey_responses (survey_id, member_id, answers)
+  values (p_survey_id, case when s.is_anonymous then null else p_member_id end, p_answers);
+exception
+  when unique_violation then
+    raise exception 'already_answered';
+end;
+$$;
+
+revoke execute on function submit_survey_response(uuid, text, jsonb) from public, anon, authenticated;

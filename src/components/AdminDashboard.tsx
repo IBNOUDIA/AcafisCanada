@@ -19,7 +19,9 @@ import {
   LockOpen,
   Download,
   Mail,
+  ClipboardList,
 } from "lucide-react";
+import { AdminSurveys } from "./surveys/AdminSurveys";
 import { useTranslation } from "../i18n/translations";
 import { useLanguage } from "../i18n/LanguageContext";
 import { ADMIN_SESSION_KEY, AdminSession } from "../lib/adminSession";
@@ -89,7 +91,7 @@ interface AdminWorkshop {
   registrations: AdminRegistration[];
 }
 
-type Tab = "members" | "family" | "workshops" | "documents" | "settings";
+type Tab = "members" | "family" | "workshops" | "surveys" | "documents" | "settings";
 
 // Empty age field = no limit.
 function ageLimit(value: string): number | null {
@@ -621,6 +623,7 @@ export const AdminDashboard: React.FC = () => {
     { id: "members", label: t("admin.tabMembers"), icon: <Users className="w-4 h-4" /> },
     { id: "family", label: t("admin.tabFamily"), icon: <Baby className="w-4 h-4" /> },
     { id: "workshops", label: t("admin.tabWorkshops"), icon: <Laptop className="w-4 h-4" /> },
+    { id: "surveys", label: t("admin.tabSurveys"), icon: <ClipboardList className="w-4 h-4" /> },
     { id: "documents", label: t("admin.tabDocuments"), icon: <FileText className="w-4 h-4" /> },
     { id: "settings", label: t("admin.tabSettings"), icon: <Settings className="w-4 h-4" /> },
   ];
@@ -1277,6 +1280,8 @@ export const AdminDashboard: React.FC = () => {
             </form>
           </div>
         )}
+
+        {tab === "surveys" && <AdminSurveys token={session.token} />}
 
         {tab === "documents" && (
           <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 space-y-4">

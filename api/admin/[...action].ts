@@ -18,6 +18,13 @@ import {
   handleAdminWorkshopRegistrationRemove,
   handleAdminWorkshopRegistrationUpdate,
 } from "../../src/server/adminHandlers.js";
+import {
+  handleAdminSurveysList,
+  handleAdminSurveySave,
+  handleAdminSurveySetStatus,
+  handleAdminSurveyDelete,
+  handleAdminSurveyResults,
+} from "../../src/server/surveyHandlers.js";
 import { getClientIp } from "../../src/server/requestIp.js";
 
 // A single catch-all function for every /api/admin/* route — the Vercel
@@ -124,6 +131,31 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
     case "workshops-registration-update": {
       const result = await handleAdminWorkshopRegistrationUpdate(body);
+      res.status(result.status).json(result.body);
+      return;
+    }
+    case "surveys-list": {
+      const result = await handleAdminSurveysList(body);
+      res.status(result.status).json(result.body);
+      return;
+    }
+    case "surveys-save": {
+      const result = await handleAdminSurveySave(body);
+      res.status(result.status).json(result.body);
+      return;
+    }
+    case "surveys-set-status": {
+      const result = await handleAdminSurveySetStatus(body);
+      res.status(result.status).json(result.body);
+      return;
+    }
+    case "surveys-delete": {
+      const result = await handleAdminSurveyDelete(body);
+      res.status(result.status).json(result.body);
+      return;
+    }
+    case "surveys-results": {
+      const result = await handleAdminSurveyResults(body);
       res.status(result.status).json(result.body);
       return;
     }

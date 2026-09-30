@@ -38,6 +38,16 @@ import {
   handleAdminWorkshopRegistrationRemove,
   handleAdminWorkshopRegistrationUpdate,
 } from "./src/server/adminHandlers";
+import {
+  handleMemberSurveysList,
+  handleMemberSurveySubmit,
+  handleMemberSurveyResults,
+  handleAdminSurveysList,
+  handleAdminSurveySave,
+  handleAdminSurveySetStatus,
+  handleAdminSurveyDelete,
+  handleAdminSurveyResults,
+} from "./src/server/surveyHandlers";
 
 dotenv.config();
 
@@ -211,6 +221,47 @@ app.post("/api/admin/workshops-registration-remove", async (req, res) => {
 
 app.post("/api/admin/workshops-registration-update", async (req, res) => {
   const result = await handleAdminWorkshopRegistrationUpdate(req.body);
+  res.status(result.status).json(result.body);
+});
+
+// Surveys (sondages)
+app.post("/api/members/surveys/list", async (req, res) => {
+  const result = await handleMemberSurveysList(req.body, getClientIp(req));
+  res.status(result.status).json(result.body);
+});
+
+app.post("/api/members/surveys/submit", async (req, res) => {
+  const result = await handleMemberSurveySubmit(req.body, getClientIp(req));
+  res.status(result.status).json(result.body);
+});
+
+app.post("/api/members/surveys/results", async (req, res) => {
+  const result = await handleMemberSurveyResults(req.body, getClientIp(req));
+  res.status(result.status).json(result.body);
+});
+
+app.post("/api/admin/surveys-list", async (req, res) => {
+  const result = await handleAdminSurveysList(req.body);
+  res.status(result.status).json(result.body);
+});
+
+app.post("/api/admin/surveys-save", async (req, res) => {
+  const result = await handleAdminSurveySave(req.body);
+  res.status(result.status).json(result.body);
+});
+
+app.post("/api/admin/surveys-set-status", async (req, res) => {
+  const result = await handleAdminSurveySetStatus(req.body);
+  res.status(result.status).json(result.body);
+});
+
+app.post("/api/admin/surveys-delete", async (req, res) => {
+  const result = await handleAdminSurveyDelete(req.body);
+  res.status(result.status).json(result.body);
+});
+
+app.post("/api/admin/surveys-results", async (req, res) => {
+  const result = await handleAdminSurveyResults(req.body);
   res.status(result.status).json(result.body);
 });
 

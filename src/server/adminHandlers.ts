@@ -32,7 +32,7 @@ interface AdminSessionVerification {
   error?: string;
 }
 
-async function verifyAdminSession(token: string | undefined): Promise<AdminSessionVerification> {
+export async function verifyAdminSession(token: string | undefined): Promise<AdminSessionVerification> {
   if (!token || typeof token !== "string") {
     return { status: 401, error: "Session requise" };
   }

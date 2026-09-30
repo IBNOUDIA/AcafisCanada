@@ -502,7 +502,7 @@ function mapMemberRow(row: Record<string, any>): Record<string, unknown> {
 // the same email + member number pair the member logged in with. Both are
 // required: the member number is the only thing that makes this a real
 // credential rather than "anyone who knows your email can act as you".
-async function verifyMember(
+export async function verifyMember(
   email: string | undefined,
   memberId: string | undefined,
   ip: string

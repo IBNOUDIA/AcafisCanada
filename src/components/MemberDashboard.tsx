@@ -31,6 +31,7 @@ import {
   isEligibleForActivity,
 } from "../lib/activity";
 import { ChildSportFileForm } from "./ChildSportFileForm";
+import { MemberSurveys } from "./surveys/MemberSurveys";
 import { MEMBER_STORAGE_KEY } from "../lib/memberSession";
 import { PAYMENT_INTERAC_INFO } from "../data/acafisData";
 
@@ -496,6 +497,8 @@ export const MemberDashboard: React.FC = () => {
             </button>
           </form>
         </div>
+
+        <MemberSurveys member={member} />
 
         {/* nTIC workshops */}
         <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 sm:p-8 space-y-4">
