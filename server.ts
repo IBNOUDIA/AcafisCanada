@@ -32,6 +32,8 @@ import {
   handleAdminWorkshopsList,
   handleAdminWorkshopAdd,
   handleAdminWorkshopRemove,
+  handleAdminWorkshopUpdate,
+  handleAdminWorkshopRegistrationRemove,
 } from "./src/server/adminHandlers";
 
 dotenv.config();
@@ -181,6 +183,16 @@ app.post("/api/admin/workshops-add", async (req, res) => {
 
 app.post("/api/admin/workshops-remove", async (req, res) => {
   const result = await handleAdminWorkshopRemove(req.body);
+  res.status(result.status).json(result.body);
+});
+
+app.post("/api/admin/workshops-update", async (req, res) => {
+  const result = await handleAdminWorkshopUpdate(req.body);
+  res.status(result.status).json(result.body);
+});
+
+app.post("/api/admin/workshops-registration-remove", async (req, res) => {
+  const result = await handleAdminWorkshopRegistrationRemove(req.body);
   res.status(result.status).json(result.body);
 });
 

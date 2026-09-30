@@ -147,5 +147,6 @@ export interface MemberWorkshop {
   location: string;
   capacity: number;
   spotsLeft: number;
+  registrationsOpen: boolean;
   myRegistrations: Array<{ id: string; childId: string | null }>;
 }

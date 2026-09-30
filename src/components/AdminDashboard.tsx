@@ -15,6 +15,10 @@ import {
   Laptop,
   CalendarDays,
   MapPin,
+  Lock,
+  LockOpen,
+  Download,
+  X,
 } from "lucide-react";
 import { useTranslation } from "../i18n/translations";
 import { useLanguage } from "../i18n/LanguageContext";
@@ -53,6 +57,7 @@ interface AdminWorkshop {
   startsAt: string;
   location: string;
   capacity: number;
+  registrationsOpen: boolean;
   registrations: Array<{
     id: string;
     memberName: string;
@@ -62,6 +67,18 @@ interface AdminWorkshop {
 }
 
 type Tab = "members" | "family" | "workshops" | "documents" | "settings";
+
+// datetime-local inputs take local wall-clock time with no timezone, so an
+// ISO timestamp from the server has to be shifted before prefilling one.
+function toDateTimeLocal(iso: string): string {
+  const d = new Date(iso);
+  const pad = (n: number) => String(n).padStart(2, "0");
+  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}T${pad(d.getHours())}:${pad(d.getMinutes())}`;
+}
+
+function csvCell(value: string): string {
+  return /[",\n]/.test(value) ? `"${value.replace(/"/g, '""')}"` : value;
+}
 
 export const AdminDashboard: React.FC = () => {
   const { t, lang } = useTranslation();
@@ -92,6 +109,9 @@ export const AdminDashboard: React.FC = () => {
   const [wsLocation, setWsLocation] = useState("");
   const [wsCapacity, setWsCapacity] = useState("");
   const [wsError, setWsError] = useState("");
+  const [editingWorkshopId, setEditingWorkshopId] = useState<string | null>(null);
+  const [editWs, setEditWs] = useState({ title: "", description: "", startsAt: "", location: "", capacity: "" });
+  const [wsActionError, setWsActionError] = useState<Record<string, string>>({});
 
   const [oldPassword, setOldPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
@@ -316,6 +336,119 @@ export const AdminDashboard: React.FC = () => {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify({ token: session.token, id }),
     }).catch(() => {});
+  };
+
+  const updateWorkshop = async (id: string, fields: Record<string, unknown>): Promise<boolean> => {
+    if (!session) return false;
+    setWsActionError((prev) => ({ ...prev, [id]: "" }));
+    try {
+      const response = await fetch("/api/admin/workshops-update", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: session.token, id, ...fields }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        setWsActionError((prev) => ({ ...prev, [id]: data.error || t("admin.errorGeneric") }));
+        return false;
+      }
+      return true;
+    } catch {
+      setWsActionError((prev) => ({ ...prev, [id]: t("admin.errorGeneric") }));
+      return false;
+    }
+  };
+
+  const startEditWorkshop = (w: AdminWorkshop) => {
+    setEditingWorkshopId(w.id);
+    setEditWs({
+      title: w.title,
+      description: w.description || "",
+      startsAt: toDateTimeLocal(w.startsAt),
+      location: w.location,
+      capacity: String(w.capacity),
+    });
+    setWsActionError((prev) => ({ ...prev, [w.id]: "" }));
+  };
+
+  const saveEditWorkshop = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!editingWorkshopId) return;
+    const id = editingWorkshopId;
+    // Same local-time conversion as handleAddWorkshop.
+    const startsAt = new Date(editWs.startsAt).toISOString();
+    const capacity = Number(editWs.capacity);
+    const ok = await updateWorkshop(id, {
+      title: editWs.title,
+      description: editWs.description,
+      startsAt,
+      location: editWs.location,
+      capacity,
+    });
+    if (!ok) return;
+    setWorkshops((prev) =>
+      prev
+        .map((w) =>
+          w.id === id
+            ? {
+                ...w,
+                title: editWs.title.trim(),
+                description: editWs.description.trim() || null,
+                startsAt,
+                location: editWs.location.trim(),
+                capacity,
+              }
+            : w
+        )
+        .sort((a, b) => b.startsAt.localeCompare(a.startsAt))
+    );
+    setEditingWorkshopId(null);
+  };
+
+  const toggleWorkshopRegistrations = async (w: AdminWorkshop) => {
+    const registrationsOpen = !w.registrationsOpen;
+    if (await updateWorkshop(w.id, { registrationsOpen })) {
+      setWorkshops((prev) => prev.map((x) => (x.id === w.id ? { ...x, registrationsOpen } : x)));
+    }
+  };
+
+  const handleRemoveRegistration = async (workshopId: string, registrationId: string) => {
+    if (!session || !window.confirm(t("admin.workshopRegistrationRemoveConfirm"))) return;
+    setWorkshops((prev) =>
+      prev.map((w) =>
+        w.id === workshopId ? { ...w, registrations: w.registrations.filter((r) => r.id !== registrationId) } : w
+      )
+    );
+    await fetch("/api/admin/workshops-registration-remove", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: session.token, id: registrationId }),
+    }).catch(() => {});
+  };
+
+  const exportWorkshopCsv = (w: AdminWorkshop) => {
+    const header = [t("admin.csvParticipant"), t("admin.csvAge"), t("admin.csvMember"), t("admin.colEmail")];
+    const rows = w.registrations.map((r) => [
+      r.child ? r.child.firstName || t("memberDashboard.childUnnamed") : r.memberName,
+      r.child ? String(r.child.age) : "",
+      r.memberName,
+      r.memberEmail,
+    ]);
+    const csv = [header, ...rows].map((row) => row.map(csvCell).join(",")).join("\r\n");
+    // BOM so Excel opens the accents correctly.
+    const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    const slug = w.title
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "");
+    a.download = `atelier-${w.startsAt.slice(0, 10)}-${slug}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
   };
 
   const handleChangePassword = async (e: React.FormEvent) => {
@@ -595,8 +728,69 @@ export const AdminDashboard: React.FC = () => {
               <ul className="space-y-3">
                 {workshops.map((w) => {
                   const isPast = new Date(w.startsAt).getTime() < Date.now();
+                  const isEditing = editingWorkshopId === w.id;
                   return (
                     <li key={w.id} className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+                      {isEditing ? (
+                        <form onSubmit={saveEditWorkshop} className="space-y-2">
+                          <input
+                            type="text"
+                            required
+                            value={editWs.title}
+                            onChange={(e) => setEditWs((prev) => ({ ...prev, title: e.target.value }))}
+                            placeholder={t("admin.workshopTitleLabel")}
+                            className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white"
+                          />
+                          <input
+                            type="text"
+                            value={editWs.description}
+                            onChange={(e) => setEditWs((prev) => ({ ...prev, description: e.target.value }))}
+                            placeholder={t("admin.workshopDescLabel")}
+                            className="w-full px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white"
+                          />
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
+                            <input
+                              type="datetime-local"
+                              required
+                              value={editWs.startsAt}
+                              onChange={(e) => setEditWs((prev) => ({ ...prev, startsAt: e.target.value }))}
+                              className="px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white"
+                            />
+                            <input
+                              type="text"
+                              required
+                              value={editWs.location}
+                              onChange={(e) => setEditWs((prev) => ({ ...prev, location: e.target.value }))}
+                              placeholder={t("admin.workshopLocationLabel")}
+                              className="px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white"
+                            />
+                            <input
+                              type="number"
+                              required
+                              min={Math.max(1, w.registrations.length)}
+                              value={editWs.capacity}
+                              onChange={(e) => setEditWs((prev) => ({ ...prev, capacity: e.target.value }))}
+                              placeholder={t("admin.workshopCapacityLabel")}
+                              className="px-3 py-2 rounded-lg border border-slate-300 text-sm bg-white"
+                            />
+                          </div>
+                          <div className="flex items-center gap-2">
+                            <button
+                              type="submit"
+                              className="px-3 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold cursor-pointer"
+                            >
+                              {t("admin.save")}
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => setEditingWorkshopId(null)}
+                              className="px-3 py-1.5 rounded-lg bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-bold cursor-pointer"
+                            >
+                              {t("admin.cancel")}
+                            </button>
+                          </div>
+                        </form>
+                      ) : (
                       <div className="flex items-start justify-between gap-3">
                         <div>
                           <p className="text-sm font-semibold text-slate-900 flex items-center gap-2">
@@ -604,6 +798,11 @@ export const AdminDashboard: React.FC = () => {
                             {isPast && (
                               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-600">
                                 {t("admin.workshopPast")}
+                              </span>
+                            )}
+                            {!isPast && !w.registrationsOpen && (
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
+                                {t("admin.workshopClosed")}
                               </span>
                             )}
                           </p>
@@ -630,21 +829,58 @@ export const AdminDashboard: React.FC = () => {
                           >
                             {w.registrations.length}/{w.capacity} {t("admin.workshopSeats")}
                           </span>
+                          {!isPast && (
+                            <button
+                              onClick={() => toggleWorkshopRegistrations(w)}
+                              title={w.registrationsOpen ? t("admin.workshopCloseBtn") : t("admin.workshopOpenBtn")}
+                              aria-label={w.registrationsOpen ? t("admin.workshopCloseBtn") : t("admin.workshopOpenBtn")}
+                              className="p-2 rounded-lg text-slate-400 hover:text-amber-700 hover:bg-amber-50 transition-colors cursor-pointer"
+                            >
+                              {w.registrationsOpen ? <LockOpen className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
+                            </button>
+                          )}
+                          {w.registrations.length > 0 && (
+                            <button
+                              onClick={() => exportWorkshopCsv(w)}
+                              title={t("admin.workshopExportBtn")}
+                              aria-label={t("admin.workshopExportBtn")}
+                              className="p-2 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+                            >
+                              <Download className="w-4 h-4" />
+                            </button>
+                          )}
+                          <button
+                            onClick={() => startEditWorkshop(w)}
+                            title={t("admin.edit")}
+                            aria-label={t("admin.edit")}
+                            className="p-2 rounded-lg text-slate-400 hover:text-emerald-700 hover:bg-emerald-50 transition-colors cursor-pointer"
+                          >
+                            <Pencil className="w-4 h-4" />
+                          </button>
                           <button
                             onClick={() => handleRemoveWorkshop(w.id)}
+                            title={t("admin.delete")}
+                            aria-label={t("admin.delete")}
                             className="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
                         </div>
                       </div>
+                      )}
+
+                      {wsActionError[w.id] && (
+                        <p className="text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2">
+                          {wsActionError[w.id]}
+                        </p>
+                      )}
 
                       {w.registrations.length === 0 ? (
                         <p className="text-[11px] text-slate-400">{t("admin.workshopNoRegistrations")}</p>
                       ) : (
                         <ul className="divide-y divide-slate-200 border-t border-slate-200 text-xs">
                           {w.registrations.map((r) => (
-                            <li key={r.id} className="py-1.5 flex flex-wrap justify-between gap-2">
+                            <li key={r.id} className="py-1.5 flex flex-wrap items-center justify-between gap-2">
                               <span className="font-semibold text-slate-800">
                                 {r.child
                                   ? `${r.child.firstName || t("memberDashboard.childUnnamed")} (${r.child.age} ${t("memberDashboard.childAgeSuffix")})`
@@ -653,6 +889,14 @@ export const AdminDashboard: React.FC = () => {
                               <span className="text-slate-500">
                                 {r.child ? `${r.memberName} · ` : `${t("admin.workshopSelf")} · `}
                                 {r.memberEmail}
+                                <button
+                                  onClick={() => handleRemoveRegistration(w.id, r.id)}
+                                  title={t("admin.workshopRegistrationRemove")}
+                                  aria-label={t("admin.workshopRegistrationRemove")}
+                                  className="ml-2 p-0.5 rounded-full text-slate-400 hover:text-red-600 hover:bg-red-50 align-middle cursor-pointer"
+                                >
+                                  <X className="w-3.5 h-3.5" />
+                                </button>
                               </span>
                             </li>
                           ))}

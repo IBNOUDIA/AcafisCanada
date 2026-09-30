@@ -537,6 +537,7 @@ export async function handleAdminWorkshopsList(
         startsAt: row.starts_at,
         location: row.location,
         capacity: row.capacity,
+        registrationsOpen: row.registrations_open !== false,
         registrations: (row.workshop_registrations || []).map((r: Record<string, any>) => ({
           id: r.id,
           memberName: `${r.members?.first_name ?? ""} ${r.members?.last_name ?? ""}`.trim(),
@@ -604,6 +605,7 @@ export async function handleAdminWorkshopAdd(
         startsAt: row.starts_at,
         location: row.location,
         capacity: row.capacity,
+        registrationsOpen: row.registrations_open !== false,
         registrations: [],
       },
     },
@@ -633,6 +635,118 @@ export async function handleAdminWorkshopRemove(
 
   if (error) {
     console.error("Admin workshop remove failed:", error);
+    return { status: 500, body: { error: "Erreur serveur, réessayez dans un instant." } };
+  }
+
+  return { status: 200, body: { success: true } };
+}
+
+export interface AdminWorkshopUpdateBody {
+  token?: string;
+  id?: string;
+  title?: string;
+  description?: string;
+  startsAt?: string;
+  location?: string;
+  capacity?: number;
+  registrationsOpen?: boolean;
+}
+
+// Partial update: only the fields present in the body are changed, so the
+// open/closed toggle can send just { id, registrationsOpen }.
+export async function handleAdminWorkshopUpdate(
+  data: AdminWorkshopUpdateBody
+): Promise<HandlerResult<{ success?: boolean; error?: string }>> {
+  const verification = await verifyAdminSession(data.token);
+  if (verification.status !== 200) {
+    return { status: verification.status, body: { error: verification.error } };
+  }
+
+  const { id, title, description, startsAt, location, capacity, registrationsOpen } = data;
+  if (!id) {
+    return { status: 400, body: { error: "Identifiant requis" } };
+  }
+
+  const updates: Record<string, unknown> = {};
+  if (title !== undefined) {
+    if (!title.trim()) return { status: 400, body: { error: "Le titre de l'atelier est requis." } };
+    updates.title = title.trim();
+  }
+  if (description !== undefined) updates.description = description.trim() || null;
+  if (startsAt !== undefined) {
+    if (Number.isNaN(Date.parse(startsAt))) return { status: 400, body: { error: "Date invalide." } };
+    updates.starts_at = new Date(startsAt).toISOString();
+  }
+  if (location !== undefined) {
+    if (!location.trim()) return { status: 400, body: { error: "Le lieu de l'atelier est requis." } };
+    updates.location = location.trim();
+  }
+  if (capacity !== undefined) {
+    if (!Number.isInteger(capacity) || capacity < 1) {
+      return { status: 400, body: { error: "Le nombre de places doit être au moins 1." } };
+    }
+    updates.capacity = capacity;
+  }
+  if (registrationsOpen !== undefined) updates.registrations_open = Boolean(registrationsOpen);
+
+  if (Object.keys(updates).length === 0) {
+    return { status: 400, body: { error: "Aucune modification fournie" } };
+  }
+
+  const supabase = getSupabaseClient()!;
+
+  // Lowering capacity below the seats already taken would silently overbook
+  // the workshop — the admin has to remove registrations first.
+  if (capacity !== undefined) {
+    const { count, error: countError } = await supabase
+      .from("workshop_registrations")
+      .select("id", { count: "exact", head: true })
+      .eq("workshop_id", id);
+    if (countError) {
+      console.error("Admin workshop registrations count failed:", countError);
+      return { status: 500, body: { error: "Erreur serveur, réessayez dans un instant." } };
+    }
+    if ((count ?? 0) > capacity) {
+      return {
+        status: 409,
+        body: { error: `Impossible : ${count} personnes sont déjà inscrites. Retirez des inscrits d'abord.` },
+      };
+    }
+  }
+
+  const { error } = await supabase.from("workshops").update(updates).eq("id", id);
+
+  if (error) {
+    console.error("Admin workshop update failed:", error);
+    return { status: 500, body: { error: "Erreur serveur, réessayez dans un instant." } };
+  }
+
+  return { status: 200, body: { success: true } };
+}
+
+export interface AdminWorkshopRegistrationRemoveBody {
+  token?: string;
+  id?: string;
+}
+
+// Removes a single seat (e.g. a family that told the Bureau they can't come).
+export async function handleAdminWorkshopRegistrationRemove(
+  data: AdminWorkshopRegistrationRemoveBody
+): Promise<HandlerResult<{ success?: boolean; error?: string }>> {
+  const verification = await verifyAdminSession(data.token);
+  if (verification.status !== 200) {
+    return { status: verification.status, body: { error: verification.error } };
+  }
+
+  if (!data.id) {
+    return { status: 400, body: { error: "Identifiant requis" } };
+  }
+
+  const supabase = getSupabaseClient()!;
+  const { error } = await supabase.from("workshop_registrations").delete().eq("id", data.id);
+
+  if (error) {
+    console.error("Admin workshop registration remove failed:", error);
     return { status: 500, body: { error: "Erreur serveur, réessayez dans un instant." } };
   }
 

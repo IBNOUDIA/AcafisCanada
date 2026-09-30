@@ -499,6 +499,7 @@ export const MemberDashboard: React.FC = () => {
                   ? workshopPick[w.id]
                   : candidates[0]?.value || "";
                 const isFull = w.spotsLeft <= 0;
+                const isClosed = !w.registrationsOpen;
 
                 return (
                   <li key={w.id} className="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
@@ -520,10 +521,18 @@ export const MemberDashboard: React.FC = () => {
                       </div>
                       <span
                         className={`shrink-0 px-2.5 py-1 rounded-full text-[11px] font-bold ${
-                          isFull ? "bg-red-100 text-red-700" : "bg-emerald-100 text-emerald-800"
+                          isFull
+                            ? "bg-red-100 text-red-700"
+                            : isClosed
+                              ? "bg-amber-100 text-amber-800"
+                              : "bg-emerald-100 text-emerald-800"
                         }`}
                       >
-                        {isFull ? t("memberDashboard.workshopFull") : `${w.spotsLeft} ${t("memberDashboard.workshopSpotsLeft")}`}
+                        {isFull
+                          ? t("memberDashboard.workshopFull")
+                          : isClosed
+                            ? t("memberDashboard.workshopClosed")
+                            : `${w.spotsLeft} ${t("memberDashboard.workshopSpotsLeft")}`}
                       </span>
                     </div>
 
@@ -554,7 +563,7 @@ export const MemberDashboard: React.FC = () => {
                     {candidates.length === 0 ? (
                       <p className="text-[11px] text-slate-500">{t("memberDashboard.workshopAllRegistered")}</p>
                     ) : (
-                      !isFull && (
+                      !isFull && !isClosed && (
                         <div className="flex flex-wrap gap-2">
                           <select
                             value={pick}

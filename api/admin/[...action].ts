@@ -13,6 +13,8 @@ import {
   handleAdminWorkshopsList,
   handleAdminWorkshopAdd,
   handleAdminWorkshopRemove,
+  handleAdminWorkshopUpdate,
+  handleAdminWorkshopRegistrationRemove,
 } from "../../src/server/adminHandlers.js";
 import { getClientIp } from "../../src/server/requestIp.js";
 
@@ -100,6 +102,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
     case "workshops-remove": {
       const result = await handleAdminWorkshopRemove(body);
+      res.status(result.status).json(result.body);
+      return;
+    }
+    case "workshops-update": {
+      const result = await handleAdminWorkshopUpdate(body);
+      res.status(result.status).json(result.body);
+      return;
+    }
+    case "workshops-registration-remove": {
+      const result = await handleAdminWorkshopRegistrationRemove(body);
       res.status(result.status).json(result.body);
       return;
     }

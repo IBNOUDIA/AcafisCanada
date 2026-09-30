@@ -914,6 +914,8 @@ export async function handleMemberWorkshopsList(
           location: row.location,
           capacity: row.capacity,
           spotsLeft: Math.max(0, row.capacity - registrations.length),
+          // `!== false` so a database not yet migrated (no column) reads as open.
+          registrationsOpen: row.registrations_open !== false,
           // Only this member's own seats — other families' sign-ups stay private.
           myRegistrations: registrations
             .filter((r) => r.member_id === memberRecord.memberId)
@@ -934,6 +936,7 @@ export interface MemberWorkshopRegisterBody {
 const WORKSHOP_RPC_ERRORS: Record<string, { status: number; error: string }> = {
   workshop_not_found: { status: 404, error: "Atelier introuvable." },
   workshop_past: { status: 400, error: "Cet atelier est déjà passé." },
+  workshop_closed: { status: 409, error: "Les inscriptions à cet atelier sont fermées." },
   workshop_full: { status: 409, error: "Cet atelier est complet." },
   already_registered: { status: 409, error: "Cette personne est déjà inscrite à cet atelier." },
 };

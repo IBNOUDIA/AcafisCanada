@@ -130,6 +130,11 @@ create table if not exists workshops (
   created_at timestamptz not null default now()
 );
 
+-- Lets the Bureau Exécutif close sign-ups early (e.g. once the attendee list
+-- is finalized) without deleting the workshop. Added after the table existed,
+-- hence a separate statement.
+alter table workshops add column if not exists registrations_open boolean not null default true;
+
 create index if not exists workshops_starts_at_idx on workshops (starts_at);
 
 alter table workshops enable row level security;
@@ -173,6 +178,9 @@ begin
   end if;
   if w.starts_at < now() then
     raise exception 'workshop_past';
+  end if;
+  if not w.registrations_open then
+    raise exception 'workshop_closed';
   end if;
 
   -- Checked before capacity: the workshop row is already locked above, so
