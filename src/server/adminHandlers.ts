@@ -4,6 +4,7 @@ import { getSupabaseClient } from "./supabaseClient.js";
 import { checkRateLimit, RATE_LIMIT_ERROR } from "./rateLimit.js";
 import { isValidEmail } from "./validation.js";
 import { promoteWaitlist } from "./waitlist.js";
+import { getResendClient, EMAIL_FROM } from "./email.js";
 
 interface HandlerResult<T> {
   status: number;
@@ -213,10 +214,117 @@ export async function handleAdminMembersList(
         membershipYear: row.membership_year,
         paymentStatus: row.payment_status,
         coopInterest: row.coop_interest,
+        isCoopMember: row.is_coop_member === true,
+        welcomeSentAt: row.welcome_sent_at ?? null,
         issuedAt: row.issued_at,
       })),
     },
   };
+}
+
+export interface AdminSendWelcomeBody {
+  token?: string;
+  memberIds?: string[];
+}
+
+const SITE_MEMBER_AREA_URL = "https://www.acafis.ca/espace-membre";
+
+function welcomeEmailText(row: Record<string, any>): string {
+  return [
+    `Bonjour ${row.first_name},`,
+    "",
+    row.is_coop_member
+      ? "En tant qu'acquéreur·e de la Coopérative d'habitat ACAFIS, vous êtes aussi membre d'ACAFIS Canada, l'association de la diaspora sénégalaise qui porte le projet."
+      : "Vous êtes inscrit·e comme membre d'ACAFIS Canada.",
+    "",
+    `Votre numéro de membre : ${row.member_id}`,
+    "",
+    "Il vous permet d'accéder à votre Espace Membre (documents de l'AG, recensement familial, inscription de vos enfants aux activités, sondages) :",
+    `  1. Rendez-vous sur ${SITE_MEMBER_AREA_URL}`,
+    `  2. Connectez-vous avec ce courriel (${row.email}) et votre numéro de membre.`,
+    "",
+    "Cotisation annuelle : 25 $ CAD par virement Interac à acafisfinance2@gmail.com (question : « Pays ? », réponse : Senegal).",
+    "",
+    "Pour toute question : infos@acafis.ca",
+    "",
+    "Au plaisir de vous compter parmi nous,",
+    "Le Bureau Exécutif d'ACAFIS Canada",
+    "",
+    "—",
+    `Welcome to ACAFIS Canada! Your member number is ${row.member_id}. Log in at ${SITE_MEMBER_AREA_URL} with this email address and your member number.`,
+  ].join("\n");
+}
+
+// Emails each selected member their card number (their login credential) —
+// used after bulk-adding members, e.g. the Coop-ACAFIS acquéreurs. Members
+// with a placeholder @acafis.invalid address are skipped (they claim their
+// profile with a personal link instead). Sent through Resend's batch API in
+// one request per 100 emails, so the function stays well within Vercel's
+// timeout even for the whole membership.
+export async function handleAdminSendWelcome(
+  data: AdminSendWelcomeBody
+): Promise<HandlerResult<{ sent?: number; skipped?: number; error?: string }>> {
+  const verification = await verifyAdminSession(data.token);
+  if (verification.status !== 200) {
+    return { status: verification.status, body: { error: verification.error } };
+  }
+
+  const memberIds = Array.isArray(data.memberIds) ? data.memberIds.filter((id) => typeof id === "string") : [];
+  if (memberIds.length === 0 || memberIds.length > 200) {
+    return { status: 400, body: { error: "Sélection de membres invalide (1 à 200)." } };
+  }
+
+  const resend = getResendClient();
+  if (!resend) {
+    return { status: 503, body: { error: "L'envoi de courriels n'est pas configuré (RESEND_API_KEY manquante)." } };
+  }
+
+  const supabase = getSupabaseClient()!;
+  const { data: rows, error } = await supabase
+    .from("members")
+    .select("member_id, first_name, email, is_coop_member")
+    .in("member_id", memberIds);
+
+  if (error) {
+    console.error("Admin send welcome lookup failed:", error);
+    return { status: 500, body: { error: "Erreur serveur, réessayez dans un instant." } };
+  }
+
+  const recipients = (rows || []).filter((r: Record<string, any>) => r.email && !r.email.endsWith("@acafis.invalid"));
+  const skipped = memberIds.length - recipients.length;
+
+  let sent = 0;
+  for (let i = 0; i < recipients.length; i += 100) {
+    const chunk = recipients.slice(i, i + 100);
+    const { error: sendError } = await resend.batch.send(
+      chunk.map((r: Record<string, any>) => ({
+        from: EMAIL_FROM,
+        to: r.email,
+        replyTo: "infos@acafis.ca",
+        subject: `Bienvenue à ACAFIS Canada — votre numéro de membre ${r.member_id}`,
+        text: welcomeEmailText(r),
+      }))
+    );
+    if (sendError) {
+      console.error("Resend welcome batch failed:", sendError);
+      return {
+        status: 502,
+        body: { sent, skipped, error: `Envoi interrompu après ${sent} courriel(s) : ${sendError.message}` },
+      };
+    }
+
+    const { error: markError } = await supabase
+      .from("members")
+      .update({ welcome_sent_at: new Date().toISOString() })
+      .in(
+        "member_id",
+        chunk.map((r: Record<string, any>) => r.member_id)
+      );
+    if (markError) console.error("Admin welcome_sent_at update failed:", markError);
+    sent += chunk.length;
+  }
+
+  return { status: 200, body: { sent, skipped } };
 }
 
 export interface AdminSetPaymentStatusBody {

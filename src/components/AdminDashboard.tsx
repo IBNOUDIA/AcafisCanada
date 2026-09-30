@@ -18,6 +18,7 @@ import {
   Lock,
   LockOpen,
   Download,
+  Mail,
 } from "lucide-react";
 import { useTranslation } from "../i18n/translations";
 import { useLanguage } from "../i18n/LanguageContext";
@@ -51,6 +52,8 @@ interface AdminMember {
   membershipYear: number;
   paymentStatus: "pending" | "paid";
   coopInterest: boolean;
+  isCoopMember: boolean;
+  welcomeSentAt: string | null;
 }
 
 interface FamilyStats {
@@ -110,6 +113,8 @@ export const AdminDashboard: React.FC = () => {
   const [editPhone, setEditPhone] = useState("");
   const [editCity, setEditCity] = useState("");
   const [memberActionError, setMemberActionError] = useState("");
+  const [welcomeMsg, setWelcomeMsg] = useState("");
+  const [isSendingWelcome, setIsSendingWelcome] = useState(false);
   const [familyStats, setFamilyStats] = useState<FamilyStats | null>(null);
   const [documents, setDocuments] = useState<AdminDocument[]>([]);
 
@@ -274,6 +279,44 @@ export const AdminDashboard: React.FC = () => {
       setEditingMemberId(null);
     } catch {
       setMemberActionError(t("admin.errorGeneric"));
+    }
+  };
+
+  // Emails each member their card number (their login credential).
+  const sendWelcome = async (targets: AdminMember[]) => {
+    if (!session || targets.length === 0) return;
+    const question =
+      targets.length === 1
+        ? t("admin.welcomeConfirmOne").replace("{name}", `${targets[0].firstName} ${targets[0].lastName}`)
+        : t("admin.welcomeConfirmMany").replace("{count}", String(targets.length));
+    if (!window.confirm(question)) return;
+
+    setWelcomeMsg("");
+    setMemberActionError("");
+    setIsSendingWelcome(true);
+    try {
+      const response = await fetch("/api/admin/members-send-welcome", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: session.token, memberIds: targets.map((m) => m.memberId) }),
+      });
+      const data = await response.json();
+      if (!response.ok) {
+        setMemberActionError(data.error || t("admin.errorGeneric"));
+      } else {
+        setWelcomeMsg(t("admin.welcomeSent").replace("{count}", String(data.sent)));
+      }
+      // Refetch so the "sent on" markers reflect exactly what went out.
+      const list = await fetch("/api/admin/members-list", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: session.token }),
+      }).then((res) => (res.ok ? res.json() : null));
+      if (list) setMembers(list.members || []);
+    } catch {
+      setMemberActionError(t("admin.errorGeneric"));
+    } finally {
+      setIsSendingWelcome(false);
     }
   };
 
@@ -625,7 +668,37 @@ export const AdminDashboard: React.FC = () => {
 
         {tab === "members" && (
           <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 overflow-x-auto">
-            <h2 className="text-sm font-bold text-slate-900 font-display mb-4">{t("admin.membersTitle")}</h2>
+            {(() => {
+              const coopCount = members.filter((m) => m.isCoopMember).length;
+              const coopToWelcome = members.filter(
+                (m) => m.isCoopMember && !m.welcomeSentAt && !m.email.endsWith("@acafis.invalid")
+              );
+              return (
+                <div className="flex flex-wrap items-center justify-between gap-3 mb-4">
+                  <div>
+                    <h2 className="text-sm font-bold text-slate-900 font-display">{t("admin.membersTitle")}</h2>
+                    <p className="text-[11px] text-slate-500">
+                      {members.length} {t("admin.membersCount")} · {coopCount} {t("admin.coopMembersCount")}
+                    </p>
+                  </div>
+                  {coopToWelcome.length > 0 && (
+                    <button
+                      onClick={() => sendWelcome(coopToWelcome)}
+                      disabled={isSendingWelcome}
+                      className="flex items-center gap-2 px-3.5 py-2 rounded-xl text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 transition-colors cursor-pointer disabled:opacity-60"
+                    >
+                      <Mail className="w-4 h-4" />
+                      {t("admin.welcomeCoopBtn").replace("{count}", String(coopToWelcome.length))}
+                    </button>
+                  )}
+                </div>
+              );
+            })()}
+            {welcomeMsg && (
+              <p className="text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2 mb-3">
+                {welcomeMsg}
+              </p>
+            )}
             {memberActionError && (
               <p className="text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2 mb-3">
                 {memberActionError}
@@ -652,6 +725,7 @@ export const AdminDashboard: React.FC = () => {
                     <tr key={m.memberId} className="border-b border-slate-50 align-top">
                       <td className="py-2.5 pr-3 font-semibold text-slate-900 whitespace-nowrap">
                         {m.firstName} {m.lastName}
+                        <span className="block text-[10px] font-mono font-normal text-slate-400">{m.memberId}</span>
                       </td>
                       <td className="py-2.5 pr-3 text-slate-600">
                         {isEditing ? (
@@ -697,7 +771,19 @@ export const AdminDashboard: React.FC = () => {
                         )}
                       </td>
                       <td className="py-2.5 pr-3 text-slate-600">{m.membershipYear}</td>
-                      <td className="py-2.5 pr-3 text-slate-600">{m.coopInterest ? "✓" : "—"}</td>
+                      <td className="py-2.5 pr-3 text-slate-600 whitespace-nowrap">
+                        {m.isCoopMember ? (
+                          <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-100 text-emerald-800">
+                            {t("admin.coopAcquereur")}
+                          </span>
+                        ) : m.coopInterest ? (
+                          <span className="text-[11px]" title={t("admin.coopInterested")}>
+                            ✓ {t("admin.coopInterested")}
+                          </span>
+                        ) : (
+                          "—"
+                        )}
+                      </td>
                       <td className="py-2.5 pr-3">
                         <button
                           onClick={() => togglePaymentStatus(m)}
@@ -740,6 +826,24 @@ export const AdminDashboard: React.FC = () => {
                               className="p-1.5 rounded-lg text-slate-500 hover:text-emerald-700 hover:bg-emerald-50 cursor-pointer"
                             >
                               <Pencil className="w-3.5 h-3.5" />
+                            </button>
+                            <button
+                              onClick={() => sendWelcome([m])}
+                              disabled={isPlaceholderEmail || isSendingWelcome}
+                              title={
+                                isPlaceholderEmail
+                                  ? t("admin.welcomeNoEmail")
+                                  : m.welcomeSentAt
+                                    ? `${t("admin.welcomeSentOn")} ${new Date(m.welcomeSentAt).toLocaleDateString(lang === "en" ? "en-CA" : "fr-CA")}`
+                                    : t("admin.welcomeSendOne")
+                              }
+                              className={`p-1.5 rounded-lg cursor-pointer disabled:opacity-30 disabled:cursor-default ${
+                                m.welcomeSentAt
+                                  ? "text-emerald-600 hover:bg-emerald-50"
+                                  : "text-slate-500 hover:text-emerald-700 hover:bg-emerald-50"
+                              }`}
+                            >
+                              <Mail className="w-3.5 h-3.5" />
                             </button>
                             <button
                               onClick={() => deleteMember(m.memberId)}

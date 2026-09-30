@@ -29,6 +29,15 @@ alter table members add constraint members_payment_status_check check (payment_s
 -- this just flags members worth following up with about the coop.
 alter table members add column if not exists coop_interest boolean not null default false;
 
+-- Confirmed acquéreur of the Coop-ACAFIS housing cooperative (every acquéreur
+-- is also an ACAFIS Canada member). Set from the cooperative's official list,
+-- unlike coop_interest which the member ticks themself.
+alter table members add column if not exists is_coop_member boolean not null default false;
+
+-- When the Bureau last emailed the member their card number (needed to log
+-- in), so bulk-imported members aren't emailed twice.
+alter table members add column if not exists welcome_sent_at timestamptz;
+
 create index if not exists members_email_idx on members (lower(email));
 
 -- Row Level Security stays enabled with no public policies: the server only

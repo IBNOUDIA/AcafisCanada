@@ -26,6 +26,7 @@ import {
   handleAdminSetPaymentStatus,
   handleAdminUpdateMember,
   handleAdminDeleteMember,
+  handleAdminSendWelcome,
   handleAdminFamilyStats,
   handleAdminDocumentsList,
   handleAdminDocumentAdd,
@@ -155,6 +156,11 @@ app.post("/api/admin/members-update", async (req, res) => {
 
 app.post("/api/admin/members-delete", async (req, res) => {
   const result = await handleAdminDeleteMember(req.body);
+  res.status(result.status).json(result.body);
+});
+
+app.post("/api/admin/members-send-welcome", async (req, res) => {
+  const result = await handleAdminSendWelcome(req.body);
   res.status(result.status).json(result.body);
 });
 
