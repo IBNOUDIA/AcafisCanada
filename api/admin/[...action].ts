@@ -24,6 +24,7 @@ import {
   handleAdminSurveySetStatus,
   handleAdminSurveyDelete,
   handleAdminSurveyResults,
+  handleAdminSurveyAnnounce,
 } from "../../src/server/surveyHandlers.js";
 import { getClientIp } from "../../src/server/requestIp.js";
 
@@ -156,6 +157,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
     case "surveys-results": {
       const result = await handleAdminSurveyResults(body);
+      res.status(result.status).json(result.body);
+      return;
+    }
+    case "surveys-announce": {
+      const result = await handleAdminSurveyAnnounce(body);
       res.status(result.status).json(result.body);
       return;
     }

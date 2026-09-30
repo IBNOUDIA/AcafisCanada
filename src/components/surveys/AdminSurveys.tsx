@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Plus, Pencil, Trash2, ArrowUp, ArrowDown, BarChart3, Download, Send, Lock, LockOpen } from "lucide-react";
+import { Plus, Pencil, Trash2, ArrowUp, ArrowDown, BarChart3, Download, Send, Lock, LockOpen, Mail } from "lucide-react";
 import { useTranslation, TranslationKey } from "../../i18n/translations";
 import {
   SURVEY_QUESTION_TYPES,
@@ -80,6 +80,8 @@ export const AdminSurveys: React.FC<{ token: string }> = ({ token }) => {
   const [editor, setEditor] = useState<EditorState | null>(null);
   const [resultsView, setResultsView] = useState<{ survey: AdminSurvey; results: AdminSurveyResults } | null>(null);
   const [error, setError] = useState("");
+  const [notice, setNotice] = useState("");
+  const [announcingId, setAnnouncingId] = useState<string | null>(null);
 
   const post = async (action: string, body: Record<string, unknown>) => {
     const response = await fetch(`/api/admin/${action}`, {
@@ -112,6 +114,24 @@ export const AdminSurveys: React.FC<{ token: string }> = ({ token }) => {
       await load();
     } catch (e) {
       setError((e as Error).message);
+    }
+  };
+
+  // First announcement and later reminders are the same action: the server
+  // only emails members who haven't answered yet.
+  const announce = async (survey: AdminSurvey) => {
+    const remaining = Math.max(0, memberCount - survey.participantCount);
+    if (!window.confirm(t("surveys.announceConfirm").replace("{count}", String(remaining)))) return;
+    setError("");
+    setNotice("");
+    setAnnouncingId(survey.id);
+    try {
+      const data = await post("surveys-announce", { id: survey.id });
+      setNotice(t("surveys.announceSent").replace("{count}", String(data.sent)));
+    } catch (err) {
+      setError((err as Error).message);
+    } finally {
+      setAnnouncingId(null);
     }
   };
 
@@ -494,6 +514,11 @@ export const AdminSurveys: React.FC<{ token: string }> = ({ token }) => {
       </div>
 
       {errorBox}
+      {notice && (
+        <p className="text-xs font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-xl px-3 py-2">
+          {notice}
+        </p>
+      )}
 
       {surveys.length === 0 ? (
         <p className="text-xs text-slate-500">{t("surveys.empty")}</p>
@@ -546,6 +571,16 @@ export const AdminSurveys: React.FC<{ token: string }> = ({ token }) => {
                       >
                         <Send className="w-3.5 h-3.5" />
                         {t("surveys.publishBtn")}
+                      </button>
+                    )}
+                    {s.state === "open" && (
+                      <button
+                        onClick={() => announce(s)}
+                        disabled={announcingId === s.id}
+                        className="flex items-center gap-1 px-2.5 py-1.5 rounded-lg text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800 cursor-pointer disabled:opacity-60"
+                      >
+                        <Mail className="w-3.5 h-3.5" />
+                        {s.participantCount > 0 ? t("surveys.remindBtn") : t("surveys.announceBtn")}
                       </button>
                     )}
                     {s.state === "open" && (

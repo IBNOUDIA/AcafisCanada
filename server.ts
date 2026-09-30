@@ -47,6 +47,7 @@ import {
   handleAdminSurveySetStatus,
   handleAdminSurveyDelete,
   handleAdminSurveyResults,
+  handleAdminSurveyAnnounce,
 } from "./src/server/surveyHandlers";
 
 dotenv.config();
@@ -262,6 +263,11 @@ app.post("/api/admin/surveys-delete", async (req, res) => {
 
 app.post("/api/admin/surveys-results", async (req, res) => {
   const result = await handleAdminSurveyResults(req.body);
+  res.status(result.status).json(result.body);
+});
+
+app.post("/api/admin/surveys-announce", async (req, res) => {
+  const result = await handleAdminSurveyAnnounce(req.body);
   res.status(result.status).json(result.body);
 });
 

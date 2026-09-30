@@ -1,6 +1,7 @@
 import { getSupabaseClient } from "./supabaseClient.js";
 import { verifyMember } from "./handlers.js";
 import { verifyAdminSession } from "./adminHandlers.js";
+import { getResendClient, EMAIL_FROM } from "./email.js";
 import {
   SurveyAnswers,
   SurveyQuestion,
@@ -353,6 +354,98 @@ export async function handleAdminSurveySetStatus(
     return { status: 500, body: { error: SERVER_ERROR } };
   }
   return { status: 200, body: { success: true } };
+}
+
+export interface AdminSurveyAnnounceBody {
+  token?: string;
+  id?: string;
+}
+
+const MEMBER_AREA_URL = "https://www.acafis.ca/espace-membre";
+
+// Emails every member who hasn't answered an open survey yet — the first
+// announcement and any later reminder are the same action. Members with a
+// placeholder @acafis.invalid address are skipped. Resend's batch API sends
+// up to 100 emails per request, keeping this well within Vercel's timeout.
+export async function handleAdminSurveyAnnounce(
+  data: AdminSurveyAnnounceBody
+): Promise<HandlerResult<{ sent?: number; error?: string }>> {
+  const verification = await verifyAdminSession(data.token);
+  if (verification.status !== 200) {
+    return { status: verification.status, body: { error: verification.error } };
+  }
+  if (!data.id) return { status: 400, body: { error: "Identifiant requis" } };
+
+  const resend = getResendClient();
+  if (!resend) {
+    return { status: 503, body: { error: "L'envoi de courriels n'est pas configuré (RESEND_API_KEY manquante)." } };
+  }
+
+  const supabase = getSupabaseClient()!;
+  const [{ data: survey, error }, { data: members, error: mError }, { data: participants, error: pError }] =
+    await Promise.all([
+      supabase.from("surveys").select("*").eq("id", data.id).maybeSingle(),
+      supabase.from("members").select("member_id, first_name, email"),
+      supabase.from("survey_participants").select("member_id").eq("survey_id", data.id),
+    ]);
+  if (error || mError || pError) {
+    console.error("Admin survey announce lookup failed:", error || mError || pError);
+    return { status: 500, body: { error: SERVER_ERROR } };
+  }
+  if (!survey) return { status: 404, body: { error: "Sondage introuvable." } };
+  if (surveyState(survey) !== "open") {
+    return { status: 409, body: { error: "Seul un sondage ouvert peut être annoncé." } };
+  }
+
+  const answered = new Set((participants || []).map((p: Record<string, any>) => p.member_id));
+  const recipients = (members || []).filter(
+    (m: Record<string, any>) => m.email && !m.email.endsWith("@acafis.invalid") && !answered.has(m.member_id)
+  );
+
+  const closing = survey.closes_at
+    ? `Vous avez jusqu'au ${new Date(survey.closes_at).toLocaleString("fr-CA", {
+        dateStyle: "long",
+        timeStyle: "short",
+        timeZone: "America/Toronto",
+      })} pour répondre.`
+    : "";
+
+  let sent = 0;
+  for (let i = 0; i < recipients.length; i += 100) {
+    const chunk = recipients.slice(i, i + 100);
+    const { error: sendError } = await resend.batch.send(
+      chunk.map((m: Record<string, any>) => ({
+        from: EMAIL_FROM,
+        to: m.email,
+        replyTo: "infos@acafis.ca",
+        subject: `[ACAFIS] Votre avis compte : ${survey.title}`,
+        text: [
+          `Bonjour ${m.first_name},`,
+          "",
+          `Le Bureau Exécutif d'ACAFIS Canada sollicite votre avis : « ${survey.title} ».`,
+          ...(survey.description ? ["", survey.description] : []),
+          "",
+          survey.is_anonymous
+            ? "Ce sondage est anonyme : vos réponses ne seront pas liées à votre nom."
+            : "Ce sondage est nominatif : le Bureau verra vos réponses avec votre nom.",
+          ...(closing ? [closing] : []),
+          "",
+          `Pour répondre, connectez-vous à votre Espace Membre : ${MEMBER_AREA_URL}`,
+          `(avec votre courriel ${m.email} et votre numéro de membre ${m.member_id}).`,
+          "",
+          "Merci de votre participation,",
+          "Le Bureau Exécutif d'ACAFIS Canada",
+        ].join("\n"),
+      }))
+    );
+    if (sendError) {
+      console.error("Resend survey announce batch failed:", sendError);
+      return { status: 502, body: { sent, error: `Envoi interrompu après ${sent} courriel(s) : ${sendError.message}` } };
+    }
+    sent += chunk.length;
+  }
+
+  return { status: 200, body: { sent } };
 }
 
 export interface AdminSurveyDeleteBody {
