@@ -1,13 +1,13 @@
 import { BureauMember, Activity, ProjectPhase, ServiceItem, DocumentItem, BoutiqueItem, MajorProject, Localized } from "../types";
-import programmeHiver from "../assets/images/programme-hiver.jpg";
-import programmePrintemps from "../assets/images/programme-printemps.jpg";
-import programmeEte from "../assets/images/programme-ete.jpg";
-import programmeAutomne from "../assets/images/programme-automne.jpg";
-import recipiendairesGroupe from "../assets/images/recipiendaires-groupe.jpg";
-import espaceJeuneColonie from "../assets/images/espace-jeune-colonie.jpg";
+import programmeHiver from "../assets/images/programme-hiver.webp";
+import programmePrintemps from "../assets/images/programme-printemps.webp";
+import programmeEte from "../assets/images/programme-ete.webp";
+import programmeAutomne from "../assets/images/programme-automne.webp";
+import recipiendairesGroupe from "../assets/images/recipiendaires-groupe.webp";
+import espaceJeuneColonie from "../assets/images/espace-jeune-colonie.webp";
 import partnerRgsc from "../assets/images/partner-rgsc.png";
 import partnerAfroleck from "../assets/images/partner-afroleck.png";
-import partnerCdnNdg from "../assets/images/partner-cdn-ndg.jpg";
+import partnerCdnNdg from "../assets/images/partner-cdn-ndg.webp";
 
 const L = (fr: string, en: string): Localized => ({ fr, en });
 const LA = (fr: string[], en: string[]): Localized<string[]> => ({ fr, en });
