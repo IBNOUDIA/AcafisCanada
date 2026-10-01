@@ -16,6 +16,8 @@ export const FacebookVideoEmbed: React.FC<FacebookVideoEmbedProps> = ({ url, cla
       <iframe
         src={src}
         title="Témoignage vidéo ACAFIS"
+        // Facebook's player is heavy: only fetch it when scrolled near.
+        loading="lazy"
         className="absolute inset-0 w-full h-full"
         style={{ border: "none", overflow: "hidden" }}
         scrolling="no"

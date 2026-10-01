@@ -614,7 +614,7 @@ export const AdminSurveys: React.FC<{ token: string }> = ({ token }) => {
                       onClick={() => startEdit(s)}
                       title={t("admin.edit")}
                       aria-label={t("admin.edit")}
-                      className="p-2 rounded-lg text-slate-400 hover:text-emerald-700 hover:bg-emerald-50 cursor-pointer"
+                      className="p-2 rounded-lg text-slate-500 hover:text-emerald-700 hover:bg-emerald-50 cursor-pointer"
                     >
                       <Pencil className="w-4 h-4" />
                     </button>
@@ -622,7 +622,7 @@ export const AdminSurveys: React.FC<{ token: string }> = ({ token }) => {
                       onClick={() => window.confirm(t("surveys.deleteConfirm")) && run("surveys-delete", { id: s.id })}
                       title={t("admin.delete")}
                       aria-label={t("admin.delete")}
-                      className="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 cursor-pointer"
+                      className="p-2 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50 cursor-pointer"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>

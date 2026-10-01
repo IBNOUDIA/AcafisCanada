@@ -233,6 +233,7 @@ const fr = {
 
   "common.copy": "Copier",
   "common.copied": "Copié !",
+  "common.skipToContent": "Aller au contenu principal",
   "common.close": "Fermer",
 
   "paymentModal.tabPayment": "Paiement Cotisation (Interac)",
@@ -257,6 +258,8 @@ const fr = {
   "modal.footerBadge": "Agrément officiel ACAFIS Canada",
 
   "media.badge": "Vie Communautaire & Culture Sénégalaise 🇸🇳",
+  "media.videoTitle": "Vidéo ACAFIS",
+  "media.playVideo": "Lire la vidéo",
   "media.title": "Média, Boutique Solidaire & Partenaires",
   "media.intro": "Retrouvez les moments forts de notre communauté, notre galerie photos officielle et notre boutique de solidarité.",
   "media.tabGallery": "Média & Galerie Photo",
@@ -989,6 +992,7 @@ const en: typeof fr = {
 
   "common.copy": "Copy",
   "common.copied": "Copied!",
+  "common.skipToContent": "Skip to main content",
   "common.close": "Close",
 
   "paymentModal.tabPayment": "Membership Payment (Interac)",
@@ -1013,6 +1017,8 @@ const en: typeof fr = {
   "modal.footerBadge": "Official ACAFIS Canada accreditation",
 
   "media.badge": "Community Life & Senegalese Culture 🇸🇳",
+  "media.videoTitle": "ACAFIS video",
+  "media.playVideo": "Play video",
   "media.title": "Media, Solidarity Shop & Partners",
   "media.intro": "Discover our community's key moments, our official photo gallery, and our solidarity shop.",
   "media.tabGallery": "Media & Photo Gallery",

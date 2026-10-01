@@ -28,12 +28,12 @@ export const LEGAL_NOTICE_SECTIONS: LegalNoticeSection[] = [
     title: L("Éditeur du site", "Site Publisher"),
     paragraphs: LP(
       [
-        `Le site acafis-canada.vercel.app est édité par ACAFIS Canada (Association Communautaire d'Aide aux Familles Immigrantes Sénégalaises), organisme à but non lucratif immatriculé au Registre des entreprises du Québec sous le numéro NEQ ${ORGANIZATION_NEQ}.`,
+        `Le site www.acafis.ca est édité par ACAFIS Canada (Association Communautaire d'Aide aux Familles Immigrantes Sénégalaises), organisme à but non lucratif immatriculé au Registre des entreprises du Québec sous le numéro NEQ ${ORGANIZATION_NEQ}.`,
         `Adresse : ${ORGANIZATION_ADDRESS}`,
         `Courriel : ${ORGANIZATION_CONTACT_EMAIL}`,
       ],
       [
-        `The site acafis-canada.vercel.app is published by ACAFIS Canada (Association Communautaire d'Aide aux Familles Immigrantes Sénégalaises), a non-profit organization registered with the Quebec Enterprise Registrar under NEQ ${ORGANIZATION_NEQ}.`,
+        `The site www.acafis.ca is published by ACAFIS Canada (Association Communautaire d'Aide aux Familles Immigrantes Sénégalaises), a non-profit organization registered with the Quebec Enterprise Registrar under NEQ ${ORGANIZATION_NEQ}.`,
         `Address: ${ORGANIZATION_ADDRESS}`,
         `Email: ${ORGANIZATION_CONTACT_EMAIL}`,
       ]

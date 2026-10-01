@@ -365,7 +365,7 @@ export const MemberDashboard: React.FC = () => {
                   <div>
                     <p className="text-sm font-semibold text-slate-900">{doc.title}</p>
                     {doc.description && <p className="text-xs text-slate-500">{doc.description}</p>}
-                    <p className="text-[11px] text-slate-400">
+                    <p className="text-[11px] text-slate-500">
                       {t("memberDashboard.documentsPublished")} {doc.publishedAt}
                     </p>
                   </div>
@@ -391,7 +391,7 @@ export const MemberDashboard: React.FC = () => {
             {t("memberDashboard.familyTitle")}
           </h2>
           <p className="text-xs text-slate-500">{t("memberDashboard.familyDesc")}</p>
-          <p className="text-[11px] text-slate-400">
+          <p className="text-[11px] text-slate-500">
             {t("privacyPolicy.familyNote")}{" "}
             <Link to={localizePath("/politique-confidentialite")} target="_blank" className="text-emerald-700 hover:underline font-semibold">
               {t("privacyPolicy.consentLinkLabel")}
@@ -434,7 +434,7 @@ export const MemberDashboard: React.FC = () => {
                         <button
                           onClick={() => handleRemoveChild(child.id)}
                           aria-label={t("memberDashboard.removeChildBtn")}
-                          className="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                          className="p-2 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>

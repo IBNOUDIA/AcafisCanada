@@ -72,7 +72,7 @@ export const MemberContactForm: React.FC<{ member: MemberRecord; onSaved: (membe
           </p>
           <p className="flex items-center gap-2 text-slate-900">
             <MapPin className="w-4 h-4 text-emerald-700 shrink-0" />
-            {member.city || <span className="text-slate-400 text-xs">—</span>}
+            {member.city || <span className="text-slate-500 text-xs">—</span>}
           </p>
         </div>
       ) : (

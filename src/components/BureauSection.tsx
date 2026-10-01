@@ -251,7 +251,7 @@ export const BureauSection: React.FC<BureauSectionProps> = ({ onContactSecretary
         {/* 3. Commissions Spécialisées & Communication */}
         <div>
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-8 h-8 rounded-lg bg-amber-600 text-white flex items-center justify-center font-bold text-xs">
+            <div className="w-8 h-8 rounded-lg bg-amber-700 text-white flex items-center justify-center font-bold text-xs">
               03
             </div>
             <div>

@@ -4,19 +4,14 @@
 import fs from "fs";
 import path from "path";
 import { fileURLToPath } from "url";
-import { PAGE_ROUTES } from "../src/routes";
+import { PAGE_ROUTES, SITE_ORIGIN } from "../src/routes";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-// TODO: swap for https://acafis.ca once the custom domain is live and
-// verified (see .env.example's note on RESEND_FROM_EMAIL for the same
-// pending-domain situation).
-const SITE_ORIGIN = "https://acafis-canada.vercel.app";
 
 // Public-facing pages that exist outside PAGE_ROUTES (not in the main nav,
 // but still meant to be indexed). Keep in sync by hand — there are few of
 // these and they change rarely.
-const EXTRA_PUBLIC_PATHS = ["/politique-confidentialite", "/espace-membre"];
+const EXTRA_PUBLIC_PATHS = ["/politique-confidentialite", "/mentions-legales", "/espace-membre"];
 
 const allPaths = [...PAGE_ROUTES.map((r) => r.path), ...EXTRA_PUBLIC_PATHS];
 

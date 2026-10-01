@@ -4,10 +4,11 @@
  */
 
 import React, { useState, useEffect, Suspense, lazy } from "react";
+import { MotionConfig } from "motion/react";
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useLocation } from "react-router-dom";
 import { Navbar } from "./components/Navbar";
 import { Footer } from "./components/Footer";
-import { pathForId, idForPath } from "./routes";
+import { pathForId, idForPath, SITE_ORIGIN } from "./routes";
 import { LanguageProvider, useLanguage } from "./i18n/LanguageContext";
 import { translations, TranslationKey } from "./i18n/translations";
 
@@ -55,8 +56,9 @@ const ScrollToTop: React.FC = () => {
 
 // Gives each page its own browser tab title (better UX, bookmarks and SEO
 // than a single static title shared across every route), keeps the
-// <html lang> attribute in sync, and points search engines to the French/
-// English versions of the current page via <link rel="alternate" hreflang>.
+// <html lang> attribute in sync, declares the page's own canonical URL, and
+// points search engines to its French/English versions via hreflang links.
+// URLs always use SITE_ORIGIN (www.acafis.ca), whatever host served the page.
 const PageTitle: React.FC = () => {
   const { pathname } = useLocation();
   const { lang, localizePath } = useLanguage();
@@ -66,17 +68,17 @@ const PageTitle: React.FC = () => {
     document.title = translations[lang][key] ?? translations.fr[key] ?? "ACAFIS Canada";
     document.documentElement.lang = lang;
 
-    const origin = window.location.origin;
-    const altLinks: Array<{ hreflang: string; href: string }> = [
-      { hreflang: "fr", href: `${origin}${localizePath(pathname, "fr")}` },
-      { hreflang: "en", href: `${origin}${localizePath(pathname, "en")}` },
-      { hreflang: "x-default", href: `${origin}${localizePath(pathname, "fr")}` },
+    const links: Array<{ rel: string; hreflang?: string; href: string }> = [
+      { rel: "canonical", href: `${SITE_ORIGIN}${localizePath(pathname, lang)}` },
+      { rel: "alternate", hreflang: "fr", href: `${SITE_ORIGIN}${localizePath(pathname, "fr")}` },
+      { rel: "alternate", hreflang: "en", href: `${SITE_ORIGIN}${localizePath(pathname, "en")}` },
+      { rel: "alternate", hreflang: "x-default", href: `${SITE_ORIGIN}${localizePath(pathname, "fr")}` },
     ];
     const created: HTMLLinkElement[] = [];
-    altLinks.forEach(({ hreflang, href }) => {
+    links.forEach(({ rel, hreflang, href }) => {
       const link = document.createElement("link");
-      link.rel = "alternate";
-      link.hreflang = hreflang;
+      link.rel = rel;
+      if (hreflang) link.hreflang = hreflang;
       link.href = href;
       document.head.appendChild(link);
       created.push(link);
@@ -88,7 +90,7 @@ const PageTitle: React.FC = () => {
 
 const AppShell: React.FC = () => {
   const navigate = useNavigate();
-  const { localizePath } = useLanguage();
+  const { lang, localizePath } = useLanguage();
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState<boolean>(false);
   const [isDocumentsModalOpen, setIsDocumentsModalOpen] = useState<boolean>(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
@@ -118,6 +120,15 @@ const AppShell: React.FC = () => {
       <ScrollToTop />
       <PageTitle />
 
+      {/* Skip link: hidden until focused, lets keyboard and screen-reader
+          users jump past the navigation straight to the page content. */}
+      <a
+        href="#contenu"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:px-4 focus:py-2.5 focus:rounded-xl focus:bg-emerald-800 focus:text-white focus:text-sm focus:font-bold focus:shadow-lg"
+      >
+        {translations[lang]["common.skipToContent"]}
+      </a>
+
       {/* Top Navbar with the flat, page-based menu */}
       <Navbar
         onNavigate={handleNavigate}
@@ -125,7 +136,7 @@ const AppShell: React.FC = () => {
         onOpenPaymentModal={handleOpenPaymentModal}
       />
 
-      <main className="flex-1">
+      <main id="contenu" tabIndex={-1} className="flex-1 focus:outline-hidden">
         <Suspense fallback={<PageLoadingFallback />}>
         <Routes>
           {(() => {
@@ -281,7 +292,11 @@ export default function App() {
   return (
     <BrowserRouter>
       <LanguageProvider>
-        <AppShell />
+        {/* "user": respects the visitor's reduced-motion system setting —
+            fade-ins keep their opacity change but drop the slide. */}
+        <MotionConfig reducedMotion="user">
+          <AppShell />
+        </MotionConfig>
       </LanguageProvider>
     </BrowserRouter>
   );

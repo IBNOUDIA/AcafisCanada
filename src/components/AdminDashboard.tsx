@@ -728,7 +728,7 @@ export const AdminDashboard: React.FC = () => {
                     <tr key={m.memberId} className="border-b border-slate-50 align-top">
                       <td className="py-2.5 pr-3 font-semibold text-slate-900 whitespace-nowrap">
                         {m.firstName} {m.lastName}
-                        <span className="block text-[10px] font-mono font-normal text-slate-400">{m.memberId}</span>
+                        <span className="block text-[10px] font-mono font-normal text-slate-500">{m.memberId}</span>
                       </td>
                       <td className="py-2.5 pr-3 text-slate-600">
                         {isEditing ? (
@@ -1123,7 +1123,7 @@ export const AdminDashboard: React.FC = () => {
                               onClick={() => toggleWorkshopRegistrations(w)}
                               title={w.registrationsOpen ? t("admin.workshopCloseBtn") : t("admin.workshopOpenBtn")}
                               aria-label={w.registrationsOpen ? t("admin.workshopCloseBtn") : t("admin.workshopOpenBtn")}
-                              className="p-2 rounded-lg text-slate-400 hover:text-amber-700 hover:bg-amber-50 transition-colors cursor-pointer"
+                              className="p-2 rounded-lg text-slate-500 hover:text-amber-700 hover:bg-amber-50 transition-colors cursor-pointer"
                             >
                               {w.registrationsOpen ? <LockOpen className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
                             </button>
@@ -1133,7 +1133,7 @@ export const AdminDashboard: React.FC = () => {
                               onClick={() => exportWorkshopCsv(w)}
                               title={t("admin.workshopExportBtn")}
                               aria-label={t("admin.workshopExportBtn")}
-                              className="p-2 rounded-lg text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
+                              className="p-2 rounded-lg text-slate-500 hover:text-slate-900 hover:bg-slate-100 transition-colors cursor-pointer"
                             >
                               <Download className="w-4 h-4" />
                             </button>
@@ -1142,7 +1142,7 @@ export const AdminDashboard: React.FC = () => {
                             onClick={() => startEditWorkshop(w)}
                             title={t("admin.edit")}
                             aria-label={t("admin.edit")}
-                            className="p-2 rounded-lg text-slate-400 hover:text-emerald-700 hover:bg-emerald-50 transition-colors cursor-pointer"
+                            className="p-2 rounded-lg text-slate-500 hover:text-emerald-700 hover:bg-emerald-50 transition-colors cursor-pointer"
                           >
                             <Pencil className="w-4 h-4" />
                           </button>
@@ -1150,7 +1150,7 @@ export const AdminDashboard: React.FC = () => {
                             onClick={() => handleRemoveWorkshop(w.id)}
                             title={t("admin.delete")}
                             aria-label={t("admin.delete")}
-                            className="p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                            className="p-2 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
                           >
                             <Trash2 className="w-4 h-4" />
                           </button>
@@ -1165,7 +1165,7 @@ export const AdminDashboard: React.FC = () => {
                       )}
 
                       {w.registrations.length === 0 ? (
-                        <p className="text-[11px] text-slate-400">{t("admin.workshopNoRegistrations")}</p>
+                        <p className="text-[11px] text-slate-500">{t("admin.workshopNoRegistrations")}</p>
                       ) : (
                         <ul className="divide-y divide-slate-200 border-t border-slate-200 text-xs">
                           {w.registrations.map((r) => (
@@ -1293,11 +1293,11 @@ export const AdminDashboard: React.FC = () => {
                   <div>
                     <p className="text-sm font-semibold text-slate-900">{doc.title}</p>
                     {doc.description && <p className="text-xs text-slate-500">{doc.description}</p>}
-                    <p className="text-[11px] text-slate-400">{doc.publishedAt}</p>
+                    <p className="text-[11px] text-slate-500">{doc.publishedAt}</p>
                   </div>
                   <button
                     onClick={() => handleRemoveDocument(doc.id)}
-                    className="shrink-0 p-2 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
+                    className="shrink-0 p-2 rounded-lg text-slate-500 hover:text-red-600 hover:bg-red-50 transition-colors cursor-pointer"
                   >
                     <Trash2 className="w-4 h-4" />
                   </button>

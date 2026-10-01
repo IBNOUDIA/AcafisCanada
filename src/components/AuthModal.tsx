@@ -75,7 +75,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
+          className="absolute top-4 right-4 p-2 rounded-xl text-slate-500 hover:text-slate-700 hover:bg-slate-100 transition-colors cursor-pointer"
           aria-label={t("common.close")}
         >
           <X className="w-5 h-5" />
@@ -121,7 +121,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   {t("authModal.labelEmail")}
                 </label>
                 <div className="relative">
-                  <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                  <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
                   <input
                     type="email"
                     required
@@ -138,7 +138,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   {t("authModal.labelPassword")}
                 </label>
                 <div className="relative">
-                  <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                  <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
                   <input
                     type="password"
                     required

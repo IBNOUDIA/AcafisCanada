@@ -71,7 +71,7 @@ export const PaymentDocumentsModal: React.FC<PaymentDocumentsModalProps> = ({
 
           <button
             onClick={onClose}
-            className="p-2 rounded-xl text-slate-400 hover:text-slate-700 hover:bg-slate-200/60 transition-colors cursor-pointer"
+            className="p-2 rounded-xl text-slate-500 hover:text-slate-700 hover:bg-slate-200/60 transition-colors cursor-pointer"
             aria-label={t("common.close")}
           >
             <X className="w-5 h-5" />
@@ -102,7 +102,7 @@ export const PaymentDocumentsModal: React.FC<PaymentDocumentsModalProps> = ({
                 {/* Email */}
                 <div className="flex items-center justify-between p-3 rounded-xl bg-white border border-emerald-100 shadow-xs">
                   <div>
-                    <span className="block text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                    <span className="block text-[10px] uppercase font-bold text-slate-500 tracking-wider">
                       {t("paymentModal.recipientLabel")}
                     </span>
                     <span className="font-mono text-sm font-bold text-emerald-900">
@@ -121,7 +121,7 @@ export const PaymentDocumentsModal: React.FC<PaymentDocumentsModalProps> = ({
                 {/* Secret Question */}
                 <div className="flex items-center justify-between p-3 rounded-xl bg-white border border-emerald-100 shadow-xs">
                   <div>
-                    <span className="block text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                    <span className="block text-[10px] uppercase font-bold text-slate-500 tracking-wider">
                       {t("paymentModal.secretQuestionLabel")}
                     </span>
                     <span className="font-semibold text-sm text-slate-900">
@@ -140,7 +140,7 @@ export const PaymentDocumentsModal: React.FC<PaymentDocumentsModalProps> = ({
                 {/* Secret Answer */}
                 <div className="flex items-center justify-between p-3 rounded-xl bg-white border border-emerald-100 shadow-xs">
                   <div>
-                    <span className="block text-[10px] uppercase font-bold text-slate-400 tracking-wider">
+                    <span className="block text-[10px] uppercase font-bold text-slate-500 tracking-wider">
                       {t("paymentModal.secretAnswerLabel")}
                     </span>
                     <span className="font-mono text-sm font-bold text-slate-900">
@@ -227,7 +227,7 @@ export const PaymentDocumentsModal: React.FC<PaymentDocumentsModalProps> = ({
                 </div>
 
                 <div className="space-y-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-slate-400">
+                  <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
                     {t("documentsModal.keyArticles")}
                   </span>
                   <ul className="space-y-1.5 text-xs text-slate-700">

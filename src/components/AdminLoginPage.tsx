@@ -60,7 +60,7 @@ export const AdminLoginPage: React.FC = () => {
                 {t("admin.labelEmail")}
               </label>
               <div className="relative">
-                <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
                 <input
                   type="email"
                   required
@@ -76,7 +76,7 @@ export const AdminLoginPage: React.FC = () => {
                 {t("admin.labelPassword")}
               </label>
               <div className="relative">
-                <Lock className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                <Lock className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
                 <input
                   type="password"
                   required

@@ -36,7 +36,7 @@ export const SurveyResultBars: React.FC<{ results: SurveyResults; showTexts: boo
           {q.type === "text" ? (
             showTexts ? (
               q.texts.length === 0 ? (
-                <p className="text-xs text-slate-400">{t("surveys.noAnswers")}</p>
+                <p className="text-xs text-slate-500">{t("surveys.noAnswers")}</p>
               ) : (
                 <ul className="space-y-1.5 max-h-72 overflow-y-auto">
                   {q.texts.map((text, i) => (

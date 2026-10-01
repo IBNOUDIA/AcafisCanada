@@ -186,7 +186,7 @@ export const AdminRegistrationRow: React.FC<{
             onClick={onRemove}
             title={t("admin.workshopRegistrationRemove")}
             aria-label={t("admin.workshopRegistrationRemove")}
-            className="p-0.5 rounded-full text-slate-400 hover:text-red-600 hover:bg-red-50 cursor-pointer"
+            className="p-0.5 rounded-full text-slate-500 hover:text-red-600 hover:bg-red-50 cursor-pointer"
           >
             <Trash2 className="w-3.5 h-3.5" />
           </button>

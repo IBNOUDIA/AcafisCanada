@@ -43,6 +43,10 @@ export const AcafisLogo: React.FC<AcafisLogoProps> = ({
       src={acafisLogoOfficial}
       alt="Logo Officiel ACAFIS — Association Communautaire d'Aide aux Familles Immigrantes Sénégalaises"
       referrerPolicy="no-referrer"
+      // Intrinsic size (1024×558) lets the browser reserve the space before
+      // the image arrives; CSS still sets the displayed height.
+      width={1024}
+      height={558}
       className={`${heightMap[size]} w-auto object-contain shrink-0`}
       style={{ aspectRatio: LOGO_ASPECT_RATIO }}
     />

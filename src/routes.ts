@@ -1,3 +1,8 @@
+// The site's one official address. Canonical URLs, hreflang links and the
+// sitemap all use it, so search engines index www.acafis.ca and not the
+// acafis-canada.vercel.app alias (which vercel.json redirects here).
+export const SITE_ORIGIN = "https://www.acafis.ca";
+
 export interface PageRoute {
   id: string;
   path: string;

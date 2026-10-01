@@ -147,7 +147,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                   <div>
                     <span className="font-semibold block text-slate-900">{t("contact.hqLabel")}</span>
                     <span>4845, avenue de Courtrai, suite 101, Montréal, QC H3W 0A2, Canada</span>
-                    <span className="block text-[11px] text-slate-400 mt-0.5">
+                    <span className="block text-[11px] text-slate-500 mt-0.5">
                       {t("footer.neqLabel")} : {ORGANIZATION_NEQ}
                     </span>
                   </div>
@@ -230,7 +230,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                 {/* Name & Email */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                    <label htmlFor="contact-input-name" className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                       {t("contact.labelFullName")}
                     </label>
                     <input
@@ -245,7 +245,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                    <label htmlFor="contact-input-email" className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                       {t("contact.labelEmail")}
                     </label>
                     <input
@@ -263,7 +263,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                 {/* Phone & Subject */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                    <label htmlFor="contact-input-phone" className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                       {t("contact.labelPhone")}
                     </label>
                     <input
@@ -277,7 +277,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                    <label htmlFor="contact-select-subject" className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                       {t("contact.labelSubject")}
                     </label>
                     <select
@@ -297,7 +297,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
 
                 {/* Message */}
                 <div>
-                  <label className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
+                  <label htmlFor="contact-textarea-message" className="block text-xs font-bold text-slate-700 uppercase tracking-wider mb-1.5">
                     {t("contact.labelMessage")}
                   </label>
                   <textarea

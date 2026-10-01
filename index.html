@@ -4,26 +4,55 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>ACAFIS Canada</title>
-    <meta name="description" content="Portail officiel d'ACAFIS Canada - Le cœur battant de la diaspora pour le développement solidaire entre le Canada et le Sénégal." />
+    <meta name="description" content="ACAFIS Canada, association communautaire de la diaspora sénégalaise à Montréal : entraide aux familles immigrantes, activités jeunesse, ateliers nTIC, soccer et projets solidaires entre le Canada et le Sénégal." />
     <link rel="icon" type="image/jpeg" href="/src/assets/images/acafis-logo-official.jpg" />
     <link rel="apple-touch-icon" href="/src/assets/images/acafis-logo-official.jpg" />
-    <link rel="canonical" href="https://acafis-canada.vercel.app/" />
+    <!-- The canonical and hreflang links are set per page by PageTitle (src/App.tsx). -->
     <meta property="og:title" content="ACAFIS Canada" />
-    <meta property="og:description" content="Portail officiel d'ACAFIS Canada - Le cœur battant de la diaspora pour le développement solidaire entre le Canada et le Sénégal." />
+    <meta property="og:description" content="Association communautaire de la diaspora sénégalaise à Montréal : entraide aux familles, activités jeunesse et projets solidaires entre le Canada et le Sénégal." />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://acafis-canada.vercel.app/" />
-    <meta property="og:image" content="https://acafis-canada.vercel.app/og-image.jpg" />
+    <meta property="og:url" content="https://www.acafis.ca/" />
+    <meta property="og:image" content="https://www.acafis.ca/og-image.jpg" />
     <meta property="og:site_name" content="ACAFIS Canada" />
     <meta property="og:locale" content="fr_CA" />
+    <meta property="og:locale:alternate" content="en_CA" />
     <meta name="twitter:card" content="summary_large_image" />
     <meta name="theme-color" content="#065f46" />
+    <script type="application/ld+json">
+      {
+        "@context": "https://schema.org",
+        "@type": "NGO",
+        "name": "ACAFIS Canada",
+        "alternateName": "Association Communautaire d'Aide aux Familles Immigrantes Sénégalaises",
+        "url": "https://www.acafis.ca/",
+        "logo": "https://www.acafis.ca/og-image.jpg",
+        "email": "infos@acafis.ca",
+        "description": "Association communautaire de la diaspora sénégalaise à Montréal : entraide aux familles immigrantes, activités jeunesse et projets solidaires entre le Canada et le Sénégal.",
+        "address": {
+          "@type": "PostalAddress",
+          "streetAddress": "4845, avenue de Courtrai, suite 101",
+          "addressLocality": "Montréal",
+          "addressRegion": "QC",
+          "postalCode": "H3W 0A2",
+          "addressCountry": "CA"
+        },
+        "identifier": {
+          "@type": "PropertyValue",
+          "name": "NEQ",
+          "value": "1167888842"
+        },
+        "areaServed": ["Montréal", "Québec", "Canada", "Sénégal"],
+        "sameAs": ["https://www.facebook.com/share/1Cm2zyQF7x/"]
+      }
+    </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Cabinet+Grotesk:wght@600;700;800;900&display=swap" rel="stylesheet">
+    <!-- Cabinet Grotesk (--font-display) isn't on Google Fonts, so it isn't requested
+         here: headings fall back to Plus Jakarta Sans, as they always have. -->
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
   </head>
   <body class="bg-slate-50 text-slate-900 font-sans antialiased selection:bg-emerald-600 selection:text-white">
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
 </html>
-

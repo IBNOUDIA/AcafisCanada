@@ -214,7 +214,7 @@ export const CiteJardinProject: React.FC<CiteJardinProjectProps> = ({
                       <li key={dIdx} className="flex items-start gap-2">
                         <CheckCircle2
                           className={`w-3.5 h-3.5 shrink-0 mt-0.5 ${
-                            isCurrent ? "text-emerald-600" : "text-slate-400"
+                            isCurrent ? "text-emerald-600" : "text-slate-500"
                           }`}
                         />
                         <span>{detail}</span>

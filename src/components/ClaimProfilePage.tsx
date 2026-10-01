@@ -123,7 +123,7 @@ export const ClaimProfilePage: React.FC = () => {
                       {t("claimProfile.labelEmail")}
                     </label>
                     <div className="relative">
-                      <Mail className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                      <Mail className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
                       <input
                         type="email"
                         required
@@ -140,7 +140,7 @@ export const ClaimProfilePage: React.FC = () => {
                       {t("claimProfile.labelPhone")}
                     </label>
                     <div className="relative">
-                      <Phone className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                      <Phone className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
                       <input
                         type="tel"
                         value={phone}
@@ -156,7 +156,7 @@ export const ClaimProfilePage: React.FC = () => {
                       {t("claimProfile.labelCity")}
                     </label>
                     <div className="relative">
-                      <MapPin className="w-4 h-4 text-slate-400 absolute left-3.5 top-3" />
+                      <MapPin className="w-4 h-4 text-slate-500 absolute left-3.5 top-3" />
                       <input
                         type="text"
                         value={city}

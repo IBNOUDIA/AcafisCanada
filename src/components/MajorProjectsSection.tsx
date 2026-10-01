@@ -100,9 +100,9 @@ export const MajorProjectsSection: React.FC<MajorProjectsSectionProps> = ({
                   </div>
                   <div className="shrink-0 self-start sm:self-center">
                     {isExpanded ? (
-                      <ChevronUp className="w-5 h-5 text-slate-400" />
+                      <ChevronUp className="w-5 h-5 text-slate-500" />
                     ) : (
-                      <ChevronDown className="w-5 h-5 text-slate-400" />
+                      <ChevronDown className="w-5 h-5 text-slate-500" />
                     )}
                   </div>
                 </button>
@@ -115,7 +115,7 @@ export const MajorProjectsSection: React.FC<MajorProjectsSectionProps> = ({
 
                     {/* Roadmap */}
                     <div>
-                      <h4 className="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">
+                      <h4 className="text-xs font-bold text-slate-500 uppercase tracking-wider mb-3">
                         {t("projets.roadmapLabel")}
                       </h4>
                       <RevealGroup className="grid grid-cols-1 md:grid-cols-3 gap-4">

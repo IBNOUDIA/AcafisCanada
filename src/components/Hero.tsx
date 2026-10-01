@@ -250,9 +250,9 @@ export const Hero: React.FC<HeroProps> = ({
                   <div className="p-3 rounded-xl bg-slate-950/70 border border-sky-800/50">
                     <div className="flex items-center gap-2">
                       <span className="text-lg">{impactExamples[activeImpactTab].icon}</span>
-                      <h4 className={`text-xs font-bold ${impactExamples[activeImpactTab].highlightColor}`}>
+                      <h3 className={`text-xs font-bold ${impactExamples[activeImpactTab].highlightColor}`}>
                         {impactExamples[activeImpactTab].title}
-                      </h4>
+                      </h3>
                     </div>
                     <p className="mt-1 text-[11px] text-sky-200/90 leading-relaxed">
                       {impactExamples[activeImpactTab].desc}

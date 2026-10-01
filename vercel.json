@@ -2,6 +2,14 @@
   "buildCommand": "npx tsx scripts/generate-sitemap.ts && vite build",
   "outputDirectory": "dist",
   "framework": "vite",
+  "redirects": [
+    {
+      "source": "/:path((?!api/).*)",
+      "has": [{ "type": "host", "value": "acafis-canada.vercel.app" }],
+      "destination": "https://www.acafis.ca/:path",
+      "permanent": true
+    }
+  ],
   "rewrites": [
     {
       "source": "/((?!api/|sitemap\\.xml|robots\\.txt).*)",

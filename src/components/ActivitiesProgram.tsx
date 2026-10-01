@@ -86,7 +86,7 @@ export const ActivitiesProgram: React.FC = () => {
                     {seasonIcons[act.id]}
                     <span>{act.season[lang].split(" ")[0]}</span>
                   </div>
-                  <span className={`text-[10px] font-medium ${isSelected ? "text-emerald-200" : "text-slate-400"}`}>
+                  <span className={`text-[10px] font-medium ${isSelected ? "text-emerald-200" : "text-slate-500"}`}>
                     {act.season[lang].split(" ").slice(1).join(" ")}
                   </span>
                 </button>
@@ -139,7 +139,7 @@ export const ActivitiesProgram: React.FC = () => {
 
             {/* Tags */}
             <div className="flex flex-wrap items-center gap-2">
-              <span className="text-xs font-bold text-slate-400 uppercase tracking-wider mr-1">
+              <span className="text-xs font-bold text-slate-500 uppercase tracking-wider mr-1">
                 {t("common.themes")}
               </span>
               {currentActivity.tags[lang].map((tag, idx) => (
