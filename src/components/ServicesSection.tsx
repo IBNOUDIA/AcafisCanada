@@ -16,7 +16,7 @@ import { SERVICES_MISSIONS, PAYMENT_INTERAC_INFO, ACAFIS_VIDEOS } from "../data/
 import { Reveal, RevealGroup } from "./Reveal";
 import { VideoGrid } from "./VideoGrid";
 import { useTranslation } from "../i18n/translations";
-import servicesHeroPhoto from "../assets/images/services-hero.jpg";
+import servicesHeroPhoto from "../assets/images/services-hero.webp";
 
 interface ServicesSectionProps {
   onNavigate: (sectionId: string) => void;
@@ -51,6 +51,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
         {/* Hero photo — solidarity in action */}
         <Reveal className="relative rounded-3xl overflow-hidden mb-14 h-64 sm:h-80 shadow-lg">
           <img
+            fetchPriority="high"
             src={servicesHeroPhoto}
             alt="Familles de la diaspora ACAFIS réunies en pique-nique communautaire"
             className="absolute inset-0 w-full h-full object-cover"

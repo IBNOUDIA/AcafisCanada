@@ -4,7 +4,7 @@ import { ACAFIS_VIDEOS } from "../data/acafisData";
 import { Reveal } from "./Reveal";
 import { VideoGrid } from "./VideoGrid";
 import { useTranslation } from "../i18n/translations";
-import testimonialsHeroPhoto from "../assets/images/temoignages-hero.jpg";
+import testimonialsHeroPhoto from "../assets/images/temoignages-hero.webp";
 
 export const TestimonialsSection: React.FC = () => {
   const { t } = useTranslation();
@@ -33,6 +33,7 @@ export const TestimonialsSection: React.FC = () => {
         {/* Real photo banner */}
         <Reveal className="relative rounded-3xl overflow-hidden mb-16 h-64 sm:h-80 shadow-lg max-w-5xl mx-auto">
           <img
+            fetchPriority="high"
             src={testimonialsHeroPhoto}
             alt="Membres de la communauté ACAFIS réunis en toute convivialité"
             className="absolute inset-0 w-full h-full object-cover"

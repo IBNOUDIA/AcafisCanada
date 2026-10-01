@@ -24,8 +24,8 @@ import { readFileAsBase64, EncodedFile } from "../lib/fileToBase64";
 import { MarkdownLite } from "./MarkdownLite";
 import { getSpeechRecognitionCtor, isTtsSupported, detectSpeechLang, loadVoices, pickVoice, stripMarkdownForSpeech } from "../lib/voice";
 import { useTranslation } from "../i18n/translations";
-import mentorHeroPhoto from "../assets/images/mentor-hero.jpg";
-import koccBarmaAvatar from "../assets/images/kocc-barma-avatar.jpg";
+import mentorHeroPhoto from "../assets/images/mentor-hero.webp";
+import koccBarmaAvatar from "../assets/images/kocc-barma-avatar-sm.webp";
 
 export const MentorAISecution: React.FC = () => {
   const { t, lang } = useTranslation();

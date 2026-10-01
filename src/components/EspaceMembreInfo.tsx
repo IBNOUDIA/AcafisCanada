@@ -14,7 +14,7 @@ import { Link } from "react-router-dom";
 import { useTranslation } from "../i18n/translations";
 import { useLanguage } from "../i18n/LanguageContext";
 import { Reveal } from "./Reveal";
-import adhesionHeroPhoto from "../assets/images/adhesion-hero.jpg";
+import adhesionHeroPhoto from "../assets/images/adhesion-hero.webp";
 
 interface EspaceMembreInfoProps {
   onOpenAuthModal: () => void;
@@ -44,6 +44,7 @@ export const EspaceMembreInfo: React.FC<EspaceMembreInfoProps> = ({
       {/* Hero */}
       <Reveal className="relative h-72 sm:h-96 overflow-hidden">
         <img
+          fetchPriority="high"
           src={adhesionHeroPhoto}
           alt="Membres de la communauté ACAFIS réunis"
           className="absolute inset-0 w-full h-full object-cover"

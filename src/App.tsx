@@ -15,7 +15,10 @@ import { translations, TranslationKey } from "./i18n/translations";
 // Every page (and the on-demand modals/widget) is its own chunk, fetched
 // only when actually needed — otherwise a visitor landing on any single
 // page downloads the admin dashboard, the AI mentor chat, etc. upfront.
-const Hero = lazy(() => import("./components/Hero").then((m) => ({ default: m.Hero })));
+// Bundled up front, unlike the other pages: the homepage's banner photo is
+// its largest element, and lazy-loading Hero made that photo wait for an
+// extra script download before it could even start loading.
+import { Hero } from "./components/Hero";
 const CiteJardinProject = lazy(() => import("./components/CiteJardinProject").then((m) => ({ default: m.CiteJardinProject })));
 const ActivitiesProgram = lazy(() => import("./components/ActivitiesProgram").then((m) => ({ default: m.ActivitiesProgram })));
 const MediaBoutiqueSection = lazy(() => import("./components/MediaBoutiqueSection").then((m) => ({ default: m.MediaBoutiqueSection })));
@@ -54,6 +57,13 @@ const ScrollToTop: React.FC = () => {
   return null;
 };
 
+// Description ids for public pages that aren't in PAGE_ROUTES (French path).
+const EXTRA_PAGE_DESCRIPTIONS: Record<string, string> = {
+  "/espace-membre": "espace-membre",
+  "/politique-confidentialite": "politique",
+  "/mentions-legales": "mentions",
+};
+
 // Gives each page its own browser tab title (better UX, bookmarks and SEO
 // than a single static title shared across every route), keeps the
 // <html lang> attribute in sync, declares the page's own canonical URL, and
@@ -67,6 +77,20 @@ const PageTitle: React.FC = () => {
     const key = `page.title.${id}` as TranslationKey;
     document.title = translations[lang][key] ?? translations.fr[key] ?? "ACAFIS Canada";
     document.documentElement.lang = lang;
+
+    // Each page's own search-result snippet (index.html only carries the
+    // homepage's). Pages outside the main menu are matched by path.
+    const frPath = localizePath(pathname, "fr");
+    const descriptionId = EXTRA_PAGE_DESCRIPTIONS[frPath] ?? id;
+    const descriptionKey = `page.description.${descriptionId}` as TranslationKey;
+    const description = translations[lang][descriptionKey] ?? translations.fr[descriptionKey];
+    if (description) {
+      document.querySelector('meta[name="description"]')?.setAttribute("content", description);
+      document.querySelector('meta[property="og:description"]')?.setAttribute("content", description);
+    }
+    document
+      .querySelector('meta[property="og:url"]')
+      ?.setAttribute("content", `${SITE_ORIGIN}${localizePath(pathname, lang)}`);
 
     const links: Array<{ rel: string; hreflang?: string; href: string }> = [
       { rel: "canonical", href: `${SITE_ORIGIN}${localizePath(pathname, lang)}` },
@@ -94,6 +118,19 @@ const AppShell: React.FC = () => {
   const [isPaymentModalOpen, setIsPaymentModalOpen] = useState<boolean>(false);
   const [isDocumentsModalOpen, setIsDocumentsModalOpen] = useState<boolean>(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState<boolean>(false);
+  const [showMentorWidget, setShowMentorWidget] = useState(false);
+
+  useEffect(() => {
+    // After the window's load event, plus the browser's next idle moment.
+    const show = () => {
+      const idle = (window as Window & { requestIdleCallback?: (cb: () => void) => number }).requestIdleCallback;
+      if (idle) idle(() => setShowMentorWidget(true));
+      else setTimeout(() => setShowMentorWidget(true), 200);
+    };
+    if (document.readyState === "complete") show();
+    else window.addEventListener("load", show, { once: true });
+    return () => window.removeEventListener("load", show);
+  }, []);
 
   const handleNavigate = (sectionId: string) => {
     navigate(localizePath(pathForId(sectionId)));
@@ -280,10 +317,14 @@ const AppShell: React.FC = () => {
         )}
       </Suspense>
 
-      {/* Kocc Barma floats above every page except its own dedicated page */}
-      <Suspense fallback={null}>
-        <KoccBarmaWidget />
-      </Suspense>
+      {/* Kocc Barma floats above every page except its own dedicated page.
+          Mounted once the page has finished loading, so its code and avatar
+          never compete with the page's own content for bandwidth. */}
+      {showMentorWidget && (
+        <Suspense fallback={null}>
+          <KoccBarmaWidget />
+        </Suspense>
+      )}
     </div>
   );
 };

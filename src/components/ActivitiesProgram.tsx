@@ -16,7 +16,7 @@ import { ANNUAL_PROGRAM } from "../data/acafisData";
 import { Activity } from "../types";
 import { Reveal, RevealGroup } from "./Reveal";
 import { useTranslation } from "../i18n/translations";
-import programmeHeroPhoto from "../assets/images/programme-hero.jpg";
+import programmeHeroPhoto from "../assets/images/programme-hero.webp";
 
 export const ActivitiesProgram: React.FC = () => {
   const { t, lang } = useTranslation();
@@ -40,6 +40,7 @@ export const ActivitiesProgram: React.FC = () => {
         {/* Hero photo — a real ACAFIS gathering to open the page */}
         <Reveal className="relative rounded-3xl overflow-hidden mb-14 h-64 sm:h-80 shadow-lg">
           <img
+            fetchPriority="high"
             src={programmeHeroPhoto}
             alt="Membres d'ACAFIS réunis lors d'un rassemblement communautaire"
             className="absolute inset-0 w-full h-full object-cover"
@@ -125,6 +126,8 @@ export const ActivitiesProgram: React.FC = () => {
           {currentActivity.photo && (
             <div className="relative rounded-2xl overflow-hidden h-56 sm:h-72 mb-6 shadow-sm">
               <img
+                loading="lazy"
+                decoding="async"
                 src={currentActivity.photo}
                 alt={currentActivity.title[lang]}
                 className="absolute inset-0 w-full h-full object-cover"

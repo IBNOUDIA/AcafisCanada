@@ -20,8 +20,8 @@ import { MemberRecord } from "../types";
 import { Reveal } from "./Reveal";
 import { useTranslation } from "../i18n/translations";
 import { useLanguage } from "../i18n/LanguageContext";
-import acafisLogoOfficial from "../assets/images/acafis-logo-official.jpg";
-import adhesionHeroPhoto from "../assets/images/adhesion-hero.jpg";
+import acafisLogoOfficial from "../assets/images/acafis-logo-official.webp";
+import adhesionHeroPhoto from "../assets/images/adhesion-hero.webp";
 
 interface MembershipCardGeneratorProps {
   onOpenPaymentModal: () => void;

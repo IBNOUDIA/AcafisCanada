@@ -18,7 +18,7 @@ import { SenegalFlagBadge, SenegalRibbon } from "./SenegalFlagBadge";
 import { Reveal } from "./Reveal";
 import { PAYMENT_INTERAC_INFO } from "../data/acafisData";
 import { useTranslation, HERO_IMPACT_EXAMPLES } from "../i18n/translations";
-import heroCommunityPhoto from "../assets/images/hero-communaute-bbq.jpg";
+import heroCommunityPhoto from "../assets/images/hero-communaute-bbq.webp";
 
 interface HeroProps {
   onNavigate: (sectionId: string) => void;
@@ -52,6 +52,10 @@ export const Hero: React.FC<HeroProps> = ({
         <img
           src={heroCommunityPhoto}
           alt="Rassemblement communautaire de la diaspora ACAFIS lors d'un grand pique-nique estival"
+          // The homepage's largest element: fetch it before other images.
+          fetchPriority="high"
+          width={960}
+          height={640}
           className="absolute inset-0 w-full h-full object-cover"
         />
 

@@ -1,5 +1,5 @@
 import React from "react";
-import acafisLogoOfficial from "../assets/images/acafis-logo-official.jpg";
+import acafisLogoOfficial from "../assets/images/acafis-logo-official.webp";
 
 interface AcafisLogoProps {
   className?: string;

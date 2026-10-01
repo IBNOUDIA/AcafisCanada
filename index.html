@@ -47,9 +47,15 @@
     </script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <!-- Cabinet Grotesk (--font-display) isn't on Google Fonts, so it isn't requested
-         here: headings fall back to Plus Jakarta Sans, as they always have. -->
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap" rel="stylesheet">
+    <!-- Heading face (--font-display in src/index.css). Cabinet Grotesk isn't on
+         Google Fonts; it comes from Fontshare. Loaded without blocking the first
+         paint (media="print" swapped to "all" once fetched): headings show in
+         Plus Jakarta Sans for an instant, then switch. -->
+    <link rel="preconnect" href="https://api.fontshare.com" crossorigin>
+    <link rel="preconnect" href="https://cdn.fontshare.com" crossorigin>
+    <link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@700,800,900&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
+    <noscript><link href="https://api.fontshare.com/v2/css?f[]=cabinet-grotesk@700,800,900&display=swap" rel="stylesheet"></noscript>
   </head>
   <body class="bg-slate-50 text-slate-900 font-sans antialiased selection:bg-emerald-600 selection:text-white">
     <div id="root"></div>

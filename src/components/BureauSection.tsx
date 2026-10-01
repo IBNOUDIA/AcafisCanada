@@ -3,7 +3,7 @@ import { Users, Mail, Phone, Award } from "lucide-react";
 import { BUREAU_MEMBERS, FORMER_PRESIDENTS } from "../data/acafisData";
 import { Reveal, RevealGroup } from "./Reveal";
 import { useTranslation } from "../i18n/translations";
-import bureauHeroPhoto from "../assets/images/bureau-hero.jpg";
+import bureauHeroPhoto from "../assets/images/bureau-hero.webp";
 
 interface BureauSectionProps {
   onContactSecretary: () => void;
@@ -26,6 +26,7 @@ export const BureauSection: React.FC<BureauSectionProps> = ({ onContactSecretary
         {/* Hero photo — a real team gathering to open the page */}
         <Reveal className="relative rounded-3xl overflow-hidden mb-14 h-64 sm:h-80 shadow-lg">
           <img
+            fetchPriority="high"
             src={bureauHeroPhoto}
             alt="L'équipe du Bureau Exécutif ACAFIS réunie"
             className="absolute inset-0 w-full h-full object-cover"

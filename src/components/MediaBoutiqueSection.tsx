@@ -12,24 +12,24 @@ import { PARTNERS_LIST, EXTERNAL_LINKS, ACAFIS_VIDEOS } from "../data/acafisData
 import { Reveal, RevealGroup } from "./Reveal";
 import { VideoGrid } from "./VideoGrid";
 import { useTranslation, TranslationKey } from "../i18n/translations";
-import mediaBbqEte from "../assets/images/media-bbq-ete.jpg";
-import mediaRassemblement from "../assets/images/media-rassemblement.jpg";
-import mediaJeunesseCalypso from "../assets/images/media-jeunesse-calypso.jpg";
-import mediaBureauAines from "../assets/images/media-bureau-aines.jpg";
-import mediaNdogou from "../assets/images/media-ndogou.jpg";
-import mediaExcursion from "../assets/images/media-excursion.jpg";
-import mediaSouvenir1 from "../assets/images/media-souvenir1.jpg";
-import mediaSouvenir2 from "../assets/images/media-souvenir2.jpg";
-import mediaSouvenir3 from "../assets/images/media-souvenir3.jpg";
-import mediaSouvenir4 from "../assets/images/media-souvenir4.jpg";
-import mediaSouvenir5 from "../assets/images/media-souvenir5.jpg";
-import mediaSouvenir6 from "../assets/images/media-souvenir6.jpg";
-import mediaSouvenir8 from "../assets/images/media-souvenir8.jpg";
-import mediaSouvenir9 from "../assets/images/media-souvenir9.jpg";
-import mediaKineGraduation from "../assets/images/media-kine-graduation.jpg";
-import mediaKineGroupe from "../assets/images/media-kine-groupe.jpg";
-import mediaDrummondville from "../assets/images/media-drummondville.jpg";
-import mediaBbqDrummondville from "../assets/images/media-bbq-drummondville.jpg";
+import mediaBbqEte from "../assets/images/media-bbq-ete.webp";
+import mediaRassemblement from "../assets/images/media-rassemblement.webp";
+import mediaJeunesseCalypso from "../assets/images/media-jeunesse-calypso.webp";
+import mediaBureauAines from "../assets/images/media-bureau-aines.webp";
+import mediaNdogou from "../assets/images/media-ndogou.webp";
+import mediaExcursion from "../assets/images/media-excursion.webp";
+import mediaSouvenir1 from "../assets/images/media-souvenir1.webp";
+import mediaSouvenir2 from "../assets/images/media-souvenir2.webp";
+import mediaSouvenir3 from "../assets/images/media-souvenir3.webp";
+import mediaSouvenir4 from "../assets/images/media-souvenir4.webp";
+import mediaSouvenir5 from "../assets/images/media-souvenir5.webp";
+import mediaSouvenir6 from "../assets/images/media-souvenir6.webp";
+import mediaSouvenir8 from "../assets/images/media-souvenir8.webp";
+import mediaSouvenir9 from "../assets/images/media-souvenir9.webp";
+import mediaKineGraduation from "../assets/images/media-kine-graduation.webp";
+import mediaKineGroupe from "../assets/images/media-kine-groupe.webp";
+import mediaDrummondville from "../assets/images/media-drummondville.webp";
+import mediaBbqDrummondville from "../assets/images/media-bbq-drummondville.webp";
 
 export const MediaBoutiqueSection: React.FC = () => {
   const { t, lang } = useTranslation();
@@ -116,9 +116,9 @@ export const MediaBoutiqueSection: React.FC = () => {
                 {t("media.boutiqueLabel")}
               </span>
             </div>
-            <h4 className="text-base font-bold font-display">
+            <h3 className="text-base font-bold font-display">
               {t("media.boutiqueTitle")}
-            </h4>
+            </h3>
             <p className="text-xs text-slate-300">
               {t("media.boutiqueDesc")}
             </p>
@@ -148,6 +148,8 @@ export const MediaBoutiqueSection: React.FC = () => {
                     src={med.image}
                     alt={med.title}
                     referrerPolicy="no-referrer"
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent flex items-end p-3">
@@ -191,6 +193,8 @@ export const MediaBoutiqueSection: React.FC = () => {
                     <img
                       src={partner.logo}
                       alt={partner.name}
+                      loading="lazy"
+                      decoding="async"
                       className="max-h-20 max-w-full object-contain"
                     />
                   </div>

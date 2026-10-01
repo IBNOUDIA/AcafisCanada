@@ -22,10 +22,10 @@ import { COLONIE_ROADMAP, RECIPIENDAIRES, ACAFIS_VIDEOS } from "../data/acafisDa
 import { Reveal, RevealGroup } from "./Reveal";
 import { VideoGrid } from "./VideoGrid";
 import { useTranslation } from "../i18n/translations";
-import colonieOutingPhoto from "../assets/images/espace-jeune-colonie.jpg";
-import recipiendaireDiscours from "../assets/images/recipiendaire-discours.jpg";
-import recipiendaireRemise from "../assets/images/recipiendaire-remise.jpg";
-import recipiendairesGroupe from "../assets/images/recipiendaires-groupe.jpg";
+import colonieOutingPhoto from "../assets/images/espace-jeune-colonie.webp";
+import recipiendaireDiscours from "../assets/images/recipiendaire-discours.webp";
+import recipiendaireRemise from "../assets/images/recipiendaire-remise.webp";
+import recipiendairesGroupe from "../assets/images/recipiendaires-groupe.webp";
 
 interface CiteJardinProjectProps {
   onOpenCardModal: () => void;
@@ -63,6 +63,7 @@ export const CiteJardinProject: React.FC<CiteJardinProjectProps> = ({
         {/* Real photo from a past ACAFIS youth outing — sets the tone before the 2030 project banner */}
         <Reveal className="relative rounded-3xl overflow-hidden mb-10 h-64 sm:h-80 shadow-lg">
           <img
+            fetchPriority="high"
             src={colonieOutingPhoto}
             alt="Jeunes de la diaspora ACAFIS lors d'une sortie de groupe"
             className="absolute inset-0 w-full h-full object-cover"
@@ -284,7 +285,7 @@ export const CiteJardinProject: React.FC<CiteJardinProjectProps> = ({
           {/* Real photos from past celebrations */}
           <RevealGroup className="grid grid-cols-1 sm:grid-cols-3 gap-6 max-w-5xl mx-auto mb-10">
             <div className="relative rounded-2xl overflow-hidden h-56 shadow-md">
-              <img src={recipiendaireDiscours} alt="Un récipiendaire prononce son discours au nom des enfants" className="absolute inset-0 w-full h-full object-cover" />
+              <img loading="lazy" decoding="async" src={recipiendaireDiscours} alt="Un récipiendaire prononce son discours au nom des enfants" className="absolute inset-0 w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
               <div className="absolute bottom-3 left-3 right-3 flex items-center gap-1.5 text-white text-xs font-bold">
                 <Mic2 className="w-3.5 h-3.5" />
@@ -292,7 +293,7 @@ export const CiteJardinProject: React.FC<CiteJardinProjectProps> = ({
               </div>
             </div>
             <div className="relative rounded-2xl overflow-hidden h-56 shadow-md">
-              <img src={recipiendaireRemise} alt="Remise du cadeau à un récipiendaire" className="absolute inset-0 w-full h-full object-cover" />
+              <img loading="lazy" decoding="async" src={recipiendaireRemise} alt="Remise du cadeau à un récipiendaire" className="absolute inset-0 w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
               <div className="absolute bottom-3 left-3 right-3 flex items-center gap-1.5 text-white text-xs font-bold">
                 <Gift className="w-3.5 h-3.5" />
@@ -300,7 +301,7 @@ export const CiteJardinProject: React.FC<CiteJardinProjectProps> = ({
               </div>
             </div>
             <div className="relative rounded-2xl overflow-hidden h-56 shadow-md">
-              <img src={recipiendairesGroupe} alt="Les enfants d'ACAFIS réunis pour la fête du 31 décembre" className="absolute inset-0 w-full h-full object-cover" />
+              <img loading="lazy" decoding="async" src={recipiendairesGroupe} alt="Les enfants d'ACAFIS réunis pour la fête du 31 décembre" className="absolute inset-0 w-full h-full object-cover" />
               <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-transparent to-transparent" />
               <div className="absolute bottom-3 left-3 right-3 flex items-center gap-1.5 text-white text-xs font-bold">
                 <Sparkles className="w-3.5 h-3.5" />
