@@ -134,6 +134,11 @@ create table if not exists admin_sessions (
 
 create index if not exists admin_sessions_email_idx on admin_sessions (admin_email);
 
+-- Suspends an admin without deleting the account (e.g. during a hand-over to
+-- a new Bureau member). Checked at login and on every admin request, so a
+-- suspended admin loses access immediately. Reactivate with is_active = true.
+alter table admins add column if not exists is_active boolean not null default true;
+
 alter table admins enable row level security;
 alter table admin_sessions enable row level security;
 

@@ -14,6 +14,8 @@ interface HandlerResult<T> {
 const NOT_CONFIGURED_ERROR =
   "Le tableau de bord admin n'est pas encore configuré. Contactez le développeur du site.";
 const SESSION_TTL_HOURS = 24;
+const ADMIN_SUSPENDED_ERROR =
+  "Cet accès administrateur est suspendu. Contactez le président ou le secrétariat d'ACAFIS Canada.";
 
 // ---------------------------------------------------------------------------
 // Admin session verification — shared by every admin-only endpoint below.
@@ -57,14 +59,21 @@ export async function verifyAdminSession(token: string | undefined): Promise<Adm
     return { status: 401, error: "Session expirée, merci de vous reconnecter." };
   }
 
+  // select("*") rather than naming is_active, so this keeps working on a
+  // database where that column hasn't been added yet (missing = active).
   const { data: admin, error: adminError } = await supabase
     .from("admins")
-    .select("email, name")
+    .select("*")
     .eq("email", session.admin_email)
     .maybeSingle();
 
   if (adminError || !admin) {
     return { status: 401, error: "Compte admin introuvable." };
+  }
+
+  // A suspended account loses access at once, even mid-session.
+  if (admin.is_active === false) {
+    return { status: 403, error: ADMIN_SUSPENDED_ERROR };
   }
 
   return { status: 200, admin: { email: admin.email, name: admin.name } };
@@ -113,6 +122,12 @@ export async function handleAdminLogin(
 
   if (!admin || !(await bcrypt.compare(password, admin.password_hash))) {
     return { status: 401, body: { error: "Courriel ou mot de passe incorrect." } };
+  }
+
+  // Checked after the password, so the message never reveals to a stranger
+  // which addresses have an account.
+  if (admin.is_active === false) {
+    return { status: 403, body: { error: ADMIN_SUSPENDED_ERROR } };
   }
 
   const token = randomUUID();
