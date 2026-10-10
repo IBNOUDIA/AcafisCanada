@@ -20,8 +20,10 @@ import {
   Download,
   Mail,
   ClipboardList,
+  Send,
 } from "lucide-react";
 import { AdminSurveys } from "./surveys/AdminSurveys";
+import { AdminMessages } from "./AdminMessages";
 import { useTranslation } from "../i18n/translations";
 import { useLanguage } from "../i18n/LanguageContext";
 import { ADMIN_SESSION_KEY, AdminSession } from "../lib/adminSession";
@@ -91,7 +93,7 @@ interface AdminWorkshop {
   registrations: AdminRegistration[];
 }
 
-type Tab = "members" | "family" | "workshops" | "surveys" | "documents" | "settings";
+type Tab = "members" | "messages" | "family" | "workshops" | "surveys" | "documents" | "settings";
 
 const SHARED_MAILBOX_WEBMAIL_URL = "https://privateemail.com";
 
@@ -626,6 +628,7 @@ export const AdminDashboard: React.FC = () => {
     { id: "family", label: t("admin.tabFamily"), icon: <Baby className="w-4 h-4" /> },
     { id: "workshops", label: t("admin.tabWorkshops"), icon: <Laptop className="w-4 h-4" /> },
     { id: "surveys", label: t("admin.tabSurveys"), icon: <ClipboardList className="w-4 h-4" /> },
+    { id: "messages", label: t("admin.tabMessages"), icon: <Send className="w-4 h-4" /> },
     { id: "documents", label: t("admin.tabDocuments"), icon: <FileText className="w-4 h-4" /> },
     { id: "settings", label: t("admin.tabSettings"), icon: <Settings className="w-4 h-4" /> },
   ];
@@ -1298,6 +1301,8 @@ export const AdminDashboard: React.FC = () => {
         )}
 
         {tab === "surveys" && <AdminSurveys token={session.token} />}
+
+        {tab === "messages" && <AdminMessages token={session.token} />}
 
         {tab === "documents" && (
           <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 space-y-4">

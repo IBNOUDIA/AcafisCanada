@@ -50,6 +50,7 @@ import {
   handleAdminSurveyResults,
   handleAdminSurveyAnnounce,
 } from "./src/server/surveyHandlers";
+import { handleAdminMessagesList, handleAdminMessageSend } from "./src/server/messageHandlers";
 
 dotenv.config();
 
@@ -274,6 +275,16 @@ app.post("/api/admin/surveys-results", async (req, res) => {
 
 app.post("/api/admin/surveys-announce", async (req, res) => {
   const result = await handleAdminSurveyAnnounce(req.body);
+  res.status(result.status).json(result.body);
+});
+
+app.post("/api/admin/messages-list", async (req, res) => {
+  const result = await handleAdminMessagesList(req.body);
+  res.status(result.status).json(result.body);
+});
+
+app.post("/api/admin/messages-send", async (req, res) => {
+  const result = await handleAdminMessageSend(req.body);
   res.status(result.status).json(result.body);
 });
 

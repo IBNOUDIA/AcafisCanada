@@ -26,6 +26,7 @@ import {
   handleAdminSurveyResults,
   handleAdminSurveyAnnounce,
 } from "../../src/server/surveyHandlers.js";
+import { handleAdminMessagesList, handleAdminMessageSend } from "../../src/server/messageHandlers.js";
 import { getClientIp } from "../../src/server/requestIp.js";
 
 // A single catch-all function for every /api/admin/* route — the Vercel
@@ -162,6 +163,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
     case "surveys-announce": {
       const result = await handleAdminSurveyAnnounce(body);
+      res.status(result.status).json(result.body);
+      return;
+    }
+    case "messages-list": {
+      const result = await handleAdminMessagesList(body);
+      res.status(result.status).json(result.body);
+      return;
+    }
+    case "messages-send": {
+      const result = await handleAdminMessageSend(body);
       res.status(result.status).json(result.body);
       return;
     }

@@ -376,6 +376,24 @@ $$;
 revoke execute on function promote_workshop_waitlist(uuid) from public, anon, authenticated;
 
 -- ---------------------------------------------------------------------------
+-- Group messages sent by the Bureau from the admin Messages tab (history
+-- only — the emails themselves go out through Resend). audience: 'all',
+-- 'coop' (acquéreurs) or 'paid' (members in good standing).
+-- ---------------------------------------------------------------------------
+create table if not exists member_messages (
+  id uuid primary key default gen_random_uuid(),
+  subject text not null,
+  body text not null,
+  audience text not null check (audience in ('all', 'coop', 'paid')),
+  sent_count integer not null,
+  sent_by_email text not null,
+  sent_by_name text not null,
+  created_at timestamptz not null default now()
+);
+
+alter table member_messages enable row level security;
+
+-- ---------------------------------------------------------------------------
 -- Member surveys (sondages), created by the Bureau Exécutif. Questions are
 -- JSON (shape: src/lib/surveys.ts) and frozen once the survey is published.
 -- ---------------------------------------------------------------------------
