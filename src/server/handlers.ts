@@ -30,7 +30,10 @@ function getGeminiClient(): GoogleGenAI | null {
 // Adresses officielles (le domaine acafis.ca est vérifié sur resend.com/domains).
 // CONTACT_TO_EMAIL / MEMBERSHIP_TO_EMAIL dans Vercel les remplacent si besoin.
 const CONTACT_TO_EMAIL = process.env.CONTACT_TO_EMAIL || "infos@acafis.ca";
-const MEMBERSHIP_TO_EMAIL = process.env.MEMBERSHIP_TO_EMAIL || "acafisfinance2@gmail.com";
+// New-membership notices go to the treasurer (Pa Sonko since October 2026).
+// Not to be confused with the Interac payment address, which stays
+// acafisfinance2@gmail.com (PAYMENT_INTERAC_INFO in src/data/acafisData.ts).
+const MEMBERSHIP_TO_EMAIL = process.env.MEMBERSHIP_TO_EMAIL || "pbsonko@yahoo.fr";
 
 interface HandlerResult<T> {
   status: number;
