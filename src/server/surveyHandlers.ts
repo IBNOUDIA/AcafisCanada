@@ -39,7 +39,7 @@ export async function handleMemberSurveysList(
   data: MemberSurveysBody,
   ip: string
 ): Promise<HandlerResult<{ surveys?: Record<string, unknown>[]; error?: string }>> {
-  const verification = await verifyMember(data.email, data.memberId, ip);
+  const verification = await verifyMember(data, ip);
   if (verification.status !== 200) {
     return { status: verification.status, body: { error: verification.body.error } };
   }
@@ -94,7 +94,7 @@ export async function handleMemberSurveySubmit(
   data: MemberSurveySubmitBody,
   ip: string
 ): Promise<HandlerResult<{ success?: boolean; error?: string }>> {
-  const verification = await verifyMember(data.email, data.memberId, ip);
+  const verification = await verifyMember(data, ip);
   if (verification.status !== 200) {
     return { status: verification.status, body: { error: verification.body.error } };
   }
@@ -143,7 +143,7 @@ export async function handleMemberSurveyResults(
   data: MemberSurveyResultsBody,
   ip: string
 ): Promise<HandlerResult<{ results?: Record<string, unknown>; error?: string }>> {
-  const verification = await verifyMember(data.email, data.memberId, ip);
+  const verification = await verifyMember(data, ip);
   if (verification.status !== 200) {
     return { status: verification.status, body: { error: verification.body.error } };
   }
@@ -431,7 +431,7 @@ export async function handleAdminSurveyAnnounce(
           ...(closing ? [closing] : []),
           "",
           `Pour répondre, connectez-vous à votre Espace Membre : ${MEMBER_AREA_URL}`,
-          `(avec votre courriel ${m.email} et votre numéro de membre ${m.member_id}).`,
+          `(avec votre courriel ${m.email} : un code de connexion vous sera envoyé).`,
           "",
           "Merci de votre participation,",
           "Le Bureau Exécutif d'ACAFIS Canada",

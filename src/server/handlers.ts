@@ -4,7 +4,7 @@
  */
 
 import { GoogleGenAI } from "@google/genai";
-import { createHmac, timingSafeEqual } from "crypto";
+import { createHmac, timingSafeEqual, randomBytes, randomInt } from "crypto";
 import { getSupabaseClient } from "./supabaseClient.js";
 import { getResendClient, EMAIL_FROM } from "./email.js";
 import { promoteWaitlist } from "./waitlist.js";
@@ -472,12 +472,25 @@ export async function handleMemberRegister(
 }
 
 // ---------------------------------------------------------------------------
-// Member login (email + optional member number, checked against Supabase)
+// Member login: a one-time code sent by email opens a session. The member
+// number alone is no longer a credential — it's printed on the card.
 // ---------------------------------------------------------------------------
 
 export interface MemberLoginBody {
   email?: string;
-  memberId?: string;
+  code?: string;
+  sessionToken?: string;
+  logout?: boolean;
+}
+
+const LOGIN_CODE_TTL_MINUTES = 10;
+const LOGIN_CODE_MAX_ATTEMPTS = 5;
+const MEMBER_SESSION_TTL_DAYS = 60;
+const SESSION_EXPIRED_ERROR = "Votre session a expiré. Reconnectez-vous avec un code reçu par courriel.";
+
+function hashLoginCode(memberId: string, code: string): string {
+  const secret = process.env.CLAIM_TOKEN_SECRET || "dev-only-insecure-claim-secret";
+  return createHmac("sha256", secret).update(`login:${memberId}:${code}`).digest("hex");
 }
 
 const NOT_CONFIGURED_ERROR =
@@ -500,29 +513,18 @@ function mapMemberRow(row: Record<string, any>): Record<string, unknown> {
   };
 }
 
-// Shared by login and every members-only endpoint (documents, etc.): there is
-// no real session/token system here, so each request re-proves identity with
-// the same email + member number pair the member logged in with. Both are
-// required: the member number is the only thing that makes this a real
-// credential rather than "anyone who knows your email can act as you".
+// Shared by every members-only endpoint (documents, family, activities,
+// surveys...): the request carries the session token issued at login. The
+// token is 256 random bits, so unlike the old email + member number pair it
+// can't be guessed — no per-IP limit is needed here (the code login is
+// rate-limited instead). `_ip` is kept so call sites stay uniform.
 export async function verifyMember(
-  email: string | undefined,
-  memberId: string | undefined,
-  ip: string
+  creds: { email?: string; sessionToken?: string },
+  _ip: string
 ): Promise<HandlerResult<{ member?: Record<string, unknown>; error?: string }>> {
-  if (!email || typeof email !== "string") {
-    return { status: 400, body: { error: "Courriel requis" } };
-  }
-
-  if (!isValidEmail(email)) {
-    return { status: 400, body: { error: "Adresse courriel invalide" } };
-  }
-
-  // Shared by login, documents, and every family-census endpoint — this is
-  // the one check that gates access to a member's data, so it's the right
-  // place to block a script trying many emails/member numbers.
-  if (!(await checkRateLimit(ip, { bucket: "member-auth", limit: 30, windowMinutes: 60 }))) {
-    return { status: 429, body: { error: RATE_LIMIT_ERROR } };
+  const { email, sessionToken } = creds;
+  if (!sessionToken || typeof sessionToken !== "string") {
+    return { status: 401, body: { error: SESSION_EXPIRED_ERROR } };
   }
 
   const supabase = getSupabaseClient();
@@ -530,29 +532,33 @@ export async function verifyMember(
     return { status: 503, body: { error: NOT_CONFIGURED_ERROR } };
   }
 
-  const { data: row, error } = await supabase
-    .from("members")
-    .select("*")
-    .eq("email", email.toLowerCase().trim())
+  const { data: session, error } = await supabase
+    .from("member_sessions")
+    .select("member_id, expires_at")
+    .eq("token", sessionToken)
     .maybeSingle();
 
   if (error) {
-    console.error("Supabase member lookup failed:", error);
+    console.error("Supabase member session lookup failed:", error);
     return { status: 500, body: { error: "Erreur serveur, réessayez dans un instant." } };
   }
-
-  // Same error for "no such email" and "wrong member number" — a distinct
-  // message for each would let this endpoint be used to test which emails
-  // belong to a member (an enumeration oracle), the same issue avoided in
-  // handleMemberRegister above.
-  const invalidCredentials = { status: 401, body: { error: "Courriel ou numéro de membre incorrect." } } as const;
-
-  if (!row) {
-    return invalidCredentials;
+  if (!session || new Date(session.expires_at).getTime() < Date.now()) {
+    return { status: 401, body: { error: SESSION_EXPIRED_ERROR } };
   }
 
-  if (!memberId || !memberId.trim() || memberId.trim().toUpperCase() !== row.member_id.toUpperCase()) {
-    return invalidCredentials;
+  const { data: row, error: memberError } = await supabase
+    .from("members")
+    .select("*")
+    .eq("member_id", session.member_id)
+    .maybeSingle();
+
+  if (memberError || !row) {
+    return { status: 401, body: { error: SESSION_EXPIRED_ERROR } };
+  }
+  // If the Bureau changed the member's email since login, make them log in
+  // again with the new address.
+  if (email && row.email.toLowerCase() !== email.toLowerCase().trim()) {
+    return { status: 401, body: { error: SESSION_EXPIRED_ERROR } };
   }
 
   return { status: 200, body: { member: mapMemberRow(row) } };
@@ -572,7 +578,7 @@ export async function handleMemberUpdateContact(
   data: MemberUpdateContactBody,
   ip: string
 ): Promise<HandlerResult<{ member?: Record<string, unknown>; error?: string }>> {
-  const verification = await verifyMember(data.email, data.memberId, ip);
+  const verification = await verifyMember(data, ip);
   if (verification.status !== 200) {
     return { status: verification.status, body: { error: verification.body.error } };
   }
@@ -602,11 +608,138 @@ export async function handleMemberUpdateContact(
   return { status: 200, body: { member: mapMemberRow(row) } };
 }
 
+// One endpoint, four modes:
+//   { email }                → email a 6-digit login code
+//   { email, code }          → check it, open a session
+//   { email, sessionToken }  → refresh the member's data (each dashboard visit)
+//   { sessionToken, logout } → close the session
 export async function handleMemberLogin(
   data: MemberLoginBody,
   ip: string
-): Promise<HandlerResult<{ member?: Record<string, unknown>; error?: string }>> {
-  return verifyMember(data.email, data.memberId, ip);
+): Promise<
+  HandlerResult<{
+    member?: Record<string, unknown>;
+    sessionToken?: string;
+    codeSent?: boolean;
+    success?: boolean;
+    error?: string;
+  }>
+> {
+  const supabase = getSupabaseClient();
+  if (!supabase) return { status: 503, body: { error: NOT_CONFIGURED_ERROR } };
+
+  if (data.logout) {
+    if (data.sessionToken) await supabase.from("member_sessions").delete().eq("token", data.sessionToken);
+    return { status: 200, body: { success: true } };
+  }
+
+  if (data.sessionToken) return verifyMember(data, ip);
+
+  const email = (data.email || "").toLowerCase().trim();
+  if (!email || !isValidEmail(email)) {
+    return { status: 400, body: { error: "Adresse courriel invalide" } };
+  }
+
+  // ----- Step 2: check the code
+  if (data.code !== undefined) {
+    if (!(await checkRateLimit(ip, { bucket: "member-code-verify", limit: 20, windowMinutes: 60 }))) {
+      return { status: 429, body: { error: RATE_LIMIT_ERROR } };
+    }
+    const code = String(data.code).replace(/\D/g, "");
+    const invalid = { status: 401, body: { error: "Code incorrect ou expiré. Demandez un nouveau code." } } as const;
+
+    const { data: member } = await supabase.from("members").select("*").eq("email", email).maybeSingle();
+    if (!member || code.length !== 6) return invalid;
+
+    const { data: entry } = await supabase
+      .from("member_login_codes")
+      .select("*")
+      .eq("member_id", member.member_id)
+      .is("used_at", null)
+      .gt("expires_at", new Date().toISOString())
+      .order("created_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (!entry || entry.attempts >= LOGIN_CODE_MAX_ATTEMPTS) return invalid;
+
+    const expected = Buffer.from(entry.code_hash, "hex");
+    const actual = Buffer.from(hashLoginCode(member.member_id, code), "hex");
+    if (expected.length !== actual.length || !timingSafeEqual(expected, actual)) {
+      await supabase.from("member_login_codes").update({ attempts: entry.attempts + 1 }).eq("id", entry.id);
+      return invalid;
+    }
+
+    await supabase.from("member_login_codes").update({ used_at: new Date().toISOString() }).eq("id", entry.id);
+    const sessionToken = randomBytes(32).toString("hex");
+    const { error: sessionError } = await supabase.from("member_sessions").insert({
+      token: sessionToken,
+      member_id: member.member_id,
+      expires_at: new Date(Date.now() + MEMBER_SESSION_TTL_DAYS * 24 * 60 * 60 * 1000).toISOString(),
+    });
+    if (sessionError) {
+      console.error("Supabase member session insert failed:", sessionError);
+      return { status: 500, body: { error: "Erreur serveur, réessayez dans un instant." } };
+    }
+    return { status: 200, body: { member: mapMemberRow(member), sessionToken } };
+  }
+
+  // ----- Step 1: send a code. The answer is identical whether or not the
+  // email belongs to a member, so the form can't be used to test addresses.
+  if (!(await checkRateLimit(ip, { bucket: "member-code-request", limit: 10, windowMinutes: 60 }))) {
+    return { status: 429, body: { error: RATE_LIMIT_ERROR } };
+  }
+  const sent = { status: 200, body: { codeSent: true } } as const;
+
+  const { data: member } = await supabase.from("members").select("*").eq("email", email).maybeSingle();
+  if (!member) return sent;
+
+  // At most 3 codes per member per 15 minutes, so the form can't be used to
+  // flood someone's inbox.
+  const { count } = await supabase
+    .from("member_login_codes")
+    .select("id", { count: "exact", head: true })
+    .eq("member_id", member.member_id)
+    .gt("created_at", new Date(Date.now() - 15 * 60 * 1000).toISOString());
+  if ((count ?? 0) >= 3) return sent;
+
+  const resend = getResendClient();
+  if (!resend) {
+    return { status: 503, body: { error: "L'envoi de courriels n'est pas configuré. Contactez infos@acafis.ca." } };
+  }
+
+  const code = String(randomInt(0, 1_000_000)).padStart(6, "0");
+  const { error: insertError } = await supabase.from("member_login_codes").insert({
+    member_id: member.member_id,
+    code_hash: hashLoginCode(member.member_id, code),
+    expires_at: new Date(Date.now() + LOGIN_CODE_TTL_MINUTES * 60 * 1000).toISOString(),
+  });
+  if (insertError) {
+    console.error("Supabase login code insert failed:", insertError);
+    return { status: 500, body: { error: "Erreur serveur, réessayez dans un instant." } };
+  }
+
+  try {
+    await resend.emails.send({
+      from: EMAIL_FROM,
+      to: member.email,
+      subject: `Votre code de connexion ACAFIS Canada : ${code}`,
+      text: [
+        `Bonjour ${member.first_name},`,
+        "",
+        `Votre code de connexion à l'Espace Membre d'ACAFIS Canada est : ${code}`,
+        "",
+        `Il est valable ${LOGIN_CODE_TTL_MINUTES} minutes et ne peut servir qu'une fois.`,
+        "Si vous n'avez pas demandé ce code, ignorez simplement ce courriel : personne ne peut se connecter sans lui.",
+        "",
+        "ACAFIS Canada",
+      ].join("\n"),
+    });
+  } catch (sendError) {
+    console.error("Resend login code email failed:", sendError);
+    return { status: 502, body: { error: "Envoi du code impossible pour le moment. Réessayez dans un instant." } };
+  }
+
+  return sent;
 }
 
 // ---------------------------------------------------------------------------
@@ -742,7 +875,7 @@ export async function handleMemberDocuments(
   data: MemberDocumentsBody,
   ip: string
 ): Promise<HandlerResult<{ documents?: Record<string, unknown>[]; error?: string }>> {
-  const verification = await verifyMember(data.email, data.memberId, ip);
+  const verification = await verifyMember(data, ip);
   if (verification.status !== 200) {
     return { status: verification.status, body: { error: verification.body.error } };
   }
@@ -807,7 +940,7 @@ export async function handleMemberChildrenList(
   data: MemberChildrenListBody,
   ip: string
 ): Promise<HandlerResult<{ children?: Record<string, unknown>[]; error?: string }>> {
-  const verification = await verifyMember(data.email, data.memberId, ip);
+  const verification = await verifyMember(data, ip);
   if (verification.status !== 200) {
     return { status: verification.status, body: { error: verification.body.error } };
   }
@@ -840,7 +973,7 @@ export async function handleMemberChildAdd(
   data: MemberChildAddBody,
   ip: string
 ): Promise<HandlerResult<{ child?: Record<string, unknown>; error?: string }>> {
-  const verification = await verifyMember(data.email, data.memberId, ip);
+  const verification = await verifyMember(data, ip);
   if (verification.status !== 200) {
     return { status: verification.status, body: { error: verification.body.error } };
   }
@@ -886,7 +1019,7 @@ export async function handleMemberChildRemove(
   data: MemberChildRemoveBody,
   ip: string
 ): Promise<HandlerResult<{ success?: boolean; error?: string }>> {
-  const verification = await verifyMember(data.email, data.memberId, ip);
+  const verification = await verifyMember(data, ip);
   if (verification.status !== 200) {
     return { status: verification.status, body: { error: verification.body.error } };
   }
@@ -934,7 +1067,7 @@ export async function handleMemberChildSportFile(
   data: MemberChildSportFileBody,
   ip: string
 ): Promise<HandlerResult<{ child?: Record<string, unknown>; error?: string }>> {
-  const verification = await verifyMember(data.email, data.memberId, ip);
+  const verification = await verifyMember(data, ip);
   if (verification.status !== 200) {
     return { status: verification.status, body: { error: verification.body.error } };
   }
@@ -1056,7 +1189,7 @@ export async function handleMemberWorkshopsList(
   data: MemberWorkshopsListBody,
   ip: string
 ): Promise<HandlerResult<{ workshops?: Record<string, unknown>[]; error?: string }>> {
-  const verification = await verifyMember(data.email, data.memberId, ip);
+  const verification = await verifyMember(data, ip);
   if (verification.status !== 200) {
     return { status: verification.status, body: { error: verification.body.error } };
   }
@@ -1154,7 +1287,7 @@ export async function handleMemberWorkshopRegister(
   data: MemberWorkshopRegisterBody,
   ip: string
 ): Promise<HandlerResult<{ registration?: Record<string, unknown>; error?: string }>> {
-  const verification = await verifyMember(data.email, data.memberId, ip);
+  const verification = await verifyMember(data, ip);
   if (verification.status !== 200) {
     return { status: verification.status, body: { error: verification.body.error } };
   }
@@ -1212,7 +1345,7 @@ export async function handleMemberWorkshopUnregister(
   data: MemberWorkshopUnregisterBody,
   ip: string
 ): Promise<HandlerResult<{ success?: boolean; error?: string }>> {
-  const verification = await verifyMember(data.email, data.memberId, ip);
+  const verification = await verifyMember(data, ip);
   if (verification.status !== 200) {
     return { status: verification.status, body: { error: verification.body.error } };
   }

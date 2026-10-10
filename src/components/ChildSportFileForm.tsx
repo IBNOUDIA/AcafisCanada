@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { useTranslation } from "../i18n/translations";
 import { JERSEY_SIZES } from "../lib/activity";
 import { MemberChild, MemberRecord } from "../types";
+import { memberAuth } from "../lib/memberSession";
 
 interface ChildSportFileFormProps {
   member: MemberRecord;
@@ -37,8 +38,7 @@ export const ChildSportFileForm: React.FC<ChildSportFileFormProps> = ({ member, 
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email: member.email,
-          memberId: member.memberId,
+          ...memberAuth(member),
           childId: child.id,
           emergencyContactName: emergencyName,
           emergencyContactPhone: emergencyPhone,

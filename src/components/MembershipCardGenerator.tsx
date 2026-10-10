@@ -3,9 +3,6 @@ import { Link } from "react-router-dom";
 import {
   UserCheck,
   CreditCard,
-  QrCode,
-  Download,
-  Printer,
   Copy,
   CheckCircle2,
   Sparkles,
@@ -15,12 +12,10 @@ import {
   Phone,
 } from "lucide-react";
 import { PAYMENT_INTERAC_INFO } from "../data/acafisData";
-import { SenegalFlagBadge } from "./SenegalFlagBadge";
-import { MemberRecord } from "../types";
+import { MembershipCardView } from "./MembershipCardView";
 import { Reveal } from "./Reveal";
 import { useTranslation } from "../i18n/translations";
 import { useLanguage } from "../i18n/LanguageContext";
-import acafisLogoOfficial from "../assets/images/acafis-logo-official.webp";
 import adhesionHeroPhoto from "../assets/images/adhesion-hero.webp";
 
 interface MembershipCardGeneratorProps {
@@ -40,7 +35,10 @@ export const MembershipCardGenerator: React.FC<MembershipCardGeneratorProps> = (
   const [coopInterest, setCoopInterest] = useState(false);
   const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
 
-  const [generatedMember, setGeneratedMember] = useState<MemberRecord | null>(null);
+  // Set once the registration request is saved: the visitor then sees what
+  // happens next (pay, wait for the treasury), never a printable card.
+  const [submittedName, setSubmittedName] = useState<string | null>(null);
+  const [submitError, setSubmitError] = useState("");
   const [copiedInterac, setCopiedInterac] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
 
@@ -49,6 +47,7 @@ export const MembershipCardGenerator: React.FC<MembershipCardGeneratorProps> = (
     if (!firstName.trim() || !lastName.trim() || !email.trim() || !acceptedPrivacy) return;
 
     setIsSubmitting(true);
+    setSubmitError("");
     try {
       const response = await fetch("/api/members/register", {
         method: "POST",
@@ -63,27 +62,11 @@ export const MembershipCardGenerator: React.FC<MembershipCardGeneratorProps> = (
         }),
       });
 
-      if (response.ok) {
-        const data = await response.json();
-        setGeneratedMember(data.member);
-      } else {
-        throw new Error("Erreur");
-      }
+      if (!response.ok) throw new Error();
+      setSubmittedName(firstName.trim());
     } catch {
-      // Fallback generator
-      const memberId = `ACAFIS-${new Date().getFullYear()}-${Math.floor(1000 + Math.random() * 9000)}`;
-      setGeneratedMember({
-        memberId,
-        firstName: firstName.trim(),
-        lastName: lastName.trim().toUpperCase(),
-        email: email.trim(),
-        phone: phone.trim() || t("adhesion.notProvided"),
-        city: city.trim() || "Canada",
-        membershipYear: new Date().getFullYear(),
-        annualFee: "25 CAD",
-        issuedAt: new Date().toLocaleDateString("fr-CA"),
-        status: "Validé (Attente cotisation)",
-      });
+      // No made-up member number on failure: the request didn't go through.
+      setSubmitError(t("adhesion.submitError"));
     } finally {
       setIsSubmitting(false);
     }
@@ -93,10 +76,6 @@ export const MembershipCardGenerator: React.FC<MembershipCardGeneratorProps> = (
     navigator.clipboard.writeText(PAYMENT_INTERAC_INFO.email);
     setCopiedInterac(true);
     setTimeout(() => setCopiedInterac(false), 2500);
-  };
-
-  const handlePrint = () => {
-    window.print();
   };
 
   return (
@@ -276,6 +255,11 @@ export const MembershipCardGenerator: React.FC<MembershipCardGeneratorProps> = (
                   <Sparkles className="w-4 h-4 text-amber-300" />
                   <span>{isSubmitting ? t("adhesion.generating") : t("adhesion.generateBtn")}</span>
                 </button>
+                {submitError && (
+                  <p className="mt-3 text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded-xl px-3.5 py-2.5" role="alert">
+                    {submitError}
+                  </p>
+                )}
               </div>
 
               {/* Interac reminder box */}
@@ -299,142 +283,57 @@ export const MembershipCardGenerator: React.FC<MembershipCardGeneratorProps> = (
             </form>
           </div>
 
-          {/* Live Card Preview Side */}
+          {/* Card preview (specimen) or, once submitted, the next steps */}
           <div className="lg:col-span-6 space-y-4">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-bold uppercase tracking-wider text-slate-500">
-                {t("adhesion.cardPreviewLabel")}
-              </span>
-              {generatedMember && (
-                <span className="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800">
-                  {t("adhesion.generatedSuccess")}
-                </span>
-              )}
-            </div>
-
-            {/* The Badge Card */}
-            <div
-              id="membership-card-badge"
-              className="relative rounded-3xl p-6 sm:p-7 text-white shadow-2xl overflow-hidden bg-gradient-to-tr from-slate-950 via-emerald-950 to-teal-900 border border-emerald-500/30"
-              style={{ minHeight: "260px" }}
-            >
-              {/* Background watermark */}
-              <div className="absolute top-0 right-0 w-60 h-60 bg-emerald-500/10 rounded-full blur-2xl pointer-events-none" />
-              <div className="absolute -bottom-10 -right-10 opacity-5 pointer-events-none select-none text-9xl font-black">
-                ACAFIS
-              </div>
-
-              {/* Top Row: Logo and Flag */}
-              <div className="relative z-10 flex items-center justify-between border-b border-emerald-800/80 pb-3 mb-4">
-                <div className="flex items-center gap-2.5">
-                  <img
-                    src={acafisLogoOfficial}
-                    alt="Logo ACAFIS Canada"
-                    className="h-10 w-auto max-w-[130px] rounded-xl object-contain bg-white/95 p-1 shadow-md border border-white/40"
-                  />
+            {submittedName !== null ? (
+              <div className="p-6 rounded-3xl bg-white border border-emerald-200 shadow-sm space-y-4" role="status">
+                <div className="flex items-center gap-3">
+                  <div className="w-11 h-11 rounded-2xl bg-emerald-100 text-emerald-800 flex items-center justify-center shrink-0">
+                    <CheckCircle2 className="w-6 h-6" />
+                  </div>
                   <div>
-                    <h4 className="text-sm font-extrabold tracking-wider text-white">
-                      ACAFIS CANADA
-                    </h4>
-                    <p className="text-[10px] text-emerald-300 font-medium">
-                      {t("adhesion.officialCard")}
+                    <h3 className="text-base font-bold text-slate-900 font-display">{t("adhesion.receivedTitle")}</h3>
+                    <p className="text-xs text-slate-600">
+                      {t("adhesion.receivedThanks").replace("{name}", submittedName)}
                     </p>
                   </div>
                 </div>
-
-                <div className="flex items-center gap-1.5 text-xs font-bold bg-slate-900/90 px-2.5 py-1 rounded-full border border-emerald-500/40">
-                  <span>🇨🇦</span>
-                  <span className="text-emerald-400">•</span>
-                  <SenegalFlagBadge size="sm" />
-                </div>
-              </div>
-
-              {/* Middle Row: Chip & Name */}
-              <div className="relative z-10 space-y-3">
-                <div className="flex items-center justify-between">
-                  {/* Hologram / Chip Icon */}
-                  <div className="w-10 h-8 rounded bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-400 border border-amber-500/60 shadow-inner flex items-center justify-center">
-                    <div className="w-6 h-4 border border-amber-700/40 rounded-xs" />
-                  </div>
-
-                  <div className="text-right">
-                    <span className="block text-[10px] uppercase text-emerald-300 tracking-wider">
-                      {t("adhesion.memberIdLabel")}
+                <ol className="space-y-3 text-sm text-slate-700 list-decimal pl-5">
+                  <li>
+                    {t("adhesion.receivedStepPay")}{" "}
+                    <strong className="font-mono text-emerald-800">{PAYMENT_INTERAC_INFO.email}</strong>
+                    <span className="block text-xs text-slate-500">
+                      {t("adhesion.secretQuestionLabel")} <strong>{PAYMENT_INTERAC_INFO.secretQuestion[lang]}</strong> |{" "}
+                      {t("adhesion.secretAnswerLabel")} <strong>{PAYMENT_INTERAC_INFO.secretAnswer}</strong>
                     </span>
-                    <span className="font-mono text-xs font-bold text-amber-300">
-                      {generatedMember ? generatedMember.memberId : "ACAFIS-2026-0000"}
-                    </span>
-                  </div>
-                </div>
-
-                <div>
-                  <span className="block text-[10px] uppercase tracking-wider text-slate-400">
-                    {t("adhesion.cardHolderLabel")}
-                  </span>
-                  <h3 className="text-lg sm:text-xl font-black tracking-wide text-white font-display">
-                    {generatedMember
-                      ? `${generatedMember.firstName} ${generatedMember.lastName}`
-                      : firstName && lastName
-                      ? `${firstName} ${lastName.toUpperCase()}`
-                      : "Babacar NDIAYE"}
-                  </h3>
-                </div>
+                  </li>
+                  <li>{t("adhesion.receivedStepConfirm")}</li>
+                  <li>{t("adhesion.receivedStepCard")}</li>
+                </ol>
+                <button
+                  onClick={onOpenPaymentModal}
+                  className="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-emerald-950 bg-amber-400 hover:bg-amber-300 shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
+                >
+                  <CreditCard className="w-4 h-4" />
+                  <span>{t("adhesion.payInterac")}</span>
+                </button>
               </div>
-
-              {/* Bottom Row: Details & QR simulation */}
-              <div className="relative z-10 mt-5 pt-3 border-t border-emerald-900/60 flex items-end justify-between text-xs">
-                <div>
-                  <div className="flex items-center gap-4 text-[11px] text-slate-300">
-                    <div>
-                      <span className="block text-[9px] uppercase text-slate-400">{t("adhesion.yearLabel")}</span>
-                      <span className="font-bold text-white">2026</span>
-                    </div>
-                    <div>
-                      <span className="block text-[9px] uppercase text-slate-400">{t("adhesion.feeLabel")}</span>
-                      <span className="font-bold text-amber-300">25 CAD</span>
-                    </div>
-                    <div>
-                      <span className="block text-[9px] uppercase text-slate-400">{t("adhesion.cityLabel")}</span>
-                      <span className="font-medium text-slate-200">
-                        {generatedMember ? generatedMember.city : city || "Montréal"}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                <div className="p-1.5 rounded-lg bg-white text-slate-950 flex items-center justify-center shadow-xs">
-                  <QrCode className="w-8 h-8" />
-                </div>
-              </div>
-
-              {/* Senegal Tricolor Accent Bar */}
-              <div className="absolute bottom-0 left-0 right-0 h-1.5 flex overflow-hidden">
-                <div className="w-1/3 bg-[#00853F]" />
-                <div className="w-1/3 bg-[#FDEF42] flex items-center justify-center text-[7px] text-[#00853F] font-bold">★</div>
-                <div className="w-1/3 bg-[#E31B23]" />
-              </div>
-            </div>
-
-            {/* Action buttons below card */}
-            <div className="flex flex-wrap items-center gap-2 pt-2">
-              <button
-                onClick={handlePrint}
-                className="flex-1 py-2.5 px-4 rounded-xl text-xs font-bold text-slate-800 bg-white hover:bg-slate-50 border border-slate-300 shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
-              >
-                <Printer className="w-4 h-4 text-slate-600" />
-                <span>{t("adhesion.printCard")}</span>
-              </button>
-
-              <button
-                onClick={onOpenPaymentModal}
-                className="flex-1 py-2.5 px-4 rounded-xl text-xs font-bold text-emerald-950 bg-amber-400 hover:bg-amber-300 shadow-xs flex items-center justify-center gap-1.5 cursor-pointer"
-              >
-                <CreditCard className="w-4 h-4" />
-                <span>{t("adhesion.payInterac")}</span>
-              </button>
-            </div>
+            ) : (
+              <>
+                <span className="block text-xs font-bold uppercase tracking-wider text-slate-500">
+                  {t("adhesion.cardPreviewLabel")}
+                </span>
+                <MembershipCardView
+                  variant="specimen"
+                  memberId="ACAFIS-0000"
+                  holderName={firstName && lastName ? `${firstName} ${lastName.toUpperCase()}` : "Babacar NDIAYE"}
+                  year={new Date().getFullYear()}
+                  city={city || "Montréal"}
+                />
+                <p className="text-xs text-slate-500">{t("adhesion.specimenNote")}</p>
+              </>
+            )}
           </div>
-
         </div>
 
       </div>

@@ -134,6 +134,34 @@ create table if not exists admin_sessions (
 
 create index if not exists admin_sessions_email_idx on admin_sessions (admin_email);
 
+-- Member login: a 6-digit code emailed on request (only its HMAC is stored),
+-- valid 10 minutes, single use, 5 attempts max — see handleMemberLogin.
+create table if not exists member_login_codes (
+  id uuid primary key default gen_random_uuid(),
+  member_id text not null references members (member_id) on delete cascade,
+  code_hash text not null,
+  attempts integer not null default 0,
+  expires_at timestamptz not null,
+  used_at timestamptz,
+  created_at timestamptz not null default now()
+);
+
+create index if not exists member_login_codes_member_idx on member_login_codes (member_id, created_at desc);
+
+-- Sessions opened by a valid code (random 256-bit token, 60 days). Every
+-- members-only request carries the token (verifyMember).
+create table if not exists member_sessions (
+  token text primary key,
+  member_id text not null references members (member_id) on delete cascade,
+  created_at timestamptz not null default now(),
+  expires_at timestamptz not null
+);
+
+create index if not exists member_sessions_member_idx on member_sessions (member_id);
+
+alter table member_login_codes enable row level security;
+alter table member_sessions enable row level security;
+
 -- Suspends an admin without deleting the account (e.g. during a hand-over to
 -- a new Bureau member). Checked at login and on every admin request, so a
 -- suspended admin loses access immediately. Reactivate with is_active = true.

@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Phone, MapPin, Pencil } from "lucide-react";
 import { useTranslation } from "../i18n/translations";
 import { MemberRecord } from "../types";
+import { memberAuth } from "../lib/memberSession";
 
 const INPUT_CLASS =
   "w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white focus:outline-hidden focus:border-emerald-600 focus:ring-1 focus:ring-emerald-600";
@@ -29,7 +30,7 @@ export const MemberContactForm: React.FC<{ member: MemberRecord; onSaved: (membe
       const response = await fetch("/api/members/contact", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: member.email, memberId: member.memberId, phone, city }),
+        body: JSON.stringify({ ...memberAuth(member), phone, city }),
       });
       const data = await response.json();
       if (response.ok) {

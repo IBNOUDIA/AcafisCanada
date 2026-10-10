@@ -115,6 +115,9 @@ export interface MemberRecord {
   status: string;
   paymentStatus?: "pending" | "paid";
   coopInterest?: boolean;
+  // Set after logging in with an emailed code; kept in localStorage with the
+  // rest of the record and sent with every members-only request.
+  sessionToken?: string;
 }
 
 // A child under 18 declared by a member for the family census (youth

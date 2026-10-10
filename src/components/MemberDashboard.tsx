@@ -18,6 +18,7 @@ import {
   Plus,
   Laptop,
   X,
+  Printer,
 } from "lucide-react";
 import { useTranslation } from "../i18n/translations";
 import { useLanguage } from "../i18n/LanguageContext";
@@ -33,7 +34,8 @@ import {
 import { ChildSportFileForm } from "./ChildSportFileForm";
 import { MemberSurveys } from "./surveys/MemberSurveys";
 import { MemberContactForm } from "./MemberContactForm";
-import { MEMBER_STORAGE_KEY } from "../lib/memberSession";
+import { MembershipCardView, printMembershipCard } from "./MembershipCardView";
+import { MEMBER_STORAGE_KEY, memberAuth } from "../lib/memberSession";
 import { PAYMENT_INTERAC_INFO } from "../data/acafisData";
 
 const CHILD_GENDERS: Array<{ value: MemberChild["gender"]; labelKey: "memberDashboard.genderFeminin" | "memberDashboard.genderMasculin" | "memberDashboard.genderAutre" }> = [
@@ -71,12 +73,18 @@ export const MemberDashboard: React.FC = () => {
     } catch {
       cached = null;
     }
+    // A record saved before code login existed has no session: log in again.
+    if (cached && !cached.sessionToken) {
+      localStorage.removeItem(MEMBER_STORAGE_KEY);
+      cached = null;
+    }
     setMember(cached);
     if (!cached) return;
+    const sessionToken = cached.sessionToken;
 
     // Re-verify against Supabase on every visit so dues status stays current
     // even if the treasury marked it paid after the member last logged in.
-    const credentials = { email: cached.email, memberId: cached.memberId };
+    const credentials = memberAuth(cached);
     fetch("/api/auth/login", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -84,8 +92,10 @@ export const MemberDashboard: React.FC = () => {
     })
       .then((res) => res.ok ? res.json() : Promise.reject())
       .then((data) => {
-        setMember(data.member);
-        localStorage.setItem(MEMBER_STORAGE_KEY, JSON.stringify(data.member));
+        // The refreshed record doesn't carry the token: keep the session's.
+        const refreshed = { ...data.member, sessionToken };
+        setMember(refreshed);
+        localStorage.setItem(MEMBER_STORAGE_KEY, JSON.stringify(refreshed));
       })
       .catch(() => {
         localStorage.removeItem(MEMBER_STORAGE_KEY);
@@ -114,7 +124,7 @@ export const MemberDashboard: React.FC = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const loadWorkshops = (credentials: { email: string; memberId: string }) => {
+  const loadWorkshops = (credentials: { email: string; sessionToken?: string }) => {
     fetch("/api/members/workshops/list", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
@@ -134,8 +144,7 @@ export const MemberDashboard: React.FC = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email: member.email,
-          memberId: member.memberId,
+          ...memberAuth(member),
           workshopId,
           childId: pick === "self" ? null : pick,
         }),
@@ -148,7 +157,7 @@ export const MemberDashboard: React.FC = () => {
       }
       // Refetch either way: the seat may have landed on the waitlist (with a
       // position), or counts may be stale (someone else took the last spot).
-      loadWorkshops({ email: member.email, memberId: member.memberId });
+      loadWorkshops(memberAuth(member));
     } catch {
       setWorkshopError((prev) => ({ ...prev, [workshopId]: t("memberDashboard.workshopError") }));
     } finally {
@@ -169,13 +178,13 @@ export const MemberDashboard: React.FC = () => {
       await fetch("/api/members/workshops/unregister", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: member.email, memberId: member.memberId, registrationId }),
+        body: JSON.stringify({ ...memberAuth(member), registrationId }),
       });
     } catch {
       // Best-effort — worst case the seat reappears on the next visit's refetch.
     }
     // The freed seat may have gone to the waitlist: refetch the real counts.
-    loadWorkshops({ email: member.email, memberId: member.memberId });
+    loadWorkshops(memberAuth(member));
   };
 
   const handleAddChild = async (e: React.FormEvent) => {
@@ -188,8 +197,7 @@ export const MemberDashboard: React.FC = () => {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          email: member.email,
-          memberId: member.memberId,
+          ...memberAuth(member),
           firstName: childFirstName.trim() || undefined,
           birthYear: Number(childBirthYear),
           gender: childGender,
@@ -222,7 +230,7 @@ export const MemberDashboard: React.FC = () => {
       await fetch("/api/members/children/remove", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email: member.email, memberId: member.memberId, childId }),
+        body: JSON.stringify({ ...memberAuth(member), childId }),
       });
     } catch {
       // Best-effort — worst case the child reappears on the next visit's refetch.
@@ -237,6 +245,15 @@ export const MemberDashboard: React.FC = () => {
   }, [member, navigate, localizePath]);
 
   const handleLogout = () => {
+    // Close the session server-side too, so the token is dead even if it
+    // was copied from this browser.
+    if (member?.sessionToken) {
+      fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sessionToken: member.sessionToken, logout: true }),
+      }).catch(() => {});
+    }
     localStorage.removeItem(MEMBER_STORAGE_KEY);
     navigate(localizePath("/"));
   };
@@ -307,6 +324,32 @@ export const MemberDashboard: React.FC = () => {
             </div>
           </div>
 
+          {/* Official card: only once the treasury has confirmed the dues. */}
+          {isPaid && (
+            <div className="px-6 sm:px-8 pt-6 space-y-3">
+              <h2 className="text-xs font-bold uppercase tracking-wider text-slate-500">{t("card.myCardTitle")}</h2>
+              <div className="max-w-md">
+                <MembershipCardView
+                  variant="valid"
+                  memberId={member.memberId}
+                  holderName={`${member.firstName} ${member.lastName.toUpperCase()}`}
+                  year={member.membershipYear}
+                  city={member.city || "Canada"}
+                />
+              </div>
+              <div className="flex flex-wrap items-center gap-2">
+                <button
+                  onClick={printMembershipCard}
+                  className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-slate-800 bg-white hover:bg-slate-50 border border-slate-300 cursor-pointer"
+                >
+                  <Printer className="w-4 h-4" />
+                  {t("card.printBtn")}
+                </button>
+                <p className="text-[11px] text-slate-500">{t("card.printHint")}</p>
+              </div>
+            </div>
+          )}
+
           <div className="p-6 sm:p-8 grid grid-cols-1 sm:grid-cols-2 gap-4">
             {infoRows.map((row) => (
               <div key={row.label} className="flex items-start gap-3 p-3.5 rounded-xl bg-slate-50 border border-slate-200">
@@ -322,8 +365,9 @@ export const MemberDashboard: React.FC = () => {
           <MemberContactForm
             member={member}
             onSaved={(updated) => {
-              setMember(updated);
-              localStorage.setItem(MEMBER_STORAGE_KEY, JSON.stringify(updated));
+              const withSession = { ...updated, sessionToken: member.sessionToken };
+              setMember(withSession);
+              localStorage.setItem(MEMBER_STORAGE_KEY, JSON.stringify(withSession));
             }}
           />
 

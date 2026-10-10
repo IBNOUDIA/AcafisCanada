@@ -27,6 +27,27 @@ html, body {
   }
 }
 
+/* "Imprimer ma carte" (Espace Membre): print only the membership card, in
+   colour, at credit-card-like size (see printMembershipCard). */
+@media print {
+  body.printing-card * {
+    visibility: hidden;
+  }
+  body.printing-card .membership-card,
+  body.printing-card .membership-card * {
+    visibility: visible;
+    -webkit-print-color-adjust: exact;
+    print-color-adjust: exact;
+  }
+  body.printing-card .membership-card {
+    position: absolute;
+    top: 1cm;
+    left: 1cm;
+    width: 12cm;
+    box-shadow: none;
+  }
+}
+
 /* Keyboard users always see where they are, even on controls styled
    without a focus ring. */
 :focus-visible {

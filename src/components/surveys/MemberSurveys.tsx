@@ -3,6 +3,7 @@ import { ClipboardList, CheckCircle2, Lock } from "lucide-react";
 import { useTranslation } from "../../i18n/translations";
 import { SurveyAnswers, SurveyQuestion, YES_NO_OPTIONS } from "../../lib/surveys";
 import { MemberRecord } from "../../types";
+import { memberAuth } from "../../lib/memberSession";
 import { SurveyResultBars, SurveyResults, YES_NO_LABEL_KEYS } from "./SurveyResultBars";
 
 interface MemberSurvey {
@@ -28,7 +29,7 @@ export const MemberSurveys: React.FC<{ member: MemberRecord }> = ({ member }) =>
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [busyId, setBusyId] = useState<string | null>(null);
   const [results, setResults] = useState<Record<string, SurveyResults | null>>({});
-  const credentials = { email: member.email, memberId: member.memberId };
+  const credentials = memberAuth(member);
 
   useEffect(() => {
     fetch("/api/members/surveys/list", {

@@ -254,9 +254,9 @@ function welcomeEmailText(row: Record<string, any>): string {
     "",
     `Votre numéro de membre : ${row.member_id}`,
     "",
-    "Il vous permet d'accéder à votre Espace Membre (documents de l'AG, recensement familial, inscription de vos enfants aux activités, sondages) :",
-    `  1. Rendez-vous sur ${SITE_MEMBER_AREA_URL}`,
-    `  2. Connectez-vous avec ce courriel (${row.email}) et votre numéro de membre.`,
+    "Votre Espace Membre vous donne accès aux documents de l'AG, au recensement familial, à l'inscription de vos enfants aux activités et aux sondages :",
+    `  1. Rendez-vous sur ${SITE_MEMBER_AREA_URL} et cliquez sur « Se connecter ».`,
+    `  2. Entrez ce courriel (${row.email}) : vous recevrez un code de connexion à 6 chiffres.`,
     "",
     "Cotisation annuelle : 25 $ CAD par virement Interac à acafisfinance2@gmail.com (question : « Pays ? », réponse : Senegal).",
     "",
@@ -266,7 +266,7 @@ function welcomeEmailText(row: Record<string, any>): string {
     "Le Bureau Exécutif d'ACAFIS Canada",
     "",
     "—",
-    `Welcome to ACAFIS Canada! Your member number is ${row.member_id}. Log in at ${SITE_MEMBER_AREA_URL} with this email address and your member number.`,
+    `Welcome to ACAFIS Canada! Your member number is ${row.member_id}. Log in at ${SITE_MEMBER_AREA_URL} with this email address: you will receive a 6-digit login code.`,
   ].join("\n");
 }
 
@@ -362,17 +362,62 @@ export async function handleAdminSetPaymentStatus(
   }
 
   const supabase = getSupabaseClient()!;
-  const { error } = await supabase
+  const { data: before } = await supabase
+    .from("members")
+    .select("payment_status")
+    .eq("member_id", memberId)
+    .maybeSingle();
+
+  const { data: row, error } = await supabase
     .from("members")
     .update({ payment_status: paymentStatus })
-    .eq("member_id", memberId);
+    .eq("member_id", memberId)
+    .select("*")
+    .maybeSingle();
 
   if (error) {
     console.error("Admin set payment status failed:", error);
     return { status: 500, body: { error: "Erreur serveur, réessayez dans un instant." } };
   }
 
+  // Dues just confirmed: tell the member their card is available. Only on
+  // the pending -> paid change, so re-ticking never sends twice.
+  if (paymentStatus === "paid" && before?.payment_status !== "paid" && row) {
+    await sendMembershipConfirmedEmail(row);
+  }
+
   return { status: 200, body: { success: true } };
+}
+
+async function sendMembershipConfirmedEmail(row: Record<string, any>): Promise<void> {
+  const email: string = row.email || "";
+  if (!email || email.endsWith("@acafis.invalid")) return;
+  const resend = getResendClient();
+  if (!resend) return;
+  try {
+    await resend.emails.send({
+      from: EMAIL_FROM,
+      to: email,
+      replyTo: "infos@acafis.ca",
+      subject: `Votre adhésion ${row.membership_year} à ACAFIS Canada est confirmée`,
+      text: [
+        `Bonjour ${row.first_name},`,
+        "",
+        `La trésorerie a bien reçu votre cotisation : vous êtes membre en règle d'ACAFIS Canada pour ${row.membership_year}. Merci de votre soutien !`,
+        "",
+        `Votre carte de membre virtuelle (n° ${row.member_id}) est disponible dans votre Espace Membre :`,
+        `  1. Rendez-vous sur ${SITE_MEMBER_AREA_URL} et cliquez sur « Se connecter ».`,
+        `  2. Entrez ce courriel (${email}) : vous recevrez un code de connexion à 6 chiffres.`,
+        "  3. La carte s'affiche en haut de votre Espace Membre ; vous pouvez l'imprimer ou l'enregistrer en PDF.",
+        "",
+        "Au plaisir de vous voir à nos prochaines activités,",
+        "Le Bureau Exécutif d'ACAFIS Canada",
+      ].join("\n"),
+    });
+  } catch (sendError) {
+    // The status change is saved either way; the email is a courtesy.
+    console.error("Resend membership confirmation email failed:", sendError);
+  }
 }
 
 export interface AdminUpdateMemberBody {
