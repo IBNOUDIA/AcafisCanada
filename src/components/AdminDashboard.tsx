@@ -736,7 +736,7 @@ export const AdminDashboard: React.FC = () => {
                   <th className="py-2 pr-3 font-bold">{t("admin.colYear")}</th>
                   <th className="py-2 pr-3 font-bold">{t("admin.colCoop")}</th>
                   <th className="py-2 pr-3 font-bold">{t("admin.colStatus")}</th>
-                  <th className="py-2 pr-3 font-bold">{t("admin.colActions")}</th>
+                  <th className="py-2 pl-2 pr-1 font-bold sticky right-0 bg-white">{t("admin.colActions")}</th>
                 </tr>
               </thead>
               <tbody>
@@ -754,6 +754,7 @@ export const AdminDashboard: React.FC = () => {
                           <input
                             type="email"
                             value={editEmail}
+                            aria-label={t("admin.colEmail")}
                             onChange={(e) => setEditEmail(e.target.value)}
                             className="w-full min-w-[160px] px-2 py-1 rounded-lg border border-slate-300 text-xs"
                           />
@@ -773,6 +774,7 @@ export const AdminDashboard: React.FC = () => {
                           <input
                             type="text"
                             value={editPhone}
+                            aria-label={t("admin.colPhone")}
                             onChange={(e) => setEditPhone(e.target.value)}
                             className="w-full min-w-[110px] px-2 py-1 rounded-lg border border-slate-300 text-xs"
                           />
@@ -785,6 +787,7 @@ export const AdminDashboard: React.FC = () => {
                           <input
                             type="text"
                             value={editCity}
+                            aria-label={t("admin.colCity")}
                             onChange={(e) => setEditCity(e.target.value)}
                             className="w-full min-w-[110px] px-2 py-1 rounded-lg border border-slate-300 text-xs"
                           />
@@ -824,9 +827,12 @@ export const AdminDashboard: React.FC = () => {
                           <span>{m.paymentStatus === "paid" ? t("admin.statusPaid") : t("admin.statusPending")}</span>
                         </button>
                       </td>
-                      <td className="py-2.5 pr-3">
+                      {/* Pinned to the right edge (with an opaque background) so
+                          Save/Cancel stay visible when the edit inputs widen
+                          the table past the card and it scrolls sideways. */}
+                      <td className="py-2.5 pl-2 pr-1 sticky right-0 bg-white shadow-[-8px_0_8px_-8px_rgba(15,23,42,0.15)]">
                         {isEditing ? (
-                          <div className="flex items-center gap-2">
+                          <div className="flex flex-col items-stretch gap-1.5">
                             <button
                               onClick={saveEditMember}
                               className="px-2.5 py-1 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-bold cursor-pointer"
