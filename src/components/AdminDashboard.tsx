@@ -93,6 +93,8 @@ interface AdminWorkshop {
 
 type Tab = "members" | "family" | "workshops" | "surveys" | "documents" | "settings";
 
+const SHARED_MAILBOX_WEBMAIL_URL = "https://privateemail.com";
+
 // Empty age field = no limit.
 function ageLimit(value: string): number | null {
   return value === "" ? null : Number(value);
@@ -643,13 +645,27 @@ export const AdminDashboard: React.FC = () => {
               </h1>
             </div>
           </div>
-          <button
-            onClick={handleLogout}
-            className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-slate-700 bg-white hover:bg-slate-50 border border-slate-300 cursor-pointer"
-          >
-            <LogOut className="w-4 h-4" />
-            <span>{t("admin.logoutBtn")}</span>
-          </button>
+          <div className="flex flex-wrap items-center gap-2">
+            {/* Shortcut to the shared infos@acafis.ca mailbox (Namecheap
+                Private Email webmail). Only shown behind the admin login. */}
+            <a
+              href={SHARED_MAILBOX_WEBMAIL_URL}
+              target="_blank"
+              rel="noopener noreferrer"
+              title={t("admin.mailboxHint")}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-white bg-emerald-700 hover:bg-emerald-800"
+            >
+              <Mail className="w-4 h-4" />
+              <span>{t("admin.mailboxBtn")}</span>
+            </a>
+            <button
+              onClick={handleLogout}
+              className="flex items-center gap-2 px-4 py-2.5 rounded-xl text-xs font-bold text-slate-700 bg-white hover:bg-slate-50 border border-slate-300 cursor-pointer"
+            >
+              <LogOut className="w-4 h-4" />
+              <span>{t("admin.logoutBtn")}</span>
+            </button>
+          </div>
         </div>
 
         <div className="flex flex-wrap gap-2">
