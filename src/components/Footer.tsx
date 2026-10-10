@@ -75,7 +75,7 @@ export const Footer: React.FC<FooterProps> = ({
 
           {/* Quick Links */}
           <div className="space-y-3">
-            <h4 className="text-sm font-bold text-white uppercase tracking-wider">{t("footer.quickLinks")}</h4>
+            <h2 className="text-sm font-bold text-white uppercase tracking-wider">{t("footer.quickLinks")}</h2>
             <ul className="space-y-2 text-xs text-slate-400">
               {QUICK_LINKS.map((link) => (
                 <li key={link.id}>
@@ -111,7 +111,7 @@ export const Footer: React.FC<FooterProps> = ({
 
           {/* Membership & Social */}
           <div className="space-y-3">
-            <h4 className="text-sm font-bold text-white uppercase tracking-wider">{t("footer.joinUs")}</h4>
+            <h2 className="text-sm font-bold text-white uppercase tracking-wider">{t("footer.joinUs")}</h2>
             <button
               onClick={onOpenCardModal}
               className="w-full py-2.5 px-3 rounded-xl bg-gradient-to-r from-emerald-600 to-teal-700 hover:from-emerald-500 hover:to-teal-600 text-white font-bold text-xs shadow-md transition-all cursor-pointer"
