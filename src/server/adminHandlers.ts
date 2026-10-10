@@ -644,6 +644,7 @@ interface ActivityOptionsInput {
   registrationDeadline?: string | null;
   requiresPaidMembership?: boolean;
   feeAmount?: number | null;
+  isPublic?: boolean;
 }
 
 // Eligibility/logistics options shared by create and update. With
@@ -679,6 +680,9 @@ function parseActivityOptions(
     }
     columns.fee_amount = fee === null || fee === 0 ? null : Math.round(fee * 100) / 100;
   }
+  if (allFields || data.isPublic !== undefined) {
+    columns.is_public = data.isPublic !== false;
+  }
 
   return { columns };
 }
@@ -700,6 +704,7 @@ function mapWorkshopRow(row: Record<string, any>): Record<string, unknown> {
     registrationDeadline: row.registration_deadline ?? null,
     requiresPaidMembership: row.requires_paid_membership === true,
     feeAmount: row.fee_amount === null || row.fee_amount === undefined ? null : Number(row.fee_amount),
+    isPublic: row.is_public !== false,
   };
 }
 
@@ -790,6 +795,7 @@ export interface AdminWorkshopAddBody {
   registrationDeadline?: string | null;
   requiresPaidMembership?: boolean;
   feeAmount?: number | null;
+  isPublic?: boolean;
 }
 
 export async function handleAdminWorkshopAdd(
@@ -891,6 +897,7 @@ export interface AdminWorkshopUpdateBody {
   registrationDeadline?: string | null;
   requiresPaidMembership?: boolean;
   feeAmount?: number | null;
+  isPublic?: boolean;
 }
 
 // Partial update: only the fields present in the body are changed, so the

@@ -13,6 +13,7 @@ export interface ActivityOptionsForm {
   registrationDeadline: string; // datetime-local value, "" = none
   requiresPaidMembership: boolean;
   feeAmount: string; // "" = free
+  isPublic: boolean; // shown in the public "Prochaines activités" showcase
 }
 
 export const EMPTY_ACTIVITY_OPTIONS: ActivityOptionsForm = {
@@ -20,6 +21,7 @@ export const EMPTY_ACTIVITY_OPTIONS: ActivityOptionsForm = {
   registrationDeadline: "",
   requiresPaidMembership: false,
   feeAmount: "",
+  isPublic: true,
 };
 
 // datetime-local inputs take local wall-clock time with no timezone, so an
@@ -35,12 +37,14 @@ export function activityOptionsFrom(w: {
   registrationDeadline: string | null;
   requiresPaidMembership: boolean;
   feeAmount: number | null;
+  isPublic: boolean;
 }): ActivityOptionsForm {
   return {
     genderRestriction: w.genderRestriction ?? "",
     registrationDeadline: w.registrationDeadline ? toDateTimeLocal(w.registrationDeadline) : "",
     requiresPaidMembership: w.requiresPaidMembership,
     feeAmount: w.feeAmount === null ? "" : String(w.feeAmount),
+    isPublic: w.isPublic,
   };
 }
 
@@ -51,6 +55,7 @@ export function activityOptionsPayload(form: ActivityOptionsForm) {
     registrationDeadline: form.registrationDeadline ? new Date(form.registrationDeadline).toISOString() : null,
     requiresPaidMembership: form.requiresPaidMembership,
     feeAmount: form.feeAmount === "" ? null : Number(form.feeAmount),
+    isPublic: form.isPublic,
   };
 }
 
@@ -104,6 +109,15 @@ export const ActivityOptionsFields: React.FC<{
           className="accent-slate-900"
         />
         {t("admin.workshopRequiresPaidLabel")}
+      </label>
+      <label className="flex items-center gap-2 text-xs text-slate-700 cursor-pointer">
+        <input
+          type="checkbox"
+          checked={value.isPublic}
+          onChange={(e) => onChange({ ...value, isPublic: e.target.checked })}
+          className="accent-slate-900"
+        />
+        {t("admin.workshopPublicLabel")}
       </label>
     </div>
   );

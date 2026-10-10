@@ -194,6 +194,10 @@ alter table workshops add column if not exists fee_amount numeric(8, 2);
 alter table workshops drop constraint if exists workshops_fee_amount_check;
 alter table workshops add constraint workshops_fee_amount_check check (fee_amount is null or fee_amount >= 0);
 
+-- Shown in the public "Prochaines activités" showcase (homepage, Programme)
+-- unless the Bureau unticks it for an internal activity.
+alter table workshops add column if not exists is_public boolean not null default true;
+
 create index if not exists workshops_starts_at_idx on workshops (starts_at);
 
 alter table workshops enable row level security;

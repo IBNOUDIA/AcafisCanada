@@ -10,6 +10,7 @@ import {
   handleMemberClaimInfo,
   handleMemberClaim,
   handleMemberDocuments,
+  handlePublicActivities,
   handleMemberUpdateContact,
   handleMemberChildrenList,
   handleMemberChildAdd,
@@ -127,6 +128,12 @@ app.post("/api/members/children/remove", async (req, res) => {
 
 app.post("/api/members/children/sport-file", async (req, res) => {
   const result = await handleMemberChildSportFile(req.body, getClientIp(req));
+  res.status(result.status).json(result.body);
+});
+
+// Public "Prochaines activités" showcase (no login)
+app.get("/api/members/workshops/public", async (_req, res) => {
+  const result = await handlePublicActivities();
   res.status(result.status).json(result.body);
 });
 

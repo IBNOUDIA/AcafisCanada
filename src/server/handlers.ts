@@ -992,6 +992,66 @@ export interface MemberWorkshopsListBody {
   memberId?: string;
 }
 
+// Public "Prochaines activités" showcase (homepage, Programme page): the next
+// public activities, no login needed. Only what helps a visitor decide to
+// join — never who registered. A videoconference link is never published:
+// the location then reads as "online".
+export async function handlePublicActivities(): Promise<
+  HandlerResult<{ activities?: Record<string, unknown>[]; error?: string }>
+> {
+  const supabase = getSupabaseClient();
+  if (!supabase) return { status: 200, body: { activities: [] } };
+
+  const { data: rows, error } = await supabase
+    .from("workshops")
+    .select("*, workshop_registrations (status)")
+    .gte("starts_at", new Date().toISOString())
+    .order("starts_at", { ascending: true })
+    .limit(30);
+
+  if (error) {
+    console.error("Supabase public activities lookup failed:", error);
+    return { status: 500, body: { error: "Erreur serveur, réessayez dans un instant." } };
+  }
+
+  const isOnlineLink = (location: string) => /https?:\/\/|www\.|zoom\.us|meet\.|teams\./i.test(location);
+
+  return {
+    status: 200,
+    body: {
+      activities: (rows || [])
+        // `!== false`: a database without the is_public column shows everything.
+        .filter((row: Record<string, any>) => row.is_public !== false)
+        .slice(0, 6)
+        .map((row: Record<string, any>) => {
+          const confirmed = (row.workshop_registrations || []).filter(
+            (r: Record<string, any>) => r.status !== "waitlist"
+          ).length;
+          const deadline: string | null = row.registration_deadline ?? null;
+          const description: string = row.description || "";
+          const online = isOnlineLink(row.location || "");
+          return {
+            id: row.id,
+            title: row.title,
+            description: description.length > 220 ? `${description.slice(0, 217).trimEnd()}…` : description || null,
+            startsAt: row.starts_at,
+            location: online ? null : row.location,
+            isOnline: online,
+            category: row.category ?? "ntic",
+            minAge: row.min_age ?? null,
+            maxAge: row.max_age ?? null,
+            genderRestriction: row.gender_restriction ?? null,
+            feeAmount: row.fee_amount === null || row.fee_amount === undefined ? null : Number(row.fee_amount),
+            requiresPaidMembership: row.requires_paid_membership === true,
+            registrationsOpen:
+              row.registrations_open !== false && (!deadline || new Date(deadline).getTime() > Date.now()),
+            spotsLeft: Math.max(0, row.capacity - confirmed),
+          };
+        }),
+    },
+  };
+}
+
 export async function handleMemberWorkshopsList(
   data: MemberWorkshopsListBody,
   ip: string

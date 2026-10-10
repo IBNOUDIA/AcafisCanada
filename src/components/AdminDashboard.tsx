@@ -89,6 +89,7 @@ interface AdminWorkshop {
   registrationDeadline: string | null;
   requiresPaidMembership: boolean;
   feeAmount: number | null;
+  isPublic: boolean;
   // Confirmed seats first, then the waitlist in promotion order (server-sorted).
   registrations: AdminRegistration[];
 }
@@ -1070,6 +1071,11 @@ export const AdminDashboard: React.FC = () => {
                             {w.requiresPaidMembership && (
                               <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-100 text-amber-800">
                                 {t("memberDashboard.workshopMembersOnly")}
+                              </span>
+                            )}
+                            {!w.isPublic && (
+                              <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-slate-200 text-slate-700">
+                                {t("admin.workshopNotPublic")}
                               </span>
                             )}
                             {w.title}

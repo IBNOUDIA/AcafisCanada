@@ -19,6 +19,7 @@ import { translations, TranslationKey } from "./i18n/translations";
 // its largest element, and lazy-loading Hero made that photo wait for an
 // extra script download before it could even start loading.
 import { Hero } from "./components/Hero";
+import { UpcomingActivities } from "./components/UpcomingActivities";
 const CiteJardinProject = lazy(() => import("./components/CiteJardinProject").then((m) => ({ default: m.CiteJardinProject })));
 const ActivitiesProgram = lazy(() => import("./components/ActivitiesProgram").then((m) => ({ default: m.ActivitiesProgram })));
 const MediaBoutiqueSection = lazy(() => import("./components/MediaBoutiqueSection").then((m) => ({ default: m.MediaBoutiqueSection })));
@@ -181,12 +182,18 @@ const AppShell: React.FC = () => {
             // and its "/en" mirror — the page's own content picks the right
             // language via useLanguage()/useTranslation(), so the exact same
             // element works under either URL.
+            // Public showcase of upcoming activities, under the homepage
+            // banner and atop the Programme page (hidden when none is coming).
+            const upcomingEl = <UpcomingActivities onBecomeMember={() => handleNavigate("adhesion")} />;
             const heroEl = (
-              <Hero
-                onNavigate={handleNavigate}
-                onOpenCardModal={handleOpenCardModal}
-                onOpenPaymentModal={handleOpenPaymentModal}
-              />
+              <>
+                <Hero
+                  onNavigate={handleNavigate}
+                  onOpenCardModal={handleOpenCardModal}
+                  onOpenPaymentModal={handleOpenPaymentModal}
+                />
+                {upcomingEl}
+              </>
             );
             const espaceJeuneEl = (
               <CiteJardinProject
@@ -194,7 +201,12 @@ const AppShell: React.FC = () => {
                 onNavigateContact={() => handleNavigate("adhesion")}
               />
             );
-            const programmeEl = <ActivitiesProgram />;
+            const programmeEl = (
+              <>
+                {upcomingEl}
+                <ActivitiesProgram />
+              </>
+            );
             const mediaEl = <MediaBoutiqueSection />;
             const servicesEl = (
               <ServicesSection onNavigate={handleNavigate} onOpenCardModal={handleOpenCardModal} />
