@@ -21,10 +21,11 @@ import {
   Mail,
   ClipboardList,
   Send,
+  Search,
 } from "lucide-react";
 import { AdminSurveys } from "./surveys/AdminSurveys";
 import { AdminMessages } from "./AdminMessages";
-import { useTranslation } from "../i18n/translations";
+import { useTranslation, TranslationKey } from "../i18n/translations";
 import { useLanguage } from "../i18n/LanguageContext";
 import { ADMIN_SESSION_KEY, AdminSession } from "../lib/adminSession";
 import {
@@ -98,6 +99,43 @@ type Tab = "members" | "messages" | "family" | "workshops" | "surveys" | "docume
 
 const SHARED_MAILBOX_WEBMAIL_URL = "https://privateemail.com";
 
+// Members tab: quick filters next to the search box.
+type MemberFilter = "all" | "paid" | "pending" | "coop" | "noEmail" | "noPhone";
+const MEMBER_FILTERS: MemberFilter[] = ["all", "paid", "pending", "coop", "noEmail", "noPhone"];
+const MEMBER_FILTER_LABEL_KEYS: Record<MemberFilter, TranslationKey> = {
+  all: "admin.memberFilterAll",
+  paid: "admin.memberFilterPaid",
+  pending: "admin.memberFilterPending",
+  coop: "admin.memberFilterCoop",
+  noEmail: "admin.memberFilterNoEmail",
+  noPhone: "admin.memberFilterNoPhone",
+};
+
+// Lowercase without accents, so "diedhiou" finds "Diédhiou".
+function searchable(value: string | null | undefined): string {
+  return (value || "")
+    .normalize("NFD")
+    .replace(/[̀-ͯ]/g, "")
+    .toLowerCase();
+}
+
+function matchesMemberFilter(m: AdminMember, filter: MemberFilter): boolean {
+  switch (filter) {
+    case "paid":
+      return m.paymentStatus === "paid";
+    case "pending":
+      return m.paymentStatus !== "paid";
+    case "coop":
+      return m.isCoopMember;
+    case "noEmail":
+      return m.email.endsWith("@acafis.invalid");
+    case "noPhone":
+      return !m.phone || !m.phone.trim() || m.phone === "Non renseigné";
+    default:
+      return true;
+  }
+}
+
 // Empty age field = no limit.
 function ageLimit(value: string): number | null {
   return value === "" ? null : Number(value);
@@ -120,6 +158,8 @@ export const AdminDashboard: React.FC = () => {
   const [editPhone, setEditPhone] = useState("");
   const [editCity, setEditCity] = useState("");
   const [memberActionError, setMemberActionError] = useState("");
+  const [memberSearch, setMemberSearch] = useState("");
+  const [memberFilter, setMemberFilter] = useState<MemberFilter>("all");
   const [welcomeMsg, setWelcomeMsg] = useState("");
   const [isSendingWelcome, setIsSendingWelcome] = useState(false);
   const [familyStats, setFamilyStats] = useState<FamilyStats | null>(null);
@@ -615,6 +655,16 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
+  // Search matches name, member number, email, phone and city, ignoring
+  // accents and case; several words must all match ("sarr montreal").
+  const searchTerms = searchable(memberSearch).split(/\s+/).filter(Boolean);
+  const filteredMembers = members.filter((m) => {
+    if (!matchesMemberFilter(m, memberFilter)) return false;
+    if (searchTerms.length === 0) return true;
+    const haystack = searchable(`${m.firstName} ${m.lastName} ${m.memberId} ${m.email} ${m.phone ?? ""} ${m.city ?? ""}`);
+    return searchTerms.every((term) => haystack.includes(term));
+  });
+
   if (session === undefined) return null;
   if (session === null) {
     return (
@@ -727,6 +777,38 @@ export const AdminDashboard: React.FC = () => {
                 {memberActionError}
               </p>
             )}
+            <div className="flex flex-wrap items-center gap-2 mb-3">
+              <div className="relative flex-1 min-w-[220px]">
+                <Search className="w-4 h-4 text-slate-500 absolute left-3 top-2.5" aria-hidden="true" />
+                <input
+                  id="member-search"
+                  type="search"
+                  value={memberSearch}
+                  onChange={(e) => setMemberSearch(e.target.value)}
+                  placeholder={t("admin.memberSearchPlaceholder")}
+                  aria-label={t("admin.memberSearchPlaceholder")}
+                  className="w-full pl-9 pr-3 py-2 rounded-xl border border-slate-300 text-sm focus:outline-hidden focus:border-slate-600 focus:ring-1 focus:ring-slate-600"
+                />
+              </div>
+              <select
+                id="member-filter"
+                value={memberFilter}
+                onChange={(e) => setMemberFilter(e.target.value as MemberFilter)}
+                aria-label={t("admin.memberFilterLabel")}
+                className="px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white"
+              >
+                {MEMBER_FILTERS.map((f) => (
+                  <option key={f} value={f}>
+                    {t(MEMBER_FILTER_LABEL_KEYS[f])}
+                  </option>
+                ))}
+              </select>
+              <span className="text-xs text-slate-500 tabular-nums" aria-live="polite">
+                {t("admin.memberSearchCount")
+                  .replace("{shown}", String(filteredMembers.length))
+                  .replace("{total}", String(members.length))}
+              </span>
+            </div>
             <table className="w-full text-xs min-w-[820px]">
               <thead>
                 <tr className="text-left text-slate-500 uppercase tracking-wider border-b border-slate-100">
@@ -741,7 +823,14 @@ export const AdminDashboard: React.FC = () => {
                 </tr>
               </thead>
               <tbody>
-                {members.map((m) => {
+                {filteredMembers.length === 0 && (
+                  <tr>
+                    <td colSpan={8} className="py-6 text-center text-slate-500">
+                      {t("admin.memberSearchEmpty")}
+                    </td>
+                  </tr>
+                )}
+                {filteredMembers.map((m) => {
                   const isEditing = editingMemberId === m.memberId;
                   const isPlaceholderEmail = m.email.endsWith("@acafis.invalid");
                   return (
