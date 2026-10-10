@@ -44,8 +44,10 @@ const KoccBarmaWidget = lazy(() => import("./components/KoccBarmaWidget").then((
 
 // Simple centered spinner shown only while a page chunk is fetching —
 // usually invisible in practice on a warm connection.
+// Full-screen tall, so the footer stays below the fold while a page loads
+// instead of showing up top and then jumping down (a layout shift).
 const PageLoadingFallback: React.FC = () => (
-  <div className="flex items-center justify-center py-32">
+  <div className="flex items-start justify-center pt-32 min-h-screen">
     <div className="w-8 h-8 rounded-full border-2 border-emerald-600 border-t-transparent animate-spin" />
   </div>
 );
@@ -184,7 +186,8 @@ const AppShell: React.FC = () => {
             // language via useLanguage()/useTranslation(), so the exact same
             // element works under either URL.
             // Public showcase of upcoming activities, under the homepage
-            // banner and atop the Programme page (hidden when none is coming).
+            // banner and below the Programme page's yearly program (hidden
+            // when none is coming).
             const upcomingEl = <UpcomingActivities onBecomeMember={() => handleNavigate("adhesion")} />;
             const heroEl = (
               <>
@@ -202,10 +205,12 @@ const AppShell: React.FC = () => {
                 onNavigateContact={() => handleNavigate("adhesion")}
               />
             );
+            // Below the yearly program here: placed above it, the list (which
+            // arrives after the page) pushed the whole program down on load.
             const programmeEl = (
               <>
-                {upcomingEl}
                 <ActivitiesProgram />
+                {upcomingEl}
               </>
             );
             const mediaEl = <MediaBoutiqueSection />;
