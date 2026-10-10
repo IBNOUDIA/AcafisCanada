@@ -20,6 +20,7 @@ import { translations, TranslationKey } from "./i18n/translations";
 // extra script download before it could even start loading.
 import { Hero } from "./components/Hero";
 import { UpcomingActivities } from "./components/UpcomingActivities";
+import { NotFoundPage } from "./components/NotFoundPage";
 const CiteJardinProject = lazy(() => import("./components/CiteJardinProject").then((m) => ({ default: m.CiteJardinProject })));
 const ActivitiesProgram = lazy(() => import("./components/ActivitiesProgram").then((m) => ({ default: m.ActivitiesProgram })));
 const MediaBoutiqueSection = lazy(() => import("./components/MediaBoutiqueSection").then((m) => ({ default: m.MediaBoutiqueSection })));
@@ -281,9 +282,9 @@ const AppShell: React.FC = () => {
                 <Route path="/en/admin/connexion" element={<AdminLoginPage />} />
                 <Route path="/admin" element={<AdminDashboard />} />
                 <Route path="/en/admin" element={<AdminDashboard />} />
-                {/* Unknown paths fall back to the home page, in whichever language prefix was used */}
-                <Route path="*" element={heroEl} />
-                <Route path="/en/*" element={heroEl} />
+                {/* Unknown paths: a "page not found" page (marked noindex), in whichever language prefix was used */}
+                <Route path="*" element={<NotFoundPage />} />
+                <Route path="/en/*" element={<NotFoundPage />} />
               </>
             );
           })()}

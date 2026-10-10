@@ -247,6 +247,10 @@ const fr = {
   "common.copy": "Copier",
   "common.copied": "Copié !",
   "common.skipToContent": "Aller au contenu principal",
+  "notFound.title": "Page introuvable",
+  "notFound.desc": "Cette adresse ne correspond à aucune page du site d'ACAFIS Canada. Le lien est peut-être ancien ou mal recopié.",
+  "notFound.home": "Retour à l'accueil",
+  "notFound.contact": "Adhésion & Contact",
   "common.close": "Fermer",
 
   "paymentModal.tabPayment": "Paiement Cotisation (Interac)",
@@ -1090,6 +1094,10 @@ const en: typeof fr = {
   "common.copy": "Copy",
   "common.copied": "Copied!",
   "common.skipToContent": "Skip to main content",
+  "notFound.title": "Page not found",
+  "notFound.desc": "This address doesn't match any page of the ACAFIS Canada site. The link may be old or mistyped.",
+  "notFound.home": "Back to home",
+  "notFound.contact": "Membership & Contact",
   "common.close": "Close",
 
   "paymentModal.tabPayment": "Membership Payment (Interac)",
