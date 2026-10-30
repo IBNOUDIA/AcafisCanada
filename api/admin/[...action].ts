@@ -17,6 +17,7 @@ import {
   handleAdminWorkshopUpdate,
   handleAdminWorkshopRegistrationRemove,
   handleAdminWorkshopRegistrationUpdate,
+  handleKeepAlive,
 } from "../../src/server/adminHandlers.js";
 import {
   handleAdminSurveysList,
@@ -38,6 +39,19 @@ import { getClientIp } from "../../src/server/requestIp.js";
 // project's Vercel routing — only a single path segment after /api/admin/
 // actually gets routed here.
 export default async function handler(req: VercelRequest, res: VercelResponse) {
+  // Daily Vercel cron (see "crons" in vercel.json) — a GET, unlike every other
+  // admin action, and lives here so it doesn't use up the last function slot.
+  if ((req.url || "").split("?")[0].replace(/\/+$/, "") === "/api/admin/keepalive") {
+    if (req.method !== "GET") {
+      res.status(405).json({ error: "Method Not Allowed" });
+      return;
+    }
+    const result = await handleKeepAlive(req.headers.authorization);
+    res.setHeader("Cache-Control", "no-store");
+    res.status(result.status).json(result.body);
+    return;
+  }
+
   if (req.method !== "POST") {
     res.status(405).json({ error: "Method Not Allowed" });
     return;

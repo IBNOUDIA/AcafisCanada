@@ -22,6 +22,9 @@
       "permanent": true
     }
   ],
+  "crons": [
+    { "path": "/api/admin/keepalive", "schedule": "0 9 * * *" }
+  ],
   "rewrites": [
     {
       "source": "/((?!api/|sitemap\\.xml|robots\\.txt).*)",

@@ -1124,3 +1124,32 @@ export async function handleAdminWorkshopRegistrationUpdate(
 
   return { status: 200, body: { success: true } };
 }
+
+// ---------------------------------------------------------------------------
+// Keep-alive — called once a day by the Vercel cron in vercel.json. Supabase's
+// free plan pauses a project after ~7 days without database activity, which
+// took the whole member/admin area down (DNS for the project disappears while
+// paused). One tiny query a day is enough to count as activity.
+// ---------------------------------------------------------------------------
+
+export async function handleKeepAlive(
+  authorization: string | undefined
+): Promise<HandlerResult<{ ok?: boolean; error?: string }>> {
+  // Vercel sends "Authorization: Bearer <CRON_SECRET>" with cron requests when
+  // CRON_SECRET is set on the project, so only the scheduler can trigger this.
+  const secret = process.env.CRON_SECRET;
+  if (secret && authorization !== `Bearer ${secret}`) {
+    return { status: 401, body: { error: "Unauthorized" } };
+  }
+
+  const supabase = getSupabaseClient();
+  if (!supabase) return { status: 503, body: { error: NOT_CONFIGURED_ERROR } };
+
+  const { error } = await supabase.from("admins").select("email", { count: "exact", head: true });
+  if (error) {
+    console.error("Supabase keep-alive query failed:", error);
+    return { status: 500, body: { error: "Erreur serveur, réessayez dans un instant." } };
+  }
+
+  return { status: 200, body: { ok: true } };
+}
