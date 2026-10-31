@@ -1,8 +1,14 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { Send, FlaskConical } from "lucide-react";
 import { useTranslation, TranslationKey } from "../i18n/translations";
 
-type Audience = "all" | "coop" | "paid";
+type Audience = "all" | "coop" | "paid" | "bureau" | "custom";
+
+interface Person {
+  id: string;
+  name: string;
+  email: string;
+}
 
 interface HistoryRow {
   id: string;
@@ -17,20 +23,28 @@ const AUDIENCE_KEYS: Record<Audience, TranslationKey> = {
   all: "messages.audienceAll",
   coop: "messages.audienceCoop",
   paid: "messages.audiencePaid",
+  bureau: "messages.audienceBureau",
+  custom: "messages.audienceCustom",
 };
 
-// Resend's free plan allows 100 emails a day.
+// Resend's free plan allows 100 emails a day; it also caps a custom list.
 const DAILY_QUOTA = 100;
 const INPUT =
   "w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-sm bg-white focus:outline-hidden focus:border-slate-600 focus:ring-1 focus:ring-slate-600";
 
 // Admin "Messages" tab: one email to a group of members, personalized with
 // each first name, sent from notifications@acafis.ca with replies going to
-// infos@acafis.ca. Recipients never see each other's addresses.
+// infos@acafis.ca. Recipients never see each other's addresses. Besides the
+// fixed groups, it can go to the Bureau (admin accounts) or to members the
+// admin ticks one by one.
 export const AdminMessages: React.FC<{ token: string }> = ({ token }) => {
   const { t, lang } = useTranslation();
   const [audiences, setAudiences] = useState<Record<Audience, number> | null>(null);
   const [history, setHistory] = useState<HistoryRow[]>([]);
+  const [members, setMembers] = useState<Person[]>([]);
+  const [bureau, setBureau] = useState<Person[]>([]);
+  const [selected, setSelected] = useState<Set<string>>(new Set());
+  const [search, setSearch] = useState("");
   const [audience, setAudience] = useState<Audience>("all");
   const [subject, setSubject] = useState("");
   const [body, setBody] = useState("");
@@ -54,6 +68,8 @@ export const AdminMessages: React.FC<{ token: string }> = ({ token }) => {
       .then((data) => {
         setAudiences(data.audiences);
         setHistory(data.history || []);
+        setMembers(data.members || []);
+        setBureau(data.bureau || []);
       })
       .catch(() => {});
 
@@ -62,7 +78,21 @@ export const AdminMessages: React.FC<{ token: string }> = ({ token }) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
-  const count = audiences?.[audience] ?? 0;
+  const count = audience === "custom" ? selected.size : (audiences?.[audience] ?? 0);
+
+  const filtered = useMemo(() => {
+    const q = search.trim().toLowerCase();
+    if (!q) return members;
+    return members.filter((m) => m.name.toLowerCase().includes(q) || m.email.toLowerCase().includes(q));
+  }, [members, search]);
+
+  const toggle = (id: string) =>
+    setSelected((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
 
   const send = async (test: boolean) => {
     setError("");
@@ -75,13 +105,20 @@ export const AdminMessages: React.FC<{ token: string }> = ({ token }) => {
     }
     setBusy(test ? "test" : "send");
     try {
-      const data = await post("messages-send", { subject, body, audience, test });
+      const data = await post("messages-send", {
+        subject,
+        body,
+        audience,
+        memberIds: audience === "custom" ? [...selected] : undefined,
+        test,
+      });
       if (test) {
         setNotice(t("messages.testSent"));
       } else {
         setNotice(t("messages.sent").replace("{count}", String(data.sent)));
         setSubject("");
         setBody("");
+        setSelected(new Set());
         load();
       }
     } catch (err) {
@@ -126,10 +163,63 @@ export const AdminMessages: React.FC<{ token: string }> = ({ token }) => {
                   />
                   {t(AUDIENCE_KEYS[a])}
                 </span>
-                <span className="text-xs font-bold text-slate-600 tabular-nums">{audiences ? audiences[a] : "…"}</span>
+                <span className="text-xs font-bold text-slate-600 tabular-nums">
+                  {a === "custom" ? selected.size : audiences ? audiences[a] : "…"}
+                </span>
               </label>
             ))}
           </div>
+
+          {audience === "bureau" && (
+            <p className="text-xs text-slate-600 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2">
+              {bureau.length === 0 ? t("messages.bureauEmpty") : bureau.map((b) => b.name).join(", ")}
+            </p>
+          )}
+
+          {audience === "custom" && (
+            <div className="rounded-xl border border-slate-200 p-3 space-y-2">
+              <div className="flex flex-wrap items-center gap-2">
+                <input
+                  type="search"
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder={t("messages.customSearch")}
+                  aria-label={t("messages.customSearch")}
+                  className={`${INPUT} flex-1 min-w-[180px]`}
+                />
+                <button
+                  type="button"
+                  onClick={() => setSelected(new Set())}
+                  disabled={selected.size === 0}
+                  className="px-3 py-2 rounded-xl text-xs font-bold text-slate-700 bg-white border border-slate-300 hover:bg-slate-50 cursor-pointer disabled:opacity-50 disabled:cursor-default"
+                >
+                  {t("messages.customClear")}
+                </button>
+              </div>
+              <div className="max-h-64 overflow-y-auto divide-y divide-slate-100">
+                {filtered.length === 0 ? (
+                  <p className="text-xs text-slate-500 py-2">{t("messages.customNone")}</p>
+                ) : (
+                  filtered.map((m) => (
+                    <label key={m.id} className="flex items-center gap-2 py-1.5 text-sm cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={selected.has(m.id)}
+                        disabled={!selected.has(m.id) && selected.size >= DAILY_QUOTA}
+                        onChange={() => toggle(m.id)}
+                        className="accent-slate-900"
+                      />
+                      <span className="font-semibold text-slate-900">{m.name}</span>
+                      <span className="text-xs text-slate-500 truncate">{m.email}</span>
+                    </label>
+                  ))
+                )}
+              </div>
+              <p className="text-[11px] text-slate-500">
+                {t("messages.customCount").replace("{count}", String(selected.size))}
+              </p>
+            </div>
+          )}
           <p className="text-[11px] text-slate-500">{t("messages.audienceNote")}</p>
         </fieldset>
 

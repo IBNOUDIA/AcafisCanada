@@ -10,16 +10,21 @@ interface HandlerResult<T> {
 const SERVER_ERROR = "Erreur serveur, réessayez dans un instant.";
 
 // Who a group message goes to. Members with a placeholder @acafis.invalid
-// address are never included: they have no mailbox yet.
-export const MESSAGE_AUDIENCES = ["all", "coop", "paid"] as const;
+// address are never included: they have no mailbox yet. "bureau" is the
+// active admin accounts rather than members; "custom" is the members the
+// admin ticked one by one.
+export const MESSAGE_AUDIENCES = ["all", "coop", "paid", "bureau", "custom"] as const;
 type Audience = (typeof MESSAGE_AUDIENCES)[number];
 
 const MAX_SUBJECT = 150;
 const MAX_BODY = 5000;
+// Resend's free plan allows 100 emails a day.
+const MAX_CUSTOM = 100;
 
 interface Recipient {
   member_id: string;
   first_name: string;
+  last_name?: string;
   email: string;
   is_coop_member?: boolean;
   payment_status?: string;
@@ -35,10 +40,33 @@ async function loadRecipients(): Promise<Recipient[] | null> {
   return ((data || []) as Recipient[]).filter((m) => m.email && !m.email.endsWith("@acafis.invalid"));
 }
 
+// The Bureau = active admin accounts (missing is_active = active), greeted
+// by the first word of their name.
+async function loadBureau(): Promise<Recipient[] | null> {
+  const supabase = getSupabaseClient()!;
+  const { data, error } = await supabase.from("admins").select("*");
+  if (error) {
+    console.error("Admin messages bureau lookup failed:", error);
+    return null;
+  }
+  return ((data || []) as Record<string, any>[])
+    .filter((a) => a.is_active !== false && a.email)
+    .map((a) => ({
+      member_id: a.email,
+      first_name: String(a.name || "").split(" ")[0] || a.name,
+      last_name: String(a.name || "").split(" ").slice(1).join(" "),
+      email: a.email,
+    }));
+}
+
 function inAudience(m: Recipient, audience: Audience): boolean {
   if (audience === "coop") return m.is_coop_member === true;
   if (audience === "paid") return m.payment_status === "paid";
-  return true;
+  return audience === "all";
+}
+
+function pickable(m: Recipient) {
+  return { id: m.member_id, name: `${m.first_name} ${m.last_name || ""}`.trim(), email: m.email };
 }
 
 function messageText(firstName: string, body: string): string {
@@ -65,6 +93,8 @@ export interface AdminMessagesListBody {
 export async function handleAdminMessagesList(data: AdminMessagesListBody): Promise<
   HandlerResult<{
     audiences?: Record<Audience, number>;
+    members?: { id: string; name: string; email: string }[];
+    bureau?: { id: string; name: string; email: string }[];
     history?: Record<string, unknown>[];
     error?: string;
   }>
@@ -74,12 +104,14 @@ export async function handleAdminMessagesList(data: AdminMessagesListBody): Prom
     return { status: verification.status, body: { error: verification.error } };
   }
 
-  const recipients = await loadRecipients();
-  if (!recipients) return { status: 500, body: { error: SERVER_ERROR } };
+  const [recipients, bureau] = await Promise.all([loadRecipients(), loadBureau()]);
+  if (!recipients || !bureau) return { status: 500, body: { error: SERVER_ERROR } };
 
   const audiences = Object.fromEntries(
     MESSAGE_AUDIENCES.map((a) => [a, recipients.filter((m) => inAudience(m, a)).length])
   ) as Record<Audience, number>;
+  audiences.bureau = bureau.length;
+  const byName = (a: { name: string }, b: { name: string }) => a.name.localeCompare(b.name, "fr");
 
   const supabase = getSupabaseClient()!;
   const { data: rows, error } = await supabase
@@ -94,6 +126,8 @@ export async function handleAdminMessagesList(data: AdminMessagesListBody): Prom
     status: 200,
     body: {
       audiences,
+      members: recipients.map(pickable).sort(byName),
+      bureau: bureau.map(pickable).sort(byName),
       history: (rows || []).map((r: Record<string, any>) => ({
         id: r.id,
         subject: r.subject,
@@ -115,6 +149,8 @@ export interface AdminMessageSendBody {
   subject?: string;
   body?: string;
   audience?: string;
+  // Only for audience "custom": the member_id of each ticked member.
+  memberIds?: string[];
   test?: boolean;
 }
 
@@ -139,6 +175,10 @@ export async function handleAdminMessageSend(
   if (!MESSAGE_AUDIENCES.includes(audience)) {
     return { status: 400, body: { error: "Groupe de destinataires invalide." } };
   }
+  const memberIds = new Set(Array.isArray(data.memberIds) ? data.memberIds.map(String) : []);
+  if (!data.test && audience === "custom" && (memberIds.size === 0 || memberIds.size > MAX_CUSTOM)) {
+    return { status: 400, body: { error: `Cochez entre 1 et ${MAX_CUSTOM} destinataires.` } };
+  }
 
   const resend = getResendClient();
   if (!resend) {
@@ -161,11 +201,16 @@ export async function handleAdminMessageSend(
     return { status: 200, body: { sent: 1 } };
   }
 
-  const all = await loadRecipients();
+  const all = audience === "bureau" ? await loadBureau() : await loadRecipients();
   if (!all) return { status: 500, body: { error: SERVER_ERROR } };
-  const recipients = all.filter((m) => inAudience(m, audience));
+  const recipients =
+    audience === "bureau"
+      ? all
+      : audience === "custom"
+        ? all.filter((m) => memberIds.has(m.member_id))
+        : all.filter((m) => inAudience(m, audience));
   if (recipients.length === 0) {
-    return { status: 400, body: { error: "Aucun membre avec un courriel dans ce groupe." } };
+    return { status: 400, body: { error: "Aucun destinataire avec un courriel dans ce groupe." } };
   }
 
   // Resend's batch API takes up to 100 emails per request.
