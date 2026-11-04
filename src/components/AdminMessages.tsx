@@ -43,6 +43,8 @@ export const AdminMessages: React.FC<{ token: string }> = ({ token }) => {
   const [history, setHistory] = useState<HistoryRow[]>([]);
   const [members, setMembers] = useState<Person[]>([]);
   const [bureau, setBureau] = useState<Person[]>([]);
+  const [bureauMissing, setBureauMissing] = useState<string[]>([]);
+  const [historyError, setHistoryError] = useState("");
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [search, setSearch] = useState("");
   const [audience, setAudience] = useState<Audience>("all");
@@ -70,6 +72,8 @@ export const AdminMessages: React.FC<{ token: string }> = ({ token }) => {
         setHistory(data.history || []);
         setMembers(data.members || []);
         setBureau(data.bureau || []);
+        setBureauMissing(data.bureauMissing || []);
+        setHistoryError(data.historyError || "");
       })
       .catch(() => {});
 
@@ -116,6 +120,7 @@ export const AdminMessages: React.FC<{ token: string }> = ({ token }) => {
         setNotice(t("messages.testSent"));
       } else {
         setNotice(t("messages.sent").replace("{count}", String(data.sent)));
+        if (data.historyError) setError(t("messages.historyFailed").replace("{detail}", data.historyError));
         setSubject("");
         setBody("");
         setSelected(new Set());
@@ -173,6 +178,11 @@ export const AdminMessages: React.FC<{ token: string }> = ({ token }) => {
           {audience === "bureau" && (
             <p className="text-xs text-slate-600 bg-slate-50 border border-slate-200 rounded-xl px-3 py-2">
               {bureau.length === 0 ? t("messages.bureauEmpty") : bureau.map((b) => b.name).join(", ")}
+            </p>
+          )}
+          {audience === "bureau" && bureauMissing.length > 0 && (
+            <p className="text-xs font-semibold text-amber-900 bg-amber-50 border border-amber-200 rounded-xl px-3 py-2">
+              {t("messages.bureauMissing").replace("{names}", bureauMissing.join(", "))}
             </p>
           )}
 
@@ -289,7 +299,14 @@ export const AdminMessages: React.FC<{ token: string }> = ({ token }) => {
       </form>
 
       <div className="bg-white rounded-3xl shadow-sm border border-slate-200 p-6 space-y-3 overflow-x-auto">
-        <h3 className="text-sm font-bold text-slate-900 font-display">{t("messages.historyTitle")}</h3>
+        <h3 className="text-sm font-bold text-slate-900 font-display">
+          {t("messages.historyTitle")} ({history.length})
+        </h3>
+        {historyError && (
+          <p className="text-xs font-semibold text-red-600 bg-red-50 border border-red-200 rounded-xl px-3 py-2">
+            {t("messages.historyLoadFailed").replace("{detail}", historyError)}
+          </p>
+        )}
         {history.length === 0 ? (
           <p className="text-xs text-slate-500">{t("messages.historyEmpty")}</p>
         ) : (

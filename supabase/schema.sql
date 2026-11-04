@@ -411,7 +411,7 @@ revoke execute on function promote_workshop_waitlist(uuid) from public, anon, au
 -- Group messages sent by the Bureau from the admin Messages tab (history
 -- only — the emails themselves go out through Resend). audience: 'all',
 -- 'coop' (acquéreurs), 'paid' (members in good standing), 'bureau' (the
--- active admin accounts) or 'custom' (members ticked one by one).
+-- Bureau Exécutif and active admins) or 'custom' (members ticked one by one).
 -- ---------------------------------------------------------------------------
 create table if not exists member_messages (
   id uuid primary key default gen_random_uuid(),

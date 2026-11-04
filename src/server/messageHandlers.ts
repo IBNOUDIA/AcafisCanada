@@ -11,8 +11,8 @@ const SERVER_ERROR = "Erreur serveur, réessayez dans un instant.";
 
 // Who a group message goes to. Members with a placeholder @acafis.invalid
 // address are never included: they have no mailbox yet. "bureau" is the
-// active admin accounts rather than members; "custom" is the members the
-// admin ticked one by one.
+// Bureau Exécutif (see BUREAU_NAMES) plus the active admin accounts; "custom"
+// is the members the admin ticked one by one.
 export const MESSAGE_AUDIENCES = ["all", "coop", "paid", "bureau", "custom"] as const;
 type Audience = (typeof MESSAGE_AUDIENCES)[number];
 
@@ -20,6 +20,23 @@ const MAX_SUBJECT = 150;
 const MAX_BODY = 5000;
 // Resend's free plan allows 100 emails a day.
 const MAX_CUSTOM = 100;
+
+// The 11 members of the Bureau Exécutif, as on the site's Bureau page
+// (BUREAU_MEMBERS in src/data/acafisData.ts, which can't be imported here
+// because it pulls in images). Keep both lists in sync.
+const BUREAU_NAMES = [
+  "Moustapha Sane",
+  "Omar Cisse",
+  "Ablaye Diatta",
+  "Adama Sow",
+  "Landiata Dieme",
+  "Pa Sonko",
+  "Ibrahima Diop",
+  "Ibnou Amar Dia",
+  "Mounirou Dieme",
+  "Ngoma Dhiediou",
+  "Sire Aw",
+];
 
 interface Recipient {
   member_id: string;
@@ -40,16 +57,34 @@ async function loadRecipients(): Promise<Recipient[] | null> {
   return ((data || []) as Recipient[]).filter((m) => m.email && !m.email.endsWith("@acafis.invalid"));
 }
 
+function nameWords(name: string): string[] {
+  return name
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .split(/\s+/)
+    .filter(Boolean);
+}
+
+// True when a full name (two words at least) is this Bureau name, in any
+// word order, or a shorter form of it: "Amar Dia" for "Ibnou Amar Dia".
+function matchesBureauName(fullName: string, bureauName: string): boolean {
+  const words = nameWords(fullName);
+  const bureauWords = nameWords(bureauName);
+  return words.length >= 2 && words.every((w) => bureauWords.includes(w));
+}
+
 // The Bureau = active admin accounts (missing is_active = active), greeted
-// by the first word of their name.
-async function loadBureau(): Promise<Recipient[] | null> {
+// by the first word of their name, plus the members named in BUREAU_NAMES.
+// `missing` lists the names found nowhere with a real email.
+async function loadBureau(members: Recipient[]): Promise<{ people: Recipient[]; missing: string[] } | null> {
   const supabase = getSupabaseClient()!;
   const { data, error } = await supabase.from("admins").select("*");
   if (error) {
     console.error("Admin messages bureau lookup failed:", error);
     return null;
   }
-  return ((data || []) as Record<string, any>[])
+  const people: Recipient[] = ((data || []) as Record<string, any>[])
     .filter((a) => a.is_active !== false && a.email)
     .map((a) => ({
       member_id: a.email,
@@ -57,6 +92,19 @@ async function loadBureau(): Promise<Recipient[] | null> {
       last_name: String(a.name || "").split(" ").slice(1).join(" "),
       email: a.email,
     }));
+  const emails = new Set(people.map((p) => p.email.toLowerCase()));
+  for (const m of members) {
+    const fullName = `${m.first_name} ${m.last_name || ""}`;
+    if (emails.has(m.email.toLowerCase())) continue;
+    if (BUREAU_NAMES.some((name) => matchesBureauName(fullName, name))) {
+      people.push(m);
+      emails.add(m.email.toLowerCase());
+    }
+  }
+  const missing = BUREAU_NAMES.filter(
+    (name) => !people.some((p) => matchesBureauName(`${p.first_name} ${p.last_name || ""}`, name))
+  );
+  return { people, missing };
 }
 
 function inAudience(m: Recipient, audience: Audience): boolean {
@@ -95,7 +143,9 @@ export async function handleAdminMessagesList(data: AdminMessagesListBody): Prom
     audiences?: Record<Audience, number>;
     members?: { id: string; name: string; email: string }[];
     bureau?: { id: string; name: string; email: string }[];
+    bureauMissing?: string[];
     history?: Record<string, unknown>[];
+    historyError?: string;
     error?: string;
   }>
 > {
@@ -104,13 +154,14 @@ export async function handleAdminMessagesList(data: AdminMessagesListBody): Prom
     return { status: verification.status, body: { error: verification.error } };
   }
 
-  const [recipients, bureau] = await Promise.all([loadRecipients(), loadBureau()]);
+  const recipients = await loadRecipients();
+  const bureau = recipients && (await loadBureau(recipients));
   if (!recipients || !bureau) return { status: 500, body: { error: SERVER_ERROR } };
 
   const audiences = Object.fromEntries(
     MESSAGE_AUDIENCES.map((a) => [a, recipients.filter((m) => inAudience(m, a)).length])
   ) as Record<Audience, number>;
-  audiences.bureau = bureau.length;
+  audiences.bureau = bureau.people.length;
   const byName = (a: { name: string }, b: { name: string }) => a.name.localeCompare(b.name, "fr");
 
   const supabase = getSupabaseClient()!;
@@ -127,7 +178,9 @@ export async function handleAdminMessagesList(data: AdminMessagesListBody): Prom
     body: {
       audiences,
       members: recipients.map(pickable).sort(byName),
-      bureau: bureau.map(pickable).sort(byName),
+      bureau: bureau.people.map(pickable).sort(byName),
+      bureauMissing: bureau.missing,
+      historyError: error ? error.message : undefined,
       history: (rows || []).map((r: Record<string, any>) => ({
         id: r.id,
         subject: r.subject,
@@ -156,7 +209,7 @@ export interface AdminMessageSendBody {
 
 export async function handleAdminMessageSend(
   data: AdminMessageSendBody
-): Promise<HandlerResult<{ sent?: number; error?: string }>> {
+): Promise<HandlerResult<{ sent?: number; historyError?: string; error?: string }>> {
   const verification = await verifyAdminSession(data.token);
   if (verification.status !== 200) {
     return { status: verification.status, body: { error: verification.error } };
@@ -201,11 +254,12 @@ export async function handleAdminMessageSend(
     return { status: 200, body: { sent: 1 } };
   }
 
-  const all = audience === "bureau" ? await loadBureau() : await loadRecipients();
-  if (!all) return { status: 500, body: { error: SERVER_ERROR } };
+  const all = await loadRecipients();
+  const bureau = audience === "bureau" && all ? await loadBureau(all) : null;
+  if (!all || (audience === "bureau" && !bureau)) return { status: 500, body: { error: SERVER_ERROR } };
   const recipients =
     audience === "bureau"
-      ? all
+      ? bureau!.people
       : audience === "custom"
         ? all.filter((m) => memberIds.has(m.member_id))
         : all.filter((m) => inAudience(m, audience));
@@ -234,8 +288,8 @@ export async function handleAdminMessageSend(
     sent += chunk.length;
   }
 
-  await recordMessage(subject, body, audience, sent, admin);
-  return { status: 200, body: { sent } };
+  const historyError = await recordMessage(subject, body, audience, sent, admin);
+  return { status: 200, body: { sent, historyError } };
 }
 
 async function recordMessage(
@@ -244,7 +298,7 @@ async function recordMessage(
   audience: Audience,
   sent: number,
   admin: { email: string; name: string }
-) {
+): Promise<string | undefined> {
   const supabase = getSupabaseClient()!;
   const { error } = await supabase.from("member_messages").insert({
     subject,
@@ -254,6 +308,8 @@ async function recordMessage(
     sent_by_email: admin.email,
     sent_by_name: admin.name,
   });
-  // The emails are already out: a failed history write is only logged.
+  // The emails are already out: a failed history write must not fail the
+  // send, but the admin is told so the message doesn't silently go missing.
   if (error) console.error("Admin message history insert failed:", error);
+  return error?.message;
 }
