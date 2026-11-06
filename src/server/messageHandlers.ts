@@ -86,6 +86,7 @@ function matchesBureauMember(fullName: string, bureauName: string): boolean {
 
 // The Bureau = active admin accounts (missing is_active = active), greeted
 // by the first word of their name, plus the members named in BUREAU_NAMES.
+// One address per person: an admin account wins over their member record.
 // `missing` lists the names found nowhere with a real email.
 async function loadBureau(members: Recipient[]): Promise<{ people: Recipient[]; missing: string[] } | null> {
   const supabase = getSupabaseClient()!;
@@ -106,7 +107,8 @@ async function loadBureau(members: Recipient[]): Promise<{ people: Recipient[]; 
   for (const m of members) {
     const fullName = `${m.first_name} ${m.last_name || ""}`;
     if (emails.has(m.email.toLowerCase())) continue;
-    if (BUREAU_NAMES.some((name) => matchesBureauMember(fullName, name))) {
+    const name = BUREAU_NAMES.find((n) => matchesBureauMember(fullName, n));
+    if (name && !people.some((p) => matchesBureauMember(`${p.first_name} ${p.last_name || ""}`, name))) {
       people.push(m);
       emails.add(m.email.toLowerCase());
     }
