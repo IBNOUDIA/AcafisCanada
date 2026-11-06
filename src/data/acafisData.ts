@@ -129,8 +129,8 @@ export const BUREAU_MEMBERS: BureauMember[] = [
     ),
   },
   {
-    id: "sire-aw",
-    name: "Sire Aw",
+    id: "cire-aw",
+    name: "Cire Aw",
     role: L("Responsable Communication", "Communications Officer"),
     category: "communication",
     subCategory: L("Communication & Relations Publiques", "Communications & Public Relations"),
@@ -520,7 +520,7 @@ export const ACAFIS_VIDEOS: AcafisVideo[] = [
   },
   {
     id: "video-7",
-    name: L("Sire Aw", "Sire Aw"),
+    name: L("Cire Aw", "Cire Aw"),
     role: L("Responsable Communication — Intervenant", "Communications Officer — Speaker"),
     url: "https://www.facebook.com/reel/1241179694066171",
     category: "temoignage",

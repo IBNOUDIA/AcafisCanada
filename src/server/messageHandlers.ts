@@ -35,8 +35,14 @@ const BUREAU_NAMES = [
   "Ibnou Amar Dia",
   "Mounirou Dieme",
   "Ngoma Dhiediou",
-  "Sire Aw",
+  "Cire Aw",
 ];
+
+// Bureau names whose member record uses another name.
+const BUREAU_ALIASES: Record<string, string[]> = {
+  "Ablaye Diatta": ["Abdoulaye Diatta"],
+  "Ngoma Dhiediou": ["Mariama Diédhiou"],
+};
 
 interface Recipient {
   member_id: string;
@@ -74,6 +80,10 @@ function matchesBureauName(fullName: string, bureauName: string): boolean {
   return words.length >= 2 && words.every((w) => bureauWords.includes(w));
 }
 
+function matchesBureauMember(fullName: string, bureauName: string): boolean {
+  return [bureauName, ...(BUREAU_ALIASES[bureauName] || [])].some((name) => matchesBureauName(fullName, name));
+}
+
 // The Bureau = active admin accounts (missing is_active = active), greeted
 // by the first word of their name, plus the members named in BUREAU_NAMES.
 // `missing` lists the names found nowhere with a real email.
@@ -96,13 +106,13 @@ async function loadBureau(members: Recipient[]): Promise<{ people: Recipient[]; 
   for (const m of members) {
     const fullName = `${m.first_name} ${m.last_name || ""}`;
     if (emails.has(m.email.toLowerCase())) continue;
-    if (BUREAU_NAMES.some((name) => matchesBureauName(fullName, name))) {
+    if (BUREAU_NAMES.some((name) => matchesBureauMember(fullName, name))) {
       people.push(m);
       emails.add(m.email.toLowerCase());
     }
   }
   const missing = BUREAU_NAMES.filter(
-    (name) => !people.some((p) => matchesBureauName(`${p.first_name} ${p.last_name || ""}`, name))
+    (name) => !people.some((p) => matchesBureauMember(`${p.first_name} ${p.last_name || ""}`, name))
   );
   return { people, missing };
 }
