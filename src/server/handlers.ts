@@ -63,6 +63,9 @@ export interface MentorRequestBody {
 // Anything else (images, PDF) is sent to Gemini as a native multimodal part.
 const TEXT_LIKE_MIME_PREFIXES = ["text/"];
 const MAX_INLINE_TEXT_CHARS = 20000;
+// Site-wide ceiling on Gemini calls over 24 hours, to protect the annual
+// budget. Past it, Kocc Barma answers with the canned replies below.
+const MENTOR_DAILY_LIMIT = 200;
 
 export async function handleMentorRequest(
   body: MentorRequestBody,
@@ -150,7 +153,12 @@ ${topicPrompts[topic] || topicPrompts.general}
 Consignes de style : reste concis (150-250 mots max), structure avec des puces claires si pertinent, adapte ton niveau de langage à l'âge et au contexte de la question, et termine toujours par une question stimulante, un encouragement ou un petit défi pour garder l'échange vivant. Si une question dépasse ton champ de compétence (ex : conseil juridique ou médical précis), recommande poliment de consulter le secrétariat d'ACAFIS Canada ou un professionnel qualifié.`;
 
   try {
-    const ai = getGeminiClient();
+    const withinDailyLimit = await checkRateLimit("site", {
+      bucket: "mentor-daily",
+      limit: MENTOR_DAILY_LIMIT,
+      windowMinutes: 24 * 60,
+    });
+    const ai = withinDailyLimit ? getGeminiClient() : null;
     if (ai) {
       // Text-like attachments (.txt, .md, .csv…) are simply decoded and folded
       // into the prompt text; images/PDFs are sent as a native multimodal part.

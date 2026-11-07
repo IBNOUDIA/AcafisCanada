@@ -17,8 +17,10 @@ export async function checkRateLimit(ip: string, rule: RateLimitRule): Promise<b
 
   const windowStart = new Date(Date.now() - rule.windowMinutes * 60_000).toISOString();
 
-  // Opportunistic cleanup so the table doesn't grow unbounded.
-  await supabase.from("rate_limit_hits").delete().lt("created_at", windowStart);
+  // Opportunistic cleanup so the table doesn't grow unbounded. Limited to this
+  // bucket: buckets have different windows, so a short one must not erase the
+  // hits of a longer one.
+  await supabase.from("rate_limit_hits").delete().eq("bucket", rule.bucket).lt("created_at", windowStart);
 
   const { count, error } = await supabase
     .from("rate_limit_hits")
