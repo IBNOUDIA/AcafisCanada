@@ -5,11 +5,12 @@ import {
   GraduationCap,
   Check,
   ArrowRight,
+  ExternalLink,
   ShieldCheck,
   Heart,
   Laptop,
 } from "lucide-react";
-import { SERVICES_MISSIONS, PAYMENT_INTERAC_INFO, ACAFIS_VIDEOS } from "../data/acafisData";
+import { SERVICES_MISSIONS, PAYMENT_INTERAC_INFO, ACAFIS_VIDEOS, EXTERNAL_LINKS } from "../data/acafisData";
 import { Reveal, RevealGroup } from "./Reveal";
 import { VideoGrid } from "./VideoGrid";
 import { useTranslation } from "../i18n/translations";
@@ -136,13 +137,15 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
 
               <div className="pt-6 mt-6 border-t border-slate-100">
                 {service.id === "cite-jardin-coop" ? (
-                  <button
-                    onClick={() => onNavigate("espace-jeune")}
+                  <a
+                    href={EXTERNAL_LINKS.coopAcafis}
+                    target="_blank"
+                    rel="noopener noreferrer"
                     className="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-teal-800 bg-teal-50 hover:bg-teal-100 border border-teal-200 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <span>{t("services.cta.citeJardin")}</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </button>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
                 ) : service.id === "education-ntic" ? (
                   <button
                     onClick={() => onNavigate("acafis-mentor")}
@@ -164,6 +167,45 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
             </div>
           ))}
         </RevealGroup>
+
+        {/* Coop-ACAFIS Habitat Integration */}
+        <div id="coop" className="mt-16 p-8 rounded-3xl bg-slate-900 text-white border border-slate-800">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
+            <div className="lg:col-span-8 space-y-3">
+              <div className="inline-flex items-center gap-1.5 text-xs font-bold text-teal-400 uppercase tracking-wider">
+                <ShieldCheck className="w-4 h-4" />
+                <span>{t("espaceJeune.coopBadge")}</span>
+              </div>
+
+              <h3 className="text-2xl font-bold font-display text-white">
+                {t("espaceJeune.coopTitle")}
+              </h3>
+
+              <p className="text-sm text-slate-300 leading-relaxed max-w-2xl">
+                {t("espaceJeune.coopDesc")}
+              </p>
+            </div>
+
+            <div className="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col gap-3">
+              <a
+                href={EXTERNAL_LINKS.coopAcafis}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full py-3 px-4 rounded-xl text-xs font-bold text-slate-950 bg-emerald-400 hover:bg-emerald-300 transition-colors shadow-md flex items-center justify-center gap-2 cursor-pointer text-center"
+              >
+                <span>{t("espaceJeune.coopCtaVisit")}</span>
+                <ExternalLink className="w-4 h-4" />
+              </a>
+              <button
+                onClick={onOpenCardModal}
+                className="w-full py-2.5 px-4 rounded-xl text-xs font-semibold text-emerald-200 bg-emerald-950 hover:bg-emerald-900 border border-emerald-700 transition-colors flex items-center justify-center gap-2 cursor-pointer"
+              >
+                <span>{t("espaceJeune.coopCtaJoin")}</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+        </div>
 
         {/* Vidéos : Conférences & Panels Éducation */}
         {educationVideos.length > 0 && (

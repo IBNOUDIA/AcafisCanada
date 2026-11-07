@@ -200,7 +200,6 @@ const AppShell: React.FC = () => {
             );
             const espaceJeuneEl = (
               <CiteJardinProject
-                onOpenCardModal={handleOpenCardModal}
                 onNavigateContact={() => handleNavigate("adhesion")}
               />
             );

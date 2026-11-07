@@ -1,10 +1,7 @@
 import React from "react";
 import {
   TreePine,
-  ArrowRight,
-  ShieldCheck,
   Sparkles,
-  ExternalLink,
   Gift,
   Mic2,
   Quote,
@@ -19,12 +16,10 @@ import recipiendaireRemise from "../assets/images/recipiendaire-remise.webp";
 import recipiendairesGroupe from "../assets/images/recipiendaires-groupe.webp";
 
 interface CiteJardinProjectProps {
-  onOpenCardModal: () => void;
   onNavigateContact: () => void;
 }
 
 export const CiteJardinProject: React.FC<CiteJardinProjectProps> = ({
-  onOpenCardModal,
   onNavigateContact,
 }) => {
   const { t, lang } = useTranslation();
@@ -51,7 +46,7 @@ export const CiteJardinProject: React.FC<CiteJardinProjectProps> = ({
         </Reveal>
 
         {/* Real photo of ACAFIS children and youth at a festive evening */}
-        <Reveal className="relative rounded-3xl overflow-hidden mb-10 h-72 sm:h-[30rem] shadow-lg">
+        <Reveal className="relative rounded-3xl overflow-hidden h-72 sm:h-[30rem] shadow-lg">
           <img
             fetchPriority="high"
             src={espaceJeunePhoto}
@@ -65,45 +60,6 @@ export const CiteJardinProject: React.FC<CiteJardinProjectProps> = ({
             </span>
           </div>
         </Reveal>
-
-        {/* Coop-ACAFIS Habitat Integration */}
-        <div id="coop" className="mt-16 p-8 rounded-3xl bg-slate-900 text-white border border-slate-800">
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            <div className="lg:col-span-8 space-y-3">
-              <div className="inline-flex items-center gap-1.5 text-xs font-bold text-teal-400 uppercase tracking-wider">
-                <ShieldCheck className="w-4 h-4" />
-                <span>{t("espaceJeune.coopBadge")}</span>
-              </div>
-
-              <h3 className="text-2xl font-bold font-display text-white">
-                {t("espaceJeune.coopTitle")}
-              </h3>
-
-              <p className="text-sm text-slate-300 leading-relaxed max-w-2xl">
-                {t("espaceJeune.coopDesc")}
-              </p>
-            </div>
-
-            <div className="lg:col-span-4 flex flex-col sm:flex-row lg:flex-col gap-3">
-              <a
-                href="https://coop-acafis.com"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full py-3 px-4 rounded-xl text-xs font-bold text-slate-950 bg-emerald-400 hover:bg-emerald-300 transition-colors shadow-md flex items-center justify-center gap-2 cursor-pointer text-center"
-              >
-                <span>{t("espaceJeune.coopCtaVisit")}</span>
-                <ExternalLink className="w-4 h-4" />
-              </a>
-              <button
-                onClick={onOpenCardModal}
-                className="w-full py-2.5 px-4 rounded-xl text-xs font-semibold text-emerald-200 bg-emerald-950 hover:bg-emerald-900 border border-emerald-700 transition-colors flex items-center justify-center gap-2 cursor-pointer"
-              >
-                <span>{t("espaceJeune.coopCtaJoin")}</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
-            </div>
-          </div>
-        </div>
 
         {/* Récipiendaires — la tradition du 31 décembre */}
         <div className="mt-16">
