@@ -7,7 +7,7 @@ import {
   Check,
   ExternalLink,
 } from "lucide-react";
-import { SenegalFlagBadge, SenegalRibbon } from "./SenegalFlagBadge";
+import { SenegalFlagBadge, SenegalRibbon, WovenBand } from "./SenegalFlagBadge";
 import { Reveal } from "./Reveal";
 import { PAYMENT_INTERAC_INFO, HERO_PARTNERS } from "../data/acafisData";
 import { useTranslation } from "../i18n/translations";
@@ -57,9 +57,10 @@ export const Hero: React.FC<HeroProps> = ({
 
       {/* Slim tricolor seam marking the transition, instead of a color wash over the photo */}
       <SenegalRibbon />
+      <WovenBand />
 
       {/* Content on a flat forest green: one accent colour, nothing competing with the text */}
-      <div className="bg-forest text-cream pt-12 pb-20 lg:pt-16 lg:pb-24">
+      <div className="bg-forest motif-texture text-cream pt-12 pb-20 lg:pt-16 lg:pb-24">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
 
@@ -68,11 +69,11 @@ export const Hero: React.FC<HeroProps> = ({
               <p className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm font-semibold text-sun">
                 <SenegalFlagBadge size="sm" />
                 <span>Canada & Sénégal</span>
-                <span aria-hidden="true" className="text-cream/40">•</span>
-                <span>{t("hero.tag")}</span>
+                <span aria-hidden="true" className="hidden sm:inline text-cream/40">•</span>
+                <span className="font-display text-xl">{t("hero.tag")}</span>
               </p>
 
-              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold text-cream font-display leading-[1.1]">
+              <h1 className="text-4xl sm:text-5xl lg:text-6xl font-semibold text-cream font-display leading-[1.28]">
                 {t("hero.headline1")} <span className="text-sun">{t("hero.headlineHighlight")}</span> {t("hero.headline2")}
               </h1>
 

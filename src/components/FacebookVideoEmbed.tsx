@@ -38,7 +38,7 @@ export const FacebookVideoEmbed: React.FC<FacebookVideoEmbedProps> = ({ url, cla
           aria-label={t("media.playVideo")}
           className="group absolute inset-0 w-full h-full flex flex-col items-center justify-center gap-3 bg-gradient-to-br from-slate-900 via-emerald-950 to-slate-950 cursor-pointer"
         >
-          <span className="w-16 h-16 rounded-full bg-[#1877F2] group-hover:bg-[#166FE5] group-focus-visible:ring-4 group-focus-visible:ring-white text-white flex items-center justify-center shadow-xl transition-colors">
+          <span className="w-16 h-16 rounded-full bg-sun group-hover:bg-amber-300 group-focus-visible:ring-4 group-focus-visible:ring-white text-forest flex items-center justify-center shadow-xl transition-colors">
             <Play className="w-7 h-7 ml-1" fill="currentColor" />
           </span>
           <span className="text-xs font-semibold text-white/85">{t("media.playFacebookVideo")}</span>

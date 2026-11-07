@@ -8,7 +8,7 @@ import {
 } from "lucide-react";
 import { PAYMENT_INTERAC_INFO, EXTERNAL_LINKS, ORGANIZATION_NEQ } from "../data/acafisData";
 import { AcafisLogo } from "./AcafisLogo";
-import { SenegalRibbon } from "./SenegalFlagBadge";
+import { SenegalRibbon, WovenBand } from "./SenegalFlagBadge";
 import { useTranslation, TranslationKey } from "../i18n/translations";
 import { useLanguage } from "../i18n/LanguageContext";
 
@@ -43,8 +43,9 @@ export const Footer: React.FC<FooterProps> = ({
   const { t } = useTranslation();
   const { localizePath } = useLanguage();
   return (
-    <footer className="bg-gradient-to-b from-sky-950 via-slate-950 to-slate-950 text-slate-300 border-t border-sky-900/60 relative">
+    <footer className="bg-slate-950 motif-texture text-slate-300 relative">
       <SenegalRibbon />
+      <WovenBand />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-12 pb-8">
 

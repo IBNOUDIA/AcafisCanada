@@ -62,3 +62,6 @@ export const SenegalRibbon: React.FC<{ className?: string }> = ({
     </div>
   );
 };
+
+// Decorative woven strip, see .motif-band in index.css.
+export const WovenBand: React.FC = () => <div aria-hidden="true" className="motif-band" />;

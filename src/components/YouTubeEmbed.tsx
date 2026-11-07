@@ -41,7 +41,7 @@ export const YouTubeEmbed: React.FC<YouTubeEmbedProps> = ({ videoId, className =
             className="absolute inset-0 w-full h-full object-cover opacity-90 group-hover:opacity-100 transition-opacity"
           />
           <span className="absolute inset-0 flex items-center justify-center">
-            <span className="w-16 h-16 rounded-full bg-red-600 group-hover:bg-red-700 group-focus-visible:ring-4 group-focus-visible:ring-white text-white flex items-center justify-center shadow-xl transition-colors">
+            <span className="w-16 h-16 rounded-full bg-sun group-hover:bg-amber-300 group-focus-visible:ring-4 group-focus-visible:ring-white text-forest flex items-center justify-center shadow-xl transition-colors">
               <Play className="w-7 h-7 ml-1" fill="currentColor" />
             </span>
           </span>
