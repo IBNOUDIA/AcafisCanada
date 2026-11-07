@@ -686,7 +686,7 @@ export const AdminDashboard: React.FC = () => {
 
   return (
     <section className="py-12 sm:py-16 bg-gradient-to-b from-slate-100 via-white to-slate-100 min-h-[70vh]">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 space-y-6">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 space-y-6">
         <div className="flex items-center justify-between flex-wrap gap-3">
           <div className="flex items-center gap-3">
             <div className="w-11 h-11 rounded-2xl bg-slate-900 text-white flex items-center justify-center">
@@ -869,7 +869,7 @@ export const AdminDashboard: React.FC = () => {
                             className="w-full min-w-[110px] px-2 py-1 rounded-lg border border-slate-300 text-xs"
                           />
                         ) : (
-                          m.phone || "—"
+                          <span className="whitespace-nowrap">{m.phone || "—"}</span>
                         )}
                       </td>
                       <td className="py-2.5 pr-3 text-slate-600">

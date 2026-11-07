@@ -162,7 +162,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
       {/* 3. Brand + Action Buttons Row */}
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex items-center justify-between h-20 gap-3">
+        <div className="flex items-center justify-between h-20 sm:h-24 lg:h-28 gap-3">
 
           {/* Brand Logo with Real Generated Identity */}
           <div
@@ -170,7 +170,7 @@ export const Navbar: React.FC<NavbarProps> = ({
             onClick={() => handleLinkClick("accueil")}
             className="cursor-pointer group select-none transition-transform hover:scale-102 duration-150 flex items-center gap-3 shrink-0"
           >
-            <AcafisLogo size="md" textColor="dark" hideTextOnMobile />
+            <AcafisLogo size="nav" textColor="dark" hideTextOnMobile />
           </div>
 
           {/* Right Action Buttons */}
@@ -235,9 +235,9 @@ export const Navbar: React.FC<NavbarProps> = ({
       </div>
 
       {/* 4. Desktop Flat Nav Row — one real page per entry, full width, no submenus */}
-      <nav className="hidden xl:block border-t border-sky-200/70 bg-white/60">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex flex-wrap items-center gap-x-0.5 gap-y-1 py-1.5">
+      <nav className="hidden xl:block bg-forest motif-texture">
+        <div className="max-w-7xl 2xl:max-w-[1400px] mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex items-center justify-between">
             {PAGE_ROUTES.map((route) => {
               const isActive = localizePath(route.path) === location.pathname;
               return (
@@ -245,10 +245,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                   key={route.id}
                   id={`nav-link-${route.id}`}
                   onClick={() => handleLinkClick(route.id)}
-                  className={`px-2.5 py-1.5 rounded-lg text-xs font-bold tracking-tight transition-all cursor-pointer whitespace-nowrap ${
+                  className={`font-display text-lg 2xl:text-xl px-1 py-3 border-b-2 transition-colors cursor-pointer whitespace-nowrap ${
                     isActive
-                      ? "text-emerald-950 bg-emerald-200/80 font-extrabold shadow-2xs border-b-2 border-[#00853F]"
-                      : "text-slate-700 hover:text-emerald-900 hover:bg-sky-100/70"
+                      ? "text-sun border-sun"
+                      : "text-cream border-transparent hover:text-sun"
                   }`}
                 >
                   {t(`nav.${route.id}` as TranslationKey)}
@@ -262,10 +262,10 @@ export const Navbar: React.FC<NavbarProps> = ({
                 href={item.url}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-flex items-center gap-1 px-2.5 py-1.5 ml-1 rounded-lg text-xs font-bold text-emerald-800 bg-emerald-100/70 hover:bg-emerald-200/70 border border-emerald-300/80 transition-colors whitespace-nowrap"
+                className="font-display text-lg 2xl:text-xl inline-flex items-center gap-1.5 px-1 py-3 border-b-2 border-transparent text-sun hover:text-cream transition-colors whitespace-nowrap"
               >
                 <span>{t(`nav.${item.key}` as TranslationKey)}</span>
-                <ExternalLink className="w-3 h-3 text-emerald-700" />
+                <ExternalLink className="w-3.5 h-3.5" />
               </a>
             ))}
           </div>
@@ -312,9 +312,9 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <button
                     key={route.id}
                     onClick={() => handleLinkClick(route.id)}
-                    className={`w-full text-left py-2.5 px-3 rounded-lg text-sm font-medium flex items-center justify-between transition-colors ${
+                    className={`w-full text-left py-2.5 px-3 rounded-lg font-display text-xl flex items-center justify-between transition-colors ${
                       isActive
-                        ? "text-emerald-900 bg-emerald-100 font-bold border-l-4 border-[#00853F]"
+                        ? "text-emerald-900 bg-emerald-100 border-l-4 border-[#00853F]"
                         : "text-slate-700 hover:bg-sky-100/60"
                     }`}
                   >
@@ -329,7 +329,7 @@ export const Navbar: React.FC<NavbarProps> = ({
                   target="_blank"
                   rel="noopener noreferrer"
                   onClick={() => setMobileMenuOpen(false)}
-                  className="w-full text-left py-2.5 px-3 rounded-lg text-sm font-medium flex items-center justify-between transition-colors text-slate-700 hover:bg-sky-100/60"
+                  className="w-full text-left py-2.5 px-3 rounded-lg font-display text-xl flex items-center justify-between transition-colors text-slate-700 hover:bg-sky-100/60"
                 >
                   <span>{t(`nav.${item.key}` as TranslationKey)}</span>
                   <ExternalLink className="w-3.5 h-3.5 text-emerald-700" />

@@ -3,7 +3,7 @@ import acafisLogoOfficial from "../assets/images/acafis-logo-official.webp";
 
 interface AcafisLogoProps {
   className?: string;
-  size?: "sm" | "md" | "lg" | "xl";
+  size?: "sm" | "md" | "lg" | "xl" | "nav";
   showText?: boolean;
   textColor?: "dark" | "light";
   // Hides the tagline text below the sm breakpoint — used in the Navbar where
@@ -29,13 +29,15 @@ export const AcafisLogo: React.FC<AcafisLogoProps> = ({
     md: "h-16",
     lg: "h-20",
     xl: "h-28",
+    nav: "h-16 sm:h-20 lg:h-24",
   };
 
   const subTextSizeMap = {
-    sm: "text-[9px]",
-    md: "text-[10px]",
-    lg: "text-xs",
-    xl: "text-sm",
+    sm: "text-sm",
+    md: "text-base",
+    lg: "text-lg",
+    xl: "text-xl",
+    nav: "text-lg lg:text-xl",
   };
 
   const logoImg = (
@@ -66,9 +68,9 @@ export const AcafisLogo: React.FC<AcafisLogoProps> = ({
 
       {showText && (
         <span
-          className={`font-medium tracking-wide uppercase leading-tight ${subTextSizeMap[size]} ${
+          className={`font-display leading-tight ${subTextSizeMap[size]} ${
             hideTextOnMobile ? "hidden sm:inline-block" : ""
-          } ${textColor === "light" ? "text-emerald-300/80" : "text-emerald-800 font-semibold"}`}
+          } ${textColor === "light" ? "text-emerald-300/80" : "text-emerald-800"}`}
         >
           Diaspora Solidaire
           <br />

@@ -7,6 +7,7 @@ import recipiendairesGroupe from "../assets/images/recipiendaires-groupe.webp";
 import espaceJeuneColonie from "../assets/images/espace-jeune-colonie.webp";
 import partnerRgsc from "../assets/images/partner-rgsc.png";
 import partnerAfroleck from "../assets/images/partner-afroleck.png";
+import partnerCoop from "../assets/images/partner-coop.webp";
 import partnerCdnNdg from "../assets/images/partner-cdn-ndg.webp";
 
 const L = (fr: string, en: string): Localized => ({ fr, en });
@@ -646,11 +647,11 @@ export const PARTNERS_LIST = [
   { name: "Afroleck", role: L("Partenaire Commanditaire", "Sponsoring Partner"), logo: partnerAfroleck },
 ];
 
-// The partners shown on the homepage. Coop-ACAFIS has no logo file yet.
+// The partners shown on the homepage.
 export const HERO_PARTNERS: {
   name: string;
   description: Localized;
-  logo?: string;
+  logo: string;
   url: string;
   urlLabel: string;
 }[] = [
@@ -671,6 +672,7 @@ export const HERO_PARTNERS: {
   {
     name: "Coop-ACAFIS",
     description: L("Habitat solidaire au Sénégal", "Solidarity housing in Senegal"),
+    logo: partnerCoop,
     url: EXTERNAL_LINKS.coopAcafis,
     urlLabel: "coop-acafis.com",
   },

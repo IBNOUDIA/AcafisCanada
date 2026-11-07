@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import {
   ArrowRight,
   GraduationCap,
-  Building2,
   Copy,
   Check,
   ExternalLink,
@@ -167,11 +166,7 @@ export const Hero: React.FC<HeroProps> = ({
                   {HERO_PARTNERS.map((partner) => (
                     <li key={partner.name} className="flex items-center gap-4 py-4 last:pb-0">
                       <div className="w-16 h-16 rounded-lg bg-white flex items-center justify-center shrink-0 overflow-hidden">
-                        {partner.logo ? (
-                          <img loading="lazy" decoding="async" src={partner.logo} alt="" className="w-full h-full object-contain p-1" />
-                        ) : (
-                          <Building2 className="w-7 h-7 text-forest" />
-                        )}
+                        <img loading="lazy" decoding="async" src={partner.logo} alt="" className="w-full h-full object-contain p-1" />
                       </div>
                       <div className="min-w-0">
                         <p className="text-base font-bold">{partner.name}</p>
