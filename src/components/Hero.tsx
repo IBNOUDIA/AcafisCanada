@@ -4,20 +4,19 @@ import {
   ShieldCheck,
   GraduationCap,
   Sparkles,
-  TreePine,
   CheckCircle2,
   Calendar,
   Building2,
   Copy,
   Check,
   Heart,
-  TrendingUp,
   Globe2,
+  ExternalLink,
 } from "lucide-react";
 import { SenegalFlagBadge, SenegalRibbon } from "./SenegalFlagBadge";
 import { Reveal } from "./Reveal";
-import { PAYMENT_INTERAC_INFO } from "../data/acafisData";
-import { useTranslation, HERO_IMPACT_EXAMPLES } from "../i18n/translations";
+import { PAYMENT_INTERAC_INFO, HERO_PARTNERS } from "../data/acafisData";
+import { useTranslation } from "../i18n/translations";
 import heroCommunityPhoto from "../assets/images/hero-communaute-bbq.webp";
 
 interface HeroProps {
@@ -33,7 +32,6 @@ export const Hero: React.FC<HeroProps> = ({
 }) => {
   const { t, lang } = useTranslation();
   const [copiedEmail, setCopiedEmail] = useState(false);
-  const [activeImpactTab, setActiveImpactTab] = useState<number>(0);
 
   const handleCopyEmail = () => {
     navigator.clipboard.writeText(PAYMENT_INTERAC_INFO.email);
@@ -41,8 +39,6 @@ export const Hero: React.FC<HeroProps> = ({
     setTimeout(() => setCopiedEmail(false), 2000);
   };
 
-  // Dynamic impact metrics of 25$ CAD (~11,250 FCFA)
-  const impactExamples = HERO_IMPACT_EXAMPLES[lang];
 
   return (
     <section id="accueil" className="relative overflow-hidden text-white">
@@ -194,101 +190,45 @@ export const Hero: React.FC<HeroProps> = ({
 
           </Reveal>
 
-          {/* Right Spotlight Card: Dynamic Interactive Hub */}
+          {/* Right card: our partners */}
           <Reveal className="lg:col-span-5" y={16} delay={0.15}>
-            <div className="relative rounded-3xl bg-gradient-to-b from-sky-950/90 to-slate-900/95 p-6 border border-sky-500/30 shadow-2xl backdrop-blur-xl">
-              
-              {/* Senegal & Canada Header Strip */}
-              <div className="flex items-center justify-between border-b border-sky-800/60 pb-4 mb-4">
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-emerald-600 to-teal-700 flex items-center justify-center text-white shadow-md">
-                    <TreePine className="w-5 h-5 text-emerald-200" />
-                  </div>
-                  <div>
-                    <h2 className="text-sm font-bold text-white tracking-wide flex items-center gap-1.5">
-                      <span>{t("hero.cardTitle")}</span>
-                      <SenegalFlagBadge size="sm" />
-                    </h2>
-                    <p className="text-xs text-emerald-300 font-medium">
-                      {t("hero.cardSubtitle")}
-                    </p>
-                  </div>
-                </div>
+            <div className="relative rounded-3xl bg-gradient-to-b from-sky-950/90 to-slate-900/95 p-6 border border-sky-500/30 shadow-2xl">
+              <div className="border-b border-sky-800/60 pb-4 mb-4">
+                <h2 className="text-lg font-bold text-white font-display">{t("hero.partnersTitle")}</h2>
+                <p className="text-xs text-emerald-300 font-medium">{t("hero.partnersSubtitle")}</p>
               </div>
 
-              {/* Dynamic Interactive Solidarity Converter */}
-              <div className="space-y-3.5 text-xs text-sky-100">
-                <div className="p-3.5 rounded-2xl bg-sky-900/40 border border-sky-700/50">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="text-[11px] font-bold uppercase tracking-wider text-sky-300 flex items-center gap-1">
-                      <TrendingUp className="w-3.5 h-3.5 text-amber-300" />
-                      <span>{t("hero.impactLabel")}</span>
-                    </span>
-                    <span className="px-2 py-0.5 rounded-full text-[11px] font-extrabold bg-amber-400 text-slate-950">
-                      {t("hero.impactConversion")}
-                    </span>
-                  </div>
-
-                  {/* Impact Selector Tabs */}
-                  <div className="grid grid-cols-3 gap-1.5 mb-2.5">
-                    {impactExamples.map((ex, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => setActiveImpactTab(idx)}
-                        className={`p-2 rounded-xl text-[11px] font-bold transition-all cursor-pointer text-center flex flex-col items-center gap-1 ${
-                          activeImpactTab === idx
-                            ? "bg-amber-400 text-slate-950 shadow-xs ring-1 ring-white/30"
-                            : "bg-sky-950/60 text-sky-200 hover:bg-sky-800/60"
-                        }`}
-                      >
-                        <span className="text-sm leading-none">{ex.icon}</span>
-                        <span className="truncate w-full">{ex.category.split(" ")[0]}</span>
-                      </button>
-                    ))}
-                  </div>
-
-                  {/* Active Impact Details */}
-                  <div className="p-3 rounded-xl bg-slate-950/70 border border-sky-800/50">
-                    <div className="flex items-center gap-2">
-                      <span className="text-lg">{impactExamples[activeImpactTab].icon}</span>
-                      <h3 className={`text-xs font-bold ${impactExamples[activeImpactTab].highlightColor}`}>
-                        {impactExamples[activeImpactTab].title}
-                      </h3>
-                    </div>
-                    <p className="mt-1 text-[11px] text-sky-200/90 leading-relaxed">
-                      {impactExamples[activeImpactTab].desc}
-                    </p>
-                  </div>
-                </div>
-
-                {/* Espace Jeune button */}
-                <div className="pt-1">
-                  <button
-                    onClick={() => onNavigate("espace-jeune")}
-                    className="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-slate-950 bg-gradient-to-r from-emerald-400 via-teal-300 to-amber-300 hover:from-emerald-300 hover:to-amber-200 transition-colors flex items-center justify-center gap-2 cursor-pointer shadow-md"
+              <ul className="space-y-3">
+                {HERO_PARTNERS.map((partner) => (
+                  <li
+                    key={partner.name}
+                    className="flex items-center gap-3.5 p-3 rounded-2xl bg-sky-900/40 border border-sky-700/50"
                   >
-                    <span>{t("hero.discoverEspaceJeune")}</span>
-                    <ArrowRight className="w-3.5 h-3.5 text-slate-950" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Dynamic Quick Barometer */}
-              <div className="mt-4 pt-3 border-t border-sky-800/60 grid grid-cols-3 gap-2 text-center text-[11px]">
-                <div className="p-2 rounded-xl bg-sky-900/30 border border-sky-800/40">
-                  <span className="block text-emerald-400 font-bold text-sm">11</span>
-                  <span className="text-sky-300">{t("hero.barometerMembers")}</span>
-                </div>
-                <div className="p-2 rounded-xl bg-sky-900/30 border border-sky-800/40">
-                  <span className="block text-amber-300 font-bold text-sm">25$ CAD</span>
-                  <span className="text-sky-300">{t("hero.barometerFee")}</span>
-                </div>
-                <div className="p-2 rounded-xl bg-sky-900/30 border border-sky-800/40">
-                  <span className="block text-sky-400 font-bold text-sm">{t("hero.barometerSeasonsValue")}</span>
-                  <span className="text-sky-300">{t("hero.barometerSeasons")}</span>
-                </div>
-              </div>
-
+                    <div className="w-14 h-14 rounded-xl bg-white flex items-center justify-center shrink-0 overflow-hidden">
+                      {partner.logo ? (
+                        <img loading="lazy" decoding="async" src={partner.logo} alt="" className="w-full h-full object-contain p-1" />
+                      ) : (
+                        <Building2 className="w-7 h-7 text-emerald-700" />
+                      )}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-bold text-white">{partner.name}</p>
+                      <p className="text-xs text-sky-200/90 leading-snug">{partner.description[lang]}</p>
+                      {partner.url && (
+                        <a
+                          href={partner.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          className="mt-1 inline-flex items-center gap-1 text-xs font-bold text-amber-300 hover:underline"
+                        >
+                          <span>{partner.urlLabel}</span>
+                          <ExternalLink className="w-3 h-3" />
+                        </a>
+                      )}
+                    </div>
+                  </li>
+                ))}
+              </ul>
             </div>
           </Reveal>
 

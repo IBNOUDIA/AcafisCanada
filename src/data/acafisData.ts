@@ -646,6 +646,32 @@ export const PARTNERS_LIST = [
   { name: "Afroleck", role: L("Partenaire Commanditaire", "Sponsoring Partner"), logo: partnerAfroleck },
 ];
 
+// The partners shown on the homepage. Coop-ACAFIS has no logo file yet.
+export const HERO_PARTNERS: {
+  name: string;
+  description: Localized;
+  logo?: string;
+  url?: string;
+  urlLabel?: string;
+}[] = [
+  {
+    name: "RGSC",
+    description: L("Regroupement Général des Sénégalais du Canada", "Regroupement Général des Sénégalais du Canada"),
+    logo: partnerRgsc,
+  },
+  {
+    name: "Afroleck",
+    description: L("Partenaire commanditaire", "Sponsoring partner"),
+    logo: partnerAfroleck,
+  },
+  {
+    name: "Coop-ACAFIS",
+    description: L("Habitat solidaire au Sénégal", "Solidarity housing in Senegal"),
+    url: EXTERNAL_LINKS.coopAcafis,
+    urlLabel: "coop-acafis.com",
+  },
+];
+
 // Major, multi-year ACAFIS undertakings — each with its own phased roadmap to
 // help members understand exactly where things stand and how to get involved,
 // the same way the Colonie de Vacances already does.
