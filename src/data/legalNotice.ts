@@ -82,10 +82,10 @@ export const LEGAL_NOTICE_SECTIONS: LegalNoticeSection[] = [
     title: L("Liens hypertextes", "Hyperlinks"),
     paragraphs: LP(
       [
-        "Ce site contient des liens vers des sites tiers (Coop-ACAFIS, boutique en ligne, réseaux sociaux). ACAFIS Canada n'est pas responsable du contenu ou des pratiques de ces sites externes.",
+        "Ce site contient des liens vers des sites tiers (Coop-ACAFIS, réseaux sociaux). ACAFIS Canada n'est pas responsable du contenu ou des pratiques de ces sites externes.",
       ],
       [
-        "This site contains links to third-party sites (Coop-ACAFIS, online shop, social media). ACAFIS Canada is not responsible for the content or practices of these external sites.",
+        "This site contains links to third-party sites (Coop-ACAFIS, social media). ACAFIS Canada is not responsible for the content or practices of these external sites.",
       ]
     ),
   },

@@ -34,7 +34,6 @@ interface ExternalNavItem {
 
 // Flat menu, one real page per entry — no dropdowns/submenus.
 const EXTERNAL_ITEMS: ExternalNavItem[] = [
-  { key: "boutique", url: EXTERNAL_LINKS.boutique },
   { key: "coop-acafis", url: EXTERNAL_LINKS.coopAcafis },
 ];
 

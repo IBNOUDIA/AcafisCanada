@@ -38,7 +38,6 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
   const subjectOptions = [
     { id: "adhesion", label: t("contact.subject.adhesion") },
     { id: "cite_jardin", label: t("contact.subject.citeJardin") },
-    { id: "colonie2030", label: t("contact.subject.colonie") },
     { id: "mentor_ia", label: t("contact.subject.mentor") },
     { id: "partenariat", label: t("contact.subject.partenariat") },
     { id: "autre", label: t("contact.subject.autre") },

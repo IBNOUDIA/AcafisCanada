@@ -124,7 +124,7 @@ export const Hero: React.FC<HeroProps> = ({
               </div>
               <div className="flex items-center gap-2.5 p-2 rounded-xl bg-white/5 border border-white/10 backdrop-blur-xs">
                 <CheckCircle2 className="w-5 h-5 text-emerald-400 shrink-0" />
-                <span>{t("hero.highlight2")} <strong>Cité Jardin Ndianda</strong></span>
+                <span>{t("hero.highlight2")} <strong>{t("hero.highlight2Strong")}</strong></span>
               </div>
               <div className="flex items-center gap-2.5 p-2 rounded-xl bg-white/5 border border-white/10 backdrop-blur-xs">
                 <CheckCircle2 className="w-5 h-5 text-amber-400 shrink-0" />
@@ -214,9 +214,6 @@ export const Hero: React.FC<HeroProps> = ({
                     </p>
                   </div>
                 </div>
-                <span className="px-2.5 py-1 rounded-full text-[11px] font-bold bg-amber-400/20 text-amber-300 border border-amber-400/40">
-                  {t("hero.cardAgeRange")}
-                </span>
               </div>
 
               {/* Dynamic Interactive Solidarity Converter */}
@@ -264,23 +261,7 @@ export const Hero: React.FC<HeroProps> = ({
                   </div>
                 </div>
 
-                {/* Key Highlights */}
-                <div className="p-3 rounded-xl bg-slate-950/50 border border-sky-800/50 space-y-1.5">
-                  <div className="flex items-center gap-2">
-                    <span className="text-emerald-400 font-bold">🏛️</span>
-                    <span className="text-slate-200">
-                      <strong>{t("hero.highlightMemorial")}</strong> {t("hero.highlightMemorialDesc")}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-amber-400 font-bold">💻</span>
-                    <span className="text-slate-200">
-                      <strong>{t("hero.highlightTech")}</strong> {t("hero.highlightTechDesc")}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Road map button */}
+                {/* Espace Jeune button */}
                 <div className="pt-1">
                   <button
                     onClick={() => onNavigate("espace-jeune")}
