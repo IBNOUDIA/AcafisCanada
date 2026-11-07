@@ -137,15 +137,13 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
 
               <div className="pt-6 mt-6 border-t border-slate-100">
                 {service.id === "cite-jardin-coop" ? (
-                  <a
-                    href={EXTERNAL_LINKS.coopAcafis}
-                    target="_blank"
-                    rel="noopener noreferrer"
+                  <button
+                    onClick={() => document.getElementById("coop")?.scrollIntoView({ behavior: "smooth" })}
                     className="w-full py-2.5 px-4 rounded-xl text-xs font-bold text-teal-800 bg-teal-50 hover:bg-teal-100 border border-teal-200 transition-colors flex items-center justify-center gap-1.5 cursor-pointer"
                   >
                     <span>{t("services.cta.citeJardin")}</span>
-                    <ExternalLink className="w-3.5 h-3.5" />
-                  </a>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
                 ) : service.id === "education-ntic" ? (
                   <button
                     onClick={() => onNavigate("acafis-mentor")}
@@ -169,7 +167,7 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
         </RevealGroup>
 
         {/* Coop-ACAFIS Habitat Integration */}
-        <div id="coop" className="mt-16 p-8 rounded-3xl bg-slate-900 text-white border border-slate-800">
+        <div id="coop" className="mt-16 scroll-mt-6 p-8 rounded-3xl bg-slate-900 text-white border border-slate-800">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             <div className="lg:col-span-8 space-y-3">
               <div className="inline-flex items-center gap-1.5 text-xs font-bold text-teal-400 uppercase tracking-wider">
