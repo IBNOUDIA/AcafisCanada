@@ -294,8 +294,9 @@ export async function handleContactRequest(
 
   const resend = getResendClient();
   if (resend) {
+    let sendFailed = false;
     try {
-      await resend.emails.send({
+      const { error } = await resend.emails.send({
         from: EMAIL_FROM,
         to: CONTACT_TO_EMAIL,
         replyTo: email,
@@ -310,8 +311,16 @@ export async function handleContactRequest(
           message,
         ].join("\n"),
       });
+      if (error) {
+        console.error("Resend contact email failed:", error);
+        sendFailed = true;
+      }
     } catch (error) {
       console.error("Resend contact email failed:", error);
+      sendFailed = true;
+    }
+    if (sendFailed) {
+      return { status: 502, body: { error: "L'envoi du message a échoué. Réessayez dans un instant." } };
     }
   } else {
     console.log(`[Contact Form Received - RESEND_API_KEY absent, aucun email envoyé] From: ${name} <${email}>, Subject: ${subject}`);

@@ -73,12 +73,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
       setPhone("");
       setMessage("");
     } catch {
-      // Graceful local handling
-      setSubmitSuccess(true);
-      setName("");
-      setEmail("");
-      setPhone("");
-      setMessage("");
+      setSubmitError(t("contact.sendError"));
     } finally {
       setIsSubmitting(false);
     }
@@ -311,6 +306,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({
                 </div>
 
                 <div className="pt-2">
+                  {submitError && <p role="alert" className="text-sm font-semibold text-red-700">{submitError}</p>}
                   <button
                     id="contact-btn-submit"
                     type="submit"

@@ -8,6 +8,7 @@ import {
   ACTIVITY_CATEGORY_LABEL_KEYS,
   GENDER_RESTRICTION_LABEL_KEYS,
   formatAgeRange,
+  OPEN_TO_ALL_ACTIVITY_IDS,
 } from "../lib/activity";
 import type { WorkshopCategory } from "../types";
 
@@ -28,13 +29,84 @@ interface PublicActivity {
   spotsLeft: number;
 }
 
+const GUEST_INPUT_CLASSES = "w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm text-slate-900";
+
+// Sign-up for an activity open to everyone. It reaches the secretariat by email,
+// so the visitor only sees a confirmation once the email has really been sent.
+const GuestSignupForm: React.FC<{ activity: PublicActivity }> = ({ activity }) => {
+  const { t, lang } = useTranslation();
+  const [name, setName] = useState("");
+  const [email, setEmail] = useState("");
+  const [phone, setPhone] = useState("");
+  const [people, setPeople] = useState("1");
+  const [sending, setSending] = useState(false);
+  const [sent, setSent] = useState(false);
+  const [error, setError] = useState("");
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setSending(true);
+    setError("");
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          name,
+          email,
+          phone,
+          subject: `Inscription — ${activity.title}`,
+          message: `Inscription à : ${activity.title}\nNombre de personnes : ${people}\nLangue : ${lang}`,
+        }),
+      });
+      if (!res.ok) throw new Error("send failed");
+      setSent(true);
+    } catch {
+      setError(t("upcoming.guestError"));
+    } finally {
+      setSending(false);
+    }
+  };
+
+  if (sent) {
+    return (
+      <p role="status" className="p-3 rounded-lg bg-emerald-100 text-sm font-semibold text-emerald-900">
+        {t("upcoming.guestSuccess")}
+      </p>
+    );
+  }
+
+  return (
+    <form onSubmit={handleSubmit} className="space-y-2 pt-1">
+      <input required aria-label={t("upcoming.guestName")} placeholder={t("upcoming.guestName")} value={name} onChange={(e) => setName(e.target.value)} className={GUEST_INPUT_CLASSES} />
+      <input required type="email" aria-label={t("upcoming.guestEmail")} placeholder={t("upcoming.guestEmail")} value={email} onChange={(e) => setEmail(e.target.value)} className={GUEST_INPUT_CLASSES} />
+      <input type="tel" aria-label={t("upcoming.guestPhone")} placeholder={t("upcoming.guestPhone")} value={phone} onChange={(e) => setPhone(e.target.value)} className={GUEST_INPUT_CLASSES} />
+      <label className="flex items-center justify-between gap-3 text-sm text-slate-700">
+        <span>{t("upcoming.guestPeople")}</span>
+        <input required type="number" min={1} max={20} value={people} onChange={(e) => setPeople(e.target.value)} className="w-20 px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm text-slate-900" />
+      </label>
+      <p className="text-xs text-slate-500">{t("upcoming.guestPrivacy")}</p>
+      {error && <p role="alert" className="text-sm font-semibold text-red-700">{error}</p>}
+      <button
+        type="submit"
+        disabled={sending}
+        className="w-full px-4 py-2.5 rounded-lg text-sm font-bold bg-sun hover:bg-amber-300 disabled:opacity-60 text-forest cursor-pointer"
+      >
+        {sending ? t("upcoming.guestSending") : t("upcoming.guestSubmit")}
+      </button>
+    </form>
+  );
+};
+
 // Public "Prochaines activités" showcase: lets visitors see what ACAFIS
-// organizes and nudges them toward membership (registration itself happens
-// in the Espace Membre). Renders nothing when no public activity is coming.
+// organizes. Registration happens in the Espace Membre, except for activities
+// open to everyone, which have their own form. Renders nothing when no public
+// activity is coming.
 export const UpcomingActivities: React.FC<{ onBecomeMember: () => void }> = ({ onBecomeMember }) => {
   const { t, lang } = useTranslation();
   const { localizePath } = useLanguage();
   const [activities, setActivities] = useState<PublicActivity[]>([]);
+  const [openFormId, setOpenFormId] = useState<string | null>(null);
 
   useEffect(() => {
     fetch("/api/members/workshops/public")
@@ -46,6 +118,7 @@ export const UpcomingActivities: React.FC<{ onBecomeMember: () => void }> = ({ o
   if (activities.length === 0) return null;
 
   const locale = lang === "en" ? "en-CA" : "fr-CA";
+  const isOpenToAll = (a: PublicActivity) => OPEN_TO_ALL_ACTIVITY_IDS.includes(a.id);
 
   return (
     <section aria-labelledby="upcoming-activities-title" className="py-14 sm:py-16 bg-white border-y border-slate-200">
@@ -95,6 +168,9 @@ export const UpcomingActivities: React.FC<{ onBecomeMember: () => void }> = ({ o
                       </span>
                     )}
                     <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold ${status.className}`}>{status.label}</span>
+                    {isOpenToAll(a) && (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-sun text-forest">{t("upcoming.openBadge")}</span>
+                    )}
                   </div>
                   <h3 className="text-sm font-bold text-slate-900">{a.title}</h3>
                   <p className="text-xs text-slate-600 flex items-center gap-1.5">
@@ -124,6 +200,19 @@ export const UpcomingActivities: React.FC<{ onBecomeMember: () => void }> = ({ o
                     </p>
                   )}
                   {a.description && <p className="text-xs text-slate-500 leading-relaxed">{a.description}</p>}
+                  {isOpenToAll(a) && a.registrationsOpen && (
+                    openFormId === a.id ? (
+                      <GuestSignupForm activity={a} />
+                    ) : (
+                      <button
+                        onClick={() => setOpenFormId(a.id)}
+                        className="mt-1 flex items-center gap-1.5 px-3.5 py-2 rounded-lg text-xs font-bold bg-sun hover:bg-amber-300 text-forest cursor-pointer"
+                      >
+                        {t("upcoming.guestOpen")}
+                        <ArrowRight className="w-3.5 h-3.5" aria-hidden="true" />
+                      </button>
+                    )
+                  )}
                 </div>
               </li>
             );
@@ -131,7 +220,7 @@ export const UpcomingActivities: React.FC<{ onBecomeMember: () => void }> = ({ o
         </ul>
 
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-5 rounded-2xl bg-emerald-950 text-white">
-          <p className="text-sm text-emerald-50 max-w-2xl">{t("upcoming.membersOnly")}</p>
+          <p className="text-sm text-emerald-50 max-w-2xl">{t(activities.some(isOpenToAll) ? "upcoming.mixedAccess" : "upcoming.membersOnly")}</p>
           <div className="flex flex-wrap gap-2 shrink-0">
             <button
               onClick={onBecomeMember}
