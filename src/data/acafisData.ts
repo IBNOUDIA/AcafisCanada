@@ -651,18 +651,22 @@ export const HERO_PARTNERS: {
   name: string;
   description: Localized;
   logo?: string;
-  url?: string;
-  urlLabel?: string;
+  url: string;
+  urlLabel: string;
 }[] = [
   {
     name: "RGSC",
     description: L("Regroupement Général des Sénégalais du Canada", "Regroupement Général des Sénégalais du Canada"),
     logo: partnerRgsc,
+    url: "https://rgsc.ca",
+    urlLabel: "rgsc.ca",
   },
   {
     name: "Afroleck",
     description: L("Partenaire commanditaire", "Sponsoring partner"),
     logo: partnerAfroleck,
+    url: "https://www.afroleck.com",
+    urlLabel: "afroleck.com",
   },
   {
     name: "Coop-ACAFIS",
