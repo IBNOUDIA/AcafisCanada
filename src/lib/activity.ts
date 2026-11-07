@@ -74,9 +74,9 @@ export const GENDER_RESTRICTION_LABEL_KEYS: Record<"feminin" | "masculin", Trans
   masculin: "activity.genderBoys",
 };
 
-// Activities open to everyone, members or not. Sign-ups for these go by email
-// through a public form instead of the Espace Membre, because a registration
-// row needs a member account. Add an activity's id here to open it.
+// Activities open to everyone, members or not: visitors sign up through a
+// public form, stored in workshop_guest_registrations. Add an activity's id
+// here to open it.
 export const OPEN_TO_ALL_ACTIVITY_IDS = [
   "ccc238ea-eee9-40a1-b20c-e5c2b9fa6a0f", // Réveillon 31 décembre 2026
 ];

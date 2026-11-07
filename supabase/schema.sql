@@ -262,6 +262,39 @@ create index if not exists workshop_registrations_member_idx on workshop_registr
 
 alter table workshop_registrations enable row level security;
 
+-- People who are not members, signed up for an activity open to everyone
+-- (see OPEN_TO_ALL_ACTIVITY_IDS in src/lib/activity.ts). One row per sign-up,
+-- which can cover several people; they all count against capacity.
+create table if not exists workshop_guest_registrations (
+  id uuid primary key default gen_random_uuid(),
+  workshop_id uuid not null references workshops (id) on delete cascade,
+  full_name text not null,
+  email text not null,
+  phone text,
+  people integer not null default 1 check (people between 1 and 20),
+  created_at timestamptz not null default now()
+);
+
+create unique index if not exists workshop_guest_registrations_unique_idx
+  on workshop_guest_registrations (workshop_id, lower(email));
+
+alter table workshop_guest_registrations enable row level security;
+
+-- Seats held by confirmed members and their children plus guests.
+create or replace function workshop_seats_taken(p_workshop_id uuid)
+returns integer
+language sql
+stable
+as $$
+  select
+    (select count(*)::integer from workshop_registrations
+      where workshop_id = p_workshop_id and status = 'confirmed')
+    + (select coalesce(sum(people), 0)::integer from workshop_guest_registrations
+      where workshop_id = p_workshop_id);
+$$;
+
+revoke execute on function workshop_seats_taken(uuid) from public, anon, authenticated;
+
 -- Seat-limited registration in one transaction: locking the workshop row
 -- serializes concurrent sign-ups, so the last seat can't be taken twice.
 -- When the activity is full the seat is taken on the waitlist instead.
@@ -351,8 +384,7 @@ begin
     raise exception 'already_registered';
   end if;
 
-  select count(*) into taken from workshop_registrations
-    where workshop_id = p_workshop_id and status = 'confirmed';
+  taken := workshop_seats_taken(p_workshop_id);
 
   insert into workshop_registrations (workshop_id, member_id, child_id, status)
   values (p_workshop_id, p_member_id, p_child_id,
@@ -366,6 +398,59 @@ end;
 $$;
 
 revoke execute on function register_for_workshop(uuid, text, uuid) from public, anon, authenticated;
+
+-- Guest sign-up, same locking as register_for_workshop. Guests have no
+-- waitlist: without an account they couldn't be told apart when a seat frees up.
+create or replace function register_guest_for_workshop(
+  p_workshop_id uuid,
+  p_full_name text,
+  p_email text,
+  p_phone text,
+  p_people integer
+)
+returns workshop_guest_registrations
+language plpgsql
+as $$
+declare
+  w workshops;
+  reg workshop_guest_registrations;
+begin
+  select * into w from workshops where id = p_workshop_id for update;
+  if not found then
+    raise exception 'workshop_not_found';
+  end if;
+  if w.starts_at < now() then
+    raise exception 'workshop_past';
+  end if;
+  if not w.registrations_open then
+    raise exception 'workshop_closed';
+  end if;
+  if w.registration_deadline is not null and now() > w.registration_deadline then
+    raise exception 'deadline_passed';
+  end if;
+
+  if exists (
+    select 1 from workshop_guest_registrations
+    where workshop_id = p_workshop_id and lower(email) = lower(p_email)
+  ) then
+    raise exception 'already_registered';
+  end if;
+
+  if workshop_seats_taken(p_workshop_id) + p_people > w.capacity then
+    raise exception 'workshop_full';
+  end if;
+
+  insert into workshop_guest_registrations (workshop_id, full_name, email, phone, people)
+  values (p_workshop_id, p_full_name, p_email, p_phone, p_people)
+  returning * into reg;
+  return reg;
+exception
+  when unique_violation then
+    raise exception 'already_registered';
+end;
+$$;
+
+revoke execute on function register_guest_for_workshop(uuid, text, text, text, integer) from public, anon, authenticated;
 
 -- Fills freed seats from the waitlist, oldest sign-up first. Called by the
 -- server after a cancellation, a removal or a capacity increase; returns the
@@ -384,8 +469,7 @@ begin
     return;
   end if;
 
-  select w.capacity - count(*) into free_seats from workshop_registrations
-    where workshop_id = p_workshop_id and status = 'confirmed';
+  free_seats := w.capacity - workshop_seats_taken(p_workshop_id);
   if free_seats <= 0 then
     return;
   end if;

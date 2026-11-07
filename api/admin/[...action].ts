@@ -16,6 +16,7 @@ import {
   handleAdminWorkshopRemove,
   handleAdminWorkshopUpdate,
   handleAdminWorkshopRegistrationRemove,
+  handleAdminWorkshopGuestRemove,
   handleAdminWorkshopRegistrationUpdate,
   handleKeepAlive,
 } from "../../src/server/adminHandlers.js";
@@ -142,6 +143,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     }
     case "workshops-registration-remove": {
       const result = await handleAdminWorkshopRegistrationRemove(body);
+      res.status(result.status).json(result.body);
+      return;
+    }
+    case "workshops-guest-remove": {
+      const result = await handleAdminWorkshopGuestRemove(body);
       res.status(result.status).json(result.body);
       return;
     }

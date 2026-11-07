@@ -769,7 +769,7 @@ export async function handleAdminWorkshopsList(
   const { data: rows, error } = await supabase
     .from("workshops")
     .select(
-      "*, workshop_registrations (id, created_at, status, fee_paid, attended, members (first_name, last_name, email, phone), member_children (first_name, birth_year, gender, emergency_contact_name, emergency_contact_phone, health_notes, jersey_size, photo_consent, parental_consent_at))"
+      "*, workshop_registrations (id, created_at, status, fee_paid, attended, members (first_name, last_name, email, phone), member_children (first_name, birth_year, gender, emergency_contact_name, emergency_contact_phone, health_notes, jersey_size, photo_consent, parental_consent_at)), workshop_guest_registrations (id, full_name, email, phone, people, created_at)"
     )
     .order("starts_at", { ascending: false });
 
@@ -784,6 +784,15 @@ export async function handleAdminWorkshopsList(
     body: {
       workshops: (rows || []).map((row: Record<string, any>) => ({
         ...mapWorkshopRow(row),
+        guests: [...(row.workshop_guest_registrations || [])]
+          .sort((a: Record<string, any>, b: Record<string, any>) => a.created_at.localeCompare(b.created_at))
+          .map((g: Record<string, any>) => ({
+            id: g.id,
+            fullName: g.full_name,
+            email: g.email,
+            phone: g.phone ?? "",
+            people: g.people,
+          })),
         // Confirmed seats first, then the waitlist — each in sign-up order,
         // which is also the order the waitlist gets promoted in.
         registrations: [...(row.workshop_registrations || [])]
@@ -1021,10 +1030,19 @@ export async function handleAdminWorkshopUpdate(
       console.error("Admin workshop registrations count failed:", countError);
       return { status: 500, body: { error: "Erreur serveur, réessayez dans un instant." } };
     }
-    if ((count ?? 0) > capacity) {
+    const { data: guests, error: guestsError } = await supabase
+      .from("workshop_guest_registrations")
+      .select("people")
+      .eq("workshop_id", id);
+    if (guestsError) {
+      console.error("Admin workshop guests count failed:", guestsError);
+      return { status: 500, body: { error: "Erreur serveur, réessayez dans un instant." } };
+    }
+    const seats = (count ?? 0) + (guests || []).reduce((total, g) => total + g.people, 0);
+    if (seats > capacity) {
       return {
         status: 409,
-        body: { error: `Impossible : ${count} personnes sont déjà inscrites. Retirez des inscrits d'abord.` },
+        body: { error: `Impossible : ${seats} personnes sont déjà inscrites. Retirez des inscrits d'abord.` },
       };
     }
   }
@@ -1080,6 +1098,38 @@ export async function handleAdminWorkshopRegistrationRemove(
 
   // A freed confirmed seat goes to the first family on the waitlist.
   if (deleted?.[0]?.status === "confirmed") {
+    await promoteWaitlist(deleted[0].workshop_id);
+  }
+
+  return { status: 200, body: { success: true } };
+}
+
+// Removes a non-member guest sign-up. Its seats may go to the waitlist.
+export async function handleAdminWorkshopGuestRemove(
+  data: AdminWorkshopRegistrationRemoveBody
+): Promise<HandlerResult<{ success?: boolean; error?: string }>> {
+  const verification = await verifyAdminSession(data.token);
+  if (verification.status !== 200) {
+    return { status: verification.status, body: { error: verification.error } };
+  }
+
+  if (!data.id) {
+    return { status: 400, body: { error: "Identifiant requis" } };
+  }
+
+  const supabase = getSupabaseClient()!;
+  const { data: deleted, error } = await supabase
+    .from("workshop_guest_registrations")
+    .delete()
+    .eq("id", data.id)
+    .select("workshop_id");
+
+  if (error) {
+    console.error("Admin workshop guest remove failed:", error);
+    return { status: 500, body: { error: "Erreur serveur, réessayez dans un instant." } };
+  }
+
+  if (deleted?.[0]) {
     await promoteWaitlist(deleted[0].workshop_id);
   }
 

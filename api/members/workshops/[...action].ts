@@ -4,6 +4,7 @@ import {
   handleMemberWorkshopRegister,
   handleMemberWorkshopUnregister,
   handlePublicActivities,
+  handleGuestRegister,
 } from "../../../src/server/handlers.js";
 import { getClientIp } from "../../../src/server/requestIp.js";
 
@@ -38,6 +39,11 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const ip = getClientIp(req);
 
   switch (action) {
+    case "guest-register": {
+      const result = await handleGuestRegister(body, ip);
+      res.status(result.status).json(result.body);
+      return;
+    }
     case "list": {
       const result = await handleMemberWorkshopsList(body, ip);
       res.status(result.status).json(result.body);

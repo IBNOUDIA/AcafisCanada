@@ -31,10 +31,9 @@ interface PublicActivity {
 
 const GUEST_INPUT_CLASSES = "w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-sm text-slate-900";
 
-// Sign-up for an activity open to everyone. It reaches the secretariat by email,
-// so the visitor only sees a confirmation once the email has really been sent.
+// Sign-up without an account, for an activity open to everyone.
 const GuestSignupForm: React.FC<{ activity: PublicActivity }> = ({ activity }) => {
-  const { t, lang } = useTranslation();
+  const { t } = useTranslation();
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
   const [phone, setPhone] = useState("");
@@ -48,18 +47,24 @@ const GuestSignupForm: React.FC<{ activity: PublicActivity }> = ({ activity }) =
     setSending(true);
     setError("");
     try {
-      const res = await fetch("/api/contact", {
+      const res = await fetch("/api/members/workshops/guest-register", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          name,
-          email,
-          phone,
-          subject: `Inscription — ${activity.title}`,
-          message: `Inscription à : ${activity.title}\nNombre de personnes : ${people}\nLangue : ${lang}`,
-        }),
+        body: JSON.stringify({ workshopId: activity.id, name, email, phone, people: Number(people) }),
       });
-      if (!res.ok) throw new Error("send failed");
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        setError(
+          t(
+            data.code === "full"
+              ? "upcoming.guestFull"
+              : data.code === "duplicate"
+                ? "upcoming.guestDuplicate"
+                : "upcoming.guestError"
+          )
+        );
+        return;
+      }
       setSent(true);
     } catch {
       setError(t("upcoming.guestError"));

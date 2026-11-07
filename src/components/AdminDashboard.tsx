@@ -75,6 +75,14 @@ interface AdminDocument {
   publishedAt: string;
 }
 
+interface AdminGuest {
+  id: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  people: number;
+}
+
 interface AdminWorkshop {
   id: string;
   title: string;
@@ -93,6 +101,7 @@ interface AdminWorkshop {
   isPublic: boolean;
   // Confirmed seats first, then the waitlist in promotion order (server-sorted).
   registrations: AdminRegistration[];
+  guests: AdminGuest[];
 }
 
 type Tab = "members" | "messages" | "family" | "workshops" | "surveys" | "documents" | "settings";
@@ -580,6 +589,19 @@ export const AdminDashboard: React.FC = () => {
     loadWorkshops(session.token);
   };
 
+  const handleRemoveGuest = async (workshopId: string, guestId: string) => {
+    if (!session || !window.confirm(t("admin.workshopGuestRemoveConfirm"))) return;
+    setWorkshops((prev) =>
+      prev.map((w) => (w.id === workshopId ? { ...w, guests: w.guests.filter((g) => g.id !== guestId) } : w))
+    );
+    await fetch("/api/admin/workshops-guest-remove", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ token: session.token, id: guestId }),
+    }).catch(() => {});
+    loadWorkshops(session.token);
+  };
+
   const exportWorkshopCsv = (w: AdminWorkshop) => {
     const yesNo = (value: boolean | null) =>
       value === null ? "" : value ? t("admin.csvYes") : t("admin.csvNo");
@@ -614,7 +636,21 @@ export const AdminDashboard: React.FC = () => {
         yesNo(r.attended),
       ];
     });
-    const csv = [header, ...rows].map((row) => row.map(csvCell).join(",")).join("\r\n");
+    const guestRows = w.guests.map((g) => [
+      `${g.fullName} (${g.people})`,
+      "",
+      t("admin.csvConfirmed"),
+      t("admin.csvGuest"),
+      g.email,
+      g.phone,
+      "",
+      "",
+      "",
+      "",
+      "",
+      "",
+    ]);
+    const csv = [header, ...rows, ...guestRows].map((row) => row.map(csvCell).join(",")).join("\r\n");
     // BOM so Excel opens the accents correctly.
     const blob = new Blob(["\uFEFF" + csv], { type: "text/csv;charset=utf-8" });
     const url = URL.createObjectURL(blob);
@@ -1041,7 +1077,8 @@ export const AdminDashboard: React.FC = () => {
                 {workshops.map((w) => {
                   const isPast = new Date(w.startsAt).getTime() < Date.now();
                   const isEditing = editingWorkshopId === w.id;
-                  const confirmedCount = w.registrations.filter((r) => r.status === "confirmed").length;
+                  const guestSeats = w.guests.reduce((total, g) => total + g.people, 0);
+                  const confirmedCount = w.registrations.filter((r) => r.status === "confirmed").length + guestSeats;
                   const waitlistIds = w.registrations.filter((r) => r.status === "waitlist").map((r) => r.id);
                   const attendedCount = w.registrations.filter((r) => r.attended === true).length;
                   const dateLocale = lang === "en" ? "en-CA" : "fr-CA";
@@ -1248,7 +1285,7 @@ export const AdminDashboard: React.FC = () => {
                               {w.registrationsOpen ? <LockOpen className="w-4 h-4" /> : <Lock className="w-4 h-4" />}
                             </button>
                           )}
-                          {w.registrations.length > 0 && (
+                          {w.registrations.length + w.guests.length > 0 && (
                             <button
                               onClick={() => exportWorkshopCsv(w)}
                               title={t("admin.workshopExportBtn")}
@@ -1284,7 +1321,7 @@ export const AdminDashboard: React.FC = () => {
                         </p>
                       )}
 
-                      {w.registrations.length === 0 ? (
+                      {w.registrations.length === 0 && w.guests.length === 0 ? (
                         <p className="text-[11px] text-slate-500">{t("admin.workshopNoRegistrations")}</p>
                       ) : (
                         <ul className="divide-y divide-slate-200 border-t border-slate-200 text-xs">
@@ -1301,6 +1338,33 @@ export const AdminDashboard: React.FC = () => {
                             />
                           ))}
                         </ul>
+                      )}
+
+                      {w.guests.length > 0 && (
+                        <div className="pt-2 space-y-1">
+                          <p className="text-[11px] font-bold text-slate-700">
+                            {t("admin.workshopGuestsTitle")} ({guestSeats})
+                          </p>
+                          <ul className="divide-y divide-slate-200 border-t border-slate-200 text-xs">
+                            {w.guests.map((g) => (
+                              <li key={g.id} className="flex flex-wrap items-center justify-between gap-2 py-2">
+                                <span className="font-semibold text-slate-900">
+                                  {g.fullName} · {g.people} {t("admin.workshopGuestPeople")}
+                                </span>
+                                <span className="text-slate-600">
+                                  {g.email}
+                                  {g.phone ? ` · ${g.phone}` : ""}
+                                </span>
+                                <button
+                                  onClick={() => handleRemoveGuest(w.id, g.id)}
+                                  className="text-red-700 hover:underline cursor-pointer"
+                                >
+                                  {t("admin.workshopGuestRemove")}
+                                </button>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
                       )}
                     </li>
                   );

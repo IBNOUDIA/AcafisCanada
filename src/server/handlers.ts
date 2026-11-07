@@ -10,6 +10,7 @@ import { getResendClient, EMAIL_FROM } from "./email.js";
 import { promoteWaitlist } from "./waitlist.js";
 import { checkRateLimit, RATE_LIMIT_ERROR } from "./rateLimit.js";
 import { isValidEmail } from "./validation.js";
+import { OPEN_TO_ALL_ACTIVITY_IDS } from "../lib/activity.js";
 
 // Lazy Gemini client initialization
 let genAI: GoogleGenAI | null = null;
@@ -1147,6 +1148,14 @@ export interface MemberWorkshopsListBody {
 // public activities, no login needed. Only what helps a visitor decide to
 // join — never who registered. A videoconference link is never published:
 // the location then reads as "online".
+// Seats held by non-member guests on a workshop row.
+function guestSeats(row: Record<string, any>): number {
+  return (row.workshop_guest_registrations || []).reduce(
+    (total: number, g: Record<string, any>) => total + (g.people || 0),
+    0
+  );
+}
+
 export async function handlePublicActivities(): Promise<
   HandlerResult<{ activities?: Record<string, unknown>[]; error?: string }>
 > {
@@ -1155,7 +1164,7 @@ export async function handlePublicActivities(): Promise<
 
   const { data: rows, error } = await supabase
     .from("workshops")
-    .select("*, workshop_registrations (status)")
+    .select("*, workshop_registrations (status), workshop_guest_registrations (people)")
     .gte("starts_at", new Date().toISOString())
     .order("starts_at", { ascending: true })
     .limit(30);
@@ -1196,11 +1205,112 @@ export async function handlePublicActivities(): Promise<
             requiresPaidMembership: row.requires_paid_membership === true,
             registrationsOpen:
               row.registrations_open !== false && (!deadline || new Date(deadline).getTime() > Date.now()),
-            spotsLeft: Math.max(0, row.capacity - confirmed),
+            spotsLeft: Math.max(0, row.capacity - confirmed - guestSeats(row)),
           };
         }),
     },
   };
+}
+
+export interface GuestRegisterBody {
+  workshopId?: string;
+  name?: string;
+  email?: string;
+  phone?: string;
+  people?: number;
+}
+
+// Sign-up without an account, for activities open to everyone. The seat is
+// stored first: the emails that follow are a courtesy, and a failed one must
+// not cost the person their registration.
+export async function handleGuestRegister(
+  data: GuestRegisterBody,
+  ip: string
+): Promise<HandlerResult<{ success?: boolean; code?: string; error?: string }>> {
+  const supabase = getSupabaseClient();
+  if (!supabase) return { status: 503, body: { error: NOT_CONFIGURED_ERROR } };
+
+  const workshopId = data.workshopId || "";
+  const name = (data.name || "").trim();
+  const email = (data.email || "").trim().toLowerCase();
+  const phone = (data.phone || "").trim();
+  const people = Number(data.people);
+
+  if (!OPEN_TO_ALL_ACTIVITY_IDS.includes(workshopId)) {
+    return { status: 403, body: { code: "not_open", error: "Cette activité est réservée aux membres." } };
+  }
+  if (name.length < 2 || name.length > 120) {
+    return { status: 400, body: { error: "Nom invalide." } };
+  }
+  if (!isValidEmail(email)) {
+    return { status: 400, body: { error: "Adresse courriel invalide" } };
+  }
+  if (phone && !/^[0-9+().\s-]{7,25}$/.test(phone)) {
+    return { status: 400, body: { error: "Numéro de téléphone invalide." } };
+  }
+  if (!Number.isInteger(people) || people < 1 || people > 20) {
+    return { status: 400, body: { error: "Nombre de personnes invalide." } };
+  }
+
+  if (!(await checkRateLimit(ip, { bucket: "guest-register", limit: 10, windowMinutes: 60 }))) {
+    return { status: 429, body: { error: RATE_LIMIT_ERROR } };
+  }
+
+  const { error } = await supabase.rpc("register_guest_for_workshop", {
+    p_workshop_id: workshopId,
+    p_full_name: name,
+    p_email: email,
+    p_phone: phone || null,
+    p_people: people,
+  });
+
+  if (error) {
+    if (error.message.includes("workshop_full")) {
+      return { status: 409, body: { code: "full", error: "Il ne reste pas assez de places." } };
+    }
+    if (error.message.includes("already_registered")) {
+      return { status: 409, body: { code: "duplicate", error: "Cette adresse est déjà inscrite." } };
+    }
+    if (/workshop_closed|deadline_passed|workshop_past/.test(error.message)) {
+      return { status: 409, body: { code: "closed", error: "Les inscriptions sont fermées." } };
+    }
+    console.error("Supabase register_guest_for_workshop failed:", error);
+    return { status: 500, body: { error: "Erreur serveur, réessayez dans un instant." } };
+  }
+
+  const resend = getResendClient();
+  if (resend) {
+    const { data: workshop } = await supabase.from("workshops").select("title").eq("id", workshopId).maybeSingle();
+    const title = workshop?.title || "activité ACAFIS Canada";
+    try {
+      await resend.emails.send({
+        from: EMAIL_FROM,
+        to: email,
+        replyTo: CONTACT_TO_EMAIL,
+        subject: `Inscription confirmée : ${title}`,
+        text: [
+          `Bonjour ${name},`,
+          "",
+          `Votre inscription à « ${title} » est enregistrée pour ${people} personne${people > 1 ? "s" : ""}.`,
+          "",
+          "Pour toute question ou pour annuler, répondez simplement à ce courriel.",
+          "",
+          "ACAFIS Canada",
+        ].join("\n"),
+      });
+      await resend.emails.send({
+        from: EMAIL_FROM,
+        to: CONTACT_TO_EMAIL,
+        replyTo: email,
+        subject: `[Inscription invité] ${title} — ${name} (${people})`,
+        text: [`Nom : ${name}`, `Courriel : ${email}`, `Téléphone : ${phone || "Non renseigné"}`, `Personnes : ${people}`].join("\n"),
+      });
+    } catch (sendError) {
+      console.error("Resend guest registration email failed:", sendError);
+    }
+  }
+
+  return { status: 200, body: { success: true } };
 }
 
 export async function handleMemberWorkshopsList(
@@ -1216,7 +1326,7 @@ export async function handleMemberWorkshopsList(
   const supabase = getSupabaseClient()!;
   const { data: rows, error } = await supabase
     .from("workshops")
-    .select("*, workshop_registrations (id, member_id, child_id, status, created_at, fee_paid)")
+    .select("*, workshop_registrations (id, member_id, child_id, status, created_at, fee_paid), workshop_guest_registrations (people)")
     .gte("starts_at", new Date().toISOString())
     .order("starts_at", { ascending: true });
 
@@ -1243,7 +1353,7 @@ export async function handleMemberWorkshopsList(
           startsAt: row.starts_at,
           location: row.location,
           capacity: row.capacity,
-          spotsLeft: Math.max(0, row.capacity - confirmed.length),
+          spotsLeft: Math.max(0, row.capacity - confirmed.length - guestSeats(row)),
           waitlistCount: waitlist.length,
           // `!== false` so a database not yet migrated (no column) reads as open.
           // A passed deadline reads as closed, like the check in register_for_workshop.
