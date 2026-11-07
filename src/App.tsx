@@ -25,7 +25,6 @@ const CiteJardinProject = lazy(() => import("./components/CiteJardinProject").th
 const ActivitiesProgram = lazy(() => import("./components/ActivitiesProgram").then((m) => ({ default: m.ActivitiesProgram })));
 const MediaBoutiqueSection = lazy(() => import("./components/MediaBoutiqueSection").then((m) => ({ default: m.MediaBoutiqueSection })));
 const ServicesSection = lazy(() => import("./components/ServicesSection").then((m) => ({ default: m.ServicesSection })));
-const MajorProjectsSection = lazy(() => import("./components/MajorProjectsSection").then((m) => ({ default: m.MajorProjectsSection })));
 const MentorAISecution = lazy(() => import("./components/MentorAISecution").then((m) => ({ default: m.MentorAISecution })));
 const BureauSection = lazy(() => import("./components/BureauSection").then((m) => ({ default: m.BureauSection })));
 const TestimonialsSection = lazy(() => import("./components/TestimonialsSection").then((m) => ({ default: m.TestimonialsSection })));
@@ -217,12 +216,6 @@ const AppShell: React.FC = () => {
             const servicesEl = (
               <ServicesSection onNavigate={handleNavigate} onOpenCardModal={handleOpenCardModal} />
             );
-            const projetsEl = (
-              <MajorProjectsSection
-                onNavigate={handleNavigate}
-                onNavigateContact={() => handleNavigate("adhesion")}
-              />
-            );
             const mentorEl = <MentorAISecution />;
             const bureauEl = <BureauSection onContactSecretary={() => handleNavigate("adhesion")} />;
             const temoignagesEl = <TestimonialsSection />;
@@ -242,7 +235,6 @@ const AppShell: React.FC = () => {
               { path: "/programme", element: programmeEl },
               { path: "/media", element: mediaEl },
               { path: "/mission-service", element: servicesEl },
-              { path: "/projets", element: projetsEl },
               { path: "/acafis-mentor", element: mentorEl },
               { path: "/bureau", element: bureauEl },
               { path: "/temoignages", element: temoignagesEl },
@@ -260,6 +252,9 @@ const AppShell: React.FC = () => {
                 {/* Contact is now merged into the Adhésion page — keep old links working */}
                 <Route path="/contact" element={<Navigate to="/adhesion" replace />} />
                 <Route path="/en/contact" element={<Navigate to="/en/adhesion" replace />} />
+                {/* Grands Projets is retired until the association is ready — keep old links working */}
+                <Route path="/projets" element={<Navigate to="/" replace />} />
+                <Route path="/en/projets" element={<Navigate to="/en" replace />} />
                 {/* Public "Espace Membre" showcase page — what the navbar button links to */}
                 <Route
                   path="/espace-membre"

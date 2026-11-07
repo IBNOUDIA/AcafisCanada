@@ -61,18 +61,6 @@
     <xhtml:link rel="alternate" hreflang="x-default" href="https://www.acafis.ca/mission-service" />
   </url>
   <url>
-    <loc>https://www.acafis.ca/projets</loc>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://www.acafis.ca/projets" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.acafis.ca/en/projets" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.acafis.ca/projets" />
-  </url>
-  <url>
-    <loc>https://www.acafis.ca/en/projets</loc>
-    <xhtml:link rel="alternate" hreflang="fr" href="https://www.acafis.ca/projets" />
-    <xhtml:link rel="alternate" hreflang="en" href="https://www.acafis.ca/en/projets" />
-    <xhtml:link rel="alternate" hreflang="x-default" href="https://www.acafis.ca/projets" />
-  </url>
-  <url>
     <loc>https://www.acafis.ca/acafis-mentor</loc>
     <xhtml:link rel="alternate" hreflang="fr" href="https://www.acafis.ca/acafis-mentor" />
     <xhtml:link rel="alternate" hreflang="en" href="https://www.acafis.ca/en/acafis-mentor" />
