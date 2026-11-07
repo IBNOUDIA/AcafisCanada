@@ -3,12 +3,9 @@ import {
   Globe2,
   Home,
   GraduationCap,
-  Users2,
-  Sparkles,
   Check,
   ArrowRight,
   ShieldCheck,
-  Building,
   Heart,
   Laptop,
 } from "lucide-react";
@@ -35,9 +32,6 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
     Globe2: <Globe2 className="w-6 h-6 text-emerald-600" />,
     Home: <Home className="w-6 h-6 text-teal-600" />,
     GraduationCap: <GraduationCap className="w-6 h-6 text-amber-600" />,
-    Users2: <Users2 className="w-6 h-6 text-indigo-600" />,
-    Sparkles: <Sparkles className="w-6 h-6 text-rose-600" />,
-    Building: <Building className="w-6 h-6 text-sky-600" />,
   };
 
   const filteredServices = activeCategory === "all"
@@ -86,7 +80,6 @@ export const ServicesSection: React.FC<ServicesSectionProps> = ({
               { id: "habitat", label: t("services.tab.habitat") },
               { id: "education", label: t("services.tab.education") },
               { id: "diaspora", label: t("services.tab.diaspora") },
-              { id: "solidarity", label: t("services.tab.solidarity") },
             ].map(tab => (
               <button
                 key={tab.id}
