@@ -13,7 +13,7 @@ import { RECIPIENDAIRES, ACAFIS_VIDEOS } from "../data/acafisData";
 import { Reveal, RevealGroup } from "./Reveal";
 import { VideoGrid } from "./VideoGrid";
 import { useTranslation } from "../i18n/translations";
-import colonieOutingPhoto from "../assets/images/espace-jeune-colonie.webp";
+import espaceJeunePhoto from "../assets/images/media-excursion.webp";
 import recipiendaireDiscours from "../assets/images/recipiendaire-discours.webp";
 import recipiendaireRemise from "../assets/images/recipiendaire-remise.webp";
 import recipiendairesGroupe from "../assets/images/recipiendaires-groupe.webp";
@@ -50,13 +50,13 @@ export const CiteJardinProject: React.FC<CiteJardinProjectProps> = ({
           </p>
         </Reveal>
 
-        {/* Real photo from a past ACAFIS youth outing */}
-        <Reveal className="relative rounded-3xl overflow-hidden mb-10 h-64 sm:h-80 shadow-lg">
+        {/* Real photo of ACAFIS children and youth at a festive evening */}
+        <Reveal className="relative rounded-3xl overflow-hidden mb-10 h-72 sm:h-[30rem] shadow-lg">
           <img
             fetchPriority="high"
-            src={colonieOutingPhoto}
-            alt="Jeunes de la diaspora ACAFIS lors d'une sortie de groupe"
-            className="absolute inset-0 w-full h-full object-cover"
+            src={espaceJeunePhoto}
+            alt="Enfants et jeunes de la diaspora ACAFIS réunis sous le drapeau du Sénégal lors d'une soirée festive"
+            className="absolute inset-0 w-full h-full object-cover object-[center_12%]"
           />
           <div className="absolute inset-0 bg-gradient-to-t from-slate-950/80 via-slate-950/10 to-transparent" />
           <div className="absolute bottom-4 left-5 right-5 flex items-center justify-between">
